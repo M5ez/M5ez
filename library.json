@@ -1,0 +1,16 @@
+{
+  "name": "M5easy",
+  "description": "easy app platform for M5Stack",
+  "keywords": "M5PAP",
+  "authors": {
+    "name": "Rop",
+    "url": "https://github.com/ropg"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ropg/M5easy"
+  },
+  "version": "0.0.0",
+  "framework": "arduino",
+  "platforms": "espressif32"
+}

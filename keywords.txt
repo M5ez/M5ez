@@ -1,0 +1,83 @@
+ez					KEYWORD3
+
+// Screen, canvas, etc...
+clearScreen			KEYWORD1
+clearScreen			KEYWORD1
+background			KEYWORD1
+clearCanvas			KEYWORD1
+canvasTop			KEYWORD1
+canvasBottom		KEYWORD1
+canvasLeft			KEYWORD1
+canvasRight			KEYWORD1
+canvasWidth			KEYWORD1
+canvasHeight		KEYWORD1
+		
+// Header
+drawHeader			KEYWORD1
+removeHeader		KEYWORD1
+
+// Buttons
+drawButtons			KEYWORD1
+getButtons			KEYWORD1
+waitForButtons		KEYWORD1
+waitForButtons		KEYWORD1
+
+// ez.msgBox
+msgBox				KEYWORD1
+
+// ez.textInput
+textInput			KEYWORD1
+	
+// ez.print
+print				KEYWORD1
+println				KEYWORD1
+printFont			KEYWORD1
+printColor			KEYWORD1	
+printLmargin		KEYWORD1
+printWrap			KEYWORD1
+		
+// ez.wifiMenu
+wifiStatus			KEYWORD1
+wifiJoin			KEYWORD1
+
+// Generic String object helper functions
+rightOf				KEYWORD1
+leftOf				KEYWORD1
+countStringInString	KEYWORD1
+chopStringIntoArray	KEYWORD1
+charsFit			KEYWORD1
+clipString			KEYWORD1
+isBackExitOrDone	KEYWORD1
+	
+// m5.lcd wrappers that make fonts easier
+setFont				KEYWORD1
+fontHeight			KEYWORD1
+		
+// ezMenu
+ezMenu				KEYWORD3
+
+addItem				KEYWORD1
+addItem				KEYWORD1
+deleteItem			KEYWORD1
+deleteItem			KEYWORD1
+getItemNum			KEYWORD1
+buttons				KEYWORD1
+pick				KEYWORD1
+pickName			KEYWORD1
+pickCaption			KEYWORD1
+run					KEYWORD1
+runOnce				KEYWORD1
+txtBig				KEYWORD1
+txtSmall			KEYWORD1
+txtFont				KEYWORD1
+imgBackground		KEYWORD1
+imgFromTop			KEYWORD1
+imgCaptionFont		KEYWORD1	
+imgCaptionLocation	KEYWORD1
+imgCaptionColor		KEYWORD1
+imgCaptionMargins	KEYWORD1
+
+
+// because it was forgotten in the M5Stack keywords.txt
+// (They only have it as "Lcd", but they made the "lcd" alias.)
+lcd					KEYWORD1
