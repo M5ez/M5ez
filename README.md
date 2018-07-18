@@ -4,14 +4,7 @@
 
 *written by Rop Gonggrijp*
 
-
-###Click the image to see the video!!!
-
-[![](images/M5ez.jpg)](https://www.youtube.com/watch?v=qRbE3FXEWJQ)
-
-###Click the image to see the video!!!
-
-<hr>
+[![](images/M5ez.png)](https://www.youtube.com/watch?v=qRbE3FXEWJQ)
 
 ## introduction
 
