@@ -603,7 +603,7 @@ void M5ez::wifiJoin() {
   					if ( WiFi.encryptionType(networks.pick() - 1) == WIFI_AUTH_OPEN) {
   						WiFi.begin(SSID.c_str());
 					} else {
-						key = textInput("Enter the WEP key");
+						key = textInput("Enter wifi password");
 						WiFi.begin(SSID.c_str(), key.c_str());
 					}
 				}
