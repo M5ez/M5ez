@@ -16,7 +16,7 @@ Making something that looks good and allows users to interact with it is not sim
 
 In the budding M5Stack community, there have been some initiatives to make it easier to create user interfaces. Most notably a M5Stack forum user named Calin make something called "M5Stack MultiApp" which allows more easy integration of multiple existing programs into one app. His work serves as an inspiration for my work. But as much as you could have multiple programs have a common user interface, creating the programs still was nowhere near simple enough.
 
->This is still very much a work in progress, but you have to publish something at some point. Please play with this and tell me what you like and don't like about it. 
+>This library and the documentation are all still very much a work in progress, but you have to publish something at some point. Please play with this and tell me what you like and don't like about it. 
 
 ## Getting started
 
@@ -78,9 +78,13 @@ In `ez.msgBox`, `ez.textInput`, when creating menus, or basically everywhere whe
 
 There are only three buttons on the M5Stack. To make sure we can make good use of our rare buttons, we can assign two functions to each button: one for a short press and one for a slightly longer press. We can also assign functions to all three combinations of two keys being pressed simultaneously (AB, BC and AC). So there is a total of nine possible key functions we can assign. The functions for a single key are displayed in the bottom row of the display, the functions for key combinations in a row above. Each key has a 'name' (which is also what is returned to the program if it is pressed and a 'caption', which is what is displayed on the key.
 
+![](images/buttons1.png)
+
 Because there are multiple functions that get told what buttons are going to be displayed, it would get a little hairy to give each of these function 18 possible arguments for the key names and captions. So for your convenience, all the keys you want displayed and detected are specified as one string. The different key names and captions are separated with hashes. You can specify one key name like `OK`, which means you will only use the middle button, it will say OK on it and it will also return the string "OK" to your code.
 
 If you specify three keys, like `yes # no # maybe` you will get three buttons with only one function per button. If you specify six keys, they will be the short and long presses for each key. If you specify nine, the last three will specify the AB, BC and AC button-combi functions respectively. Specifying any other number of keys does not work, so the string should always contain one, three, six or nine parts, separated by hashes.
+
+![](images/buttons2.png)
 
 The captions on the key can differ from the name. To specify this, specify a name, followed by a pipe sign  (`|`) followed by the caption. So `one | un # two | deux # three | trois` specifies three keys that each show a number in french but return the number in english. Note that any spaces around the hashes or pipe signs in the string are ignored, to allow you to make things more readable in your code.
 
@@ -108,6 +112,9 @@ You can specify the keys to be drawn straight into `ez.waitForButtons` for simpl
 
 ## Showing messages with msgBox
 
+![](images/msgBox1.png)
+
+
 ```
 String ez.msgBox(String header,
 	String msg, String buttons = "OK", 
@@ -118,6 +125,8 @@ String ez.msgBox(String header,
 
 `ez.msgBox` produces a screen that just has your text message centered in the middle. If your message consists of multiple lines, you have to indicate where to break the lines yourself with a pipe sign (`|`). msgBox will then make sure that these lines are horizontally and vertically centered. The only two arguments you have to provide are the header text and the message to be printed. If you do not specify buttons, `ez.msgBox` will put a single "OK" button in the middle. You can specify buttons in the same way it's done with the button commands seen earlier.
 
+![](images/msgBox2.png)
+
 By default, msgBox then waits for the user to press any of the keys specified and returns the name of that key. If you want to scan for the keys yourself with `ez.getKeys()` (for instance because there are other things your code need to wait for or check) then you can specify `false` with blocking, msgBox will then show the message, header and buttons and exit.
 
 The font and color options allow you to use something other than the default (theme determined) defaults for the message printed by msgBox. They act as you would expect, see the section on fonts and colors for details.
@@ -127,6 +136,8 @@ The font and color options allow you to use something other than the default (th
 **`String ez.textInput(String header = "", String defaultText = "")`**
 
 This function will provide a text-entry field, pre-filled with `defaulttext` if specified. The user can then select a group of letter and then press the letter using the short and long keypresses and multi-key presses as discussed above in the "Buttons" chapter. By using this method, the lower case letters can be reached in two presses, upper case letters in three. If you are in shifted or numeric mode and press lock, the keyboard will return there instead of to lower case after each sucessful key. Once the user presses "done" (buttons A and C together), the function returns the entered text.
+
+![](images/textInput.png)
 
 >Advanced users can make their own keyboard definitions by looking at the `_keydefs` keyboard definition that is part of the default theme. As you can see there are multiple lines, each holding a key definition string like we have gotten to know them by now. Any key whose name is "KB" followed by a number causes nothing to be added to the input but the buttons in that line of the definitions to be printed instead. A key whose name is LCK: optionally followed by a string means that if it is pressed the current keyboard is what the user comes back to after a line is entered. Pressing a key whose name is "Back" returns to that keyboard as well. The string is used to denote the name of that keyboard in the on-screen capslock/numlock message.
 
@@ -266,6 +277,11 @@ Note that these fonts need to be specified without the `&` in front, and that th
 
 Menus are a way of letting users choose between different options, usually to influence program flow. With ezMenu, you can create a menu, give it some options and run it for the user to choose. An ezMenu can display as a list of options, allowing the user to go up and down the list (possibly scrolling off the screen). Or it can be a set of full-screen (or really full-canvas) images, with the user scrolling left and right before chooing one. They are both instances of the ezMenu object
 
+![](images/ezMenu1.png)
+
+![](images/ezMenu2.png)
+
+
 ### Let's start with text menus
 
 To create a menu we create an instance of the `ezMenu` object. By having each menu be it's own instance of that object, we can store information that will disappear from RAM if a submenu closes and we can return to higher menus which have kept their state. let's start with a complete sketch for a very simple text menu:
@@ -394,7 +410,9 @@ void loop() {
 }
 ```
 
-### Picture menus
+### Image menus
+
+![](images/ezMenu3.png)
 
 You can include jpg files in the flash by creating a special .h file that holds byte arrays encoding the bytes in the JPG file. If you `#include` this file in your program and then add at least one menu items with `addItem(picture1, "Item 1")` where `picture1` is the name of the JPG array in the .h file, the menu's `.run()` and `.runOnce()` functions will change behaviour: they will show an image menu instead of a text menu.
 
@@ -559,9 +577,43 @@ These functions will show the position, name and caption of the picked item. The
 
 If you call `ez.wifiStatus()`, you will see the current wifi status. You can use Join to connect. You can even enter your Wifi password on the device itself, how cool is that? Use the M5-demo program to see how it works. 
 
+![](images/wifi1.png)
+
+![](images/wifi2.png)
+
+![](images/wifi3.png)
+
+![](images/wifi4.png)
+
+
 Known issue: it presently doesn't initialise right: you have to scan use "Scan & Join" before you can use SmartConfig, even if you let it fail. It does not keep settings when you reset.
 
 Wifi settings will soon have a flash-stored list of access points it will automatically connect to, so the M5Stack behaves much more like you phone.
+
+### The weird Wifi ghost button problem
+
+When you connect to Wifi, you may notice a strange quirk of the M5Stack hardware, or possibly of the ESP32 chip. When you are connected, the left button is getting ghost clicks. If this happens to you when you are on Wifi, you will need to do the following to fix it.
+
+Navigate to the Arduino libraries directory, and then from there to `M5Stack/src/utility/Button.cpp`. In that file (around line 60) find 
+
+```
+	pinVal = digitalRead(_pin);
+```
+
+and replace that line with:
+
+```
+// The digitalRead of the button pin is commented out below.
+// The two lines below fix an issue where BtnA gets spurious presses if the
+// Wifi is active. (The first line fixes it, the second remediates resulting 
+// speaker noise.) For details: https://github.com/m5stack/M5Stack/issues/52
+
+//    pinVal = digitalRead(_pin); 
+    dacWrite(25, 0);							
+    pinVal = analogRead(_pin);
+```
+
+Now recompile and the problemn is gone.
 
 ## Themes
 
