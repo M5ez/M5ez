@@ -31,7 +31,7 @@ M5ez::M5ez() {
 #ifdef M5EZ_WITH_FACES
 	_faces_state = 1;
 #else
-	_faces_state = 0
+	_faces_state = 0;
 #endif
 
 }
