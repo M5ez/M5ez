@@ -605,7 +605,7 @@ and replace that line with:
 ```
 // The digitalRead of the button pin is commented out below.
 // The two lines below fix an issue where BtnA gets spurious presses if the
-// Wifi is active. (The first line fixes it, the second remediates resulting 
+// Wifi is active. (The second line fixes it, the first remediates resulting 
 // speaker noise.) For details: https://github.com/m5stack/M5Stack/issues/52
 
 //    pinVal = digitalRead(_pin); 
