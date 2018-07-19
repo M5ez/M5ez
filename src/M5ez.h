@@ -1,11 +1,12 @@
 #ifndef _M5EZ_H_
 #define _M5EZ_H_
 
-#include <vector>
+// Uncomment to support the FACES keyboard
+// #define M5EZ_WITH_FACES
 
-#include <M5Stack.h>
-
-#include <WiFi.h>
+#include <vector>			// std::vector
+#include <WiFi.h>			// WiFiEvent_t, system_event_info_t
+#include <M5Stack.h>		// GFXfont*
 
 // Special fake font pointers to access the older non FreeFonts in a unified way.
 // Only valid if passed to ez.setFont
@@ -72,6 +73,9 @@ class M5ez {
 
 		// ez.textInput
 		String textInput(String header = "", String defaultText = "");
+		
+		// FACES support
+		String getFACES();
 	
 		// ez.print
 		void print(String text, int16_t x = -1, int16_t y = -1, const GFXfont* font = NULL, uint16_t color = PRINT_DEFAULT_COL);
@@ -138,6 +142,9 @@ class M5ez {
 		void _textCursor();
 		void _textCursor(bool state);
 		long  _text_cursor_millis;
+		
+		// FACES keyboard support
+		uint8_t _faces_state;
 
 		// ez.print
 		const GFXfont* _print_font;
@@ -146,7 +153,7 @@ class M5ez {
 		bool _print_wrap;
 		// bool _print_scroll;		//Not supported until we get m5.lcd.readRect(...) to work
 		
-		//Wifi
+		// Wifi
 		long _last_wifi_signal_update;
 		void _wifiSignalBars(bool now = false);
 

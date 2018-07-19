@@ -34,6 +34,7 @@
 #define INPUT_BGCOLOR		TFT_BLACK
 #define INPUT_FGCOLOR		TFT_GREEN
 #define INPUT_CURSOR_BLINK	500		// milliseconds
+#define INPUT_FACES_BTNS	13
 
 #define MENU_LMARGIN			40
 #define MENU_RMARGIN			20
@@ -61,7 +62,8 @@ static const char * _keydefs[] PROGMEM = {
 	"X#Y#Z#,###V#W#Back",																//KB9
 	"KB11|1-5.#SP#KB12|6-0,#Del#KB0|More#LCK:NUM|Lock###Done",							//KB10
 	"1#2#3#4#5#,###Back",																//KB11
-	"6#7#8#9#0#.###Back"																//KB12
+	"6#7#8#9#0#.###Back",																//KB12
+	".#,#Del##Done#"																	//KB13
 };
 
 #endif		// #ifndef M5EZ_THEME_LOADED

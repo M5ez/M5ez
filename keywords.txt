@@ -27,6 +27,9 @@ msgBox				KEYWORD1
 
 // ez.textInput
 textInput			KEYWORD1
+
+// FACES support
+getFACES			KEYWORD1
 	
 // ez.print
 print				KEYWORD1

@@ -1,6 +1,6 @@
 #include <M5Stack.h>
-
 #include <WiFi.h>
+
 extern "C" {
 #include "esp_wifi.h"
 #include "esp_wps.h"
@@ -15,13 +15,10 @@ bool _WPS_new_event;
 
 
 M5ez::M5ez() {
-	//m5.begin();
 	_background = SCREEN_BGCOLOR;
 	_print_wrap = true;
-
 //	_print_scroll = true;
 
-//	nvs_flash_init();
 	esp_wifi_start();
 	delay(200);
 	WiFi.getMode();
@@ -29,6 +26,13 @@ M5ez::M5ez() {
 //	WiFi.begin();
 	WiFi.disconnect();
 //	WiFi.setHostname("M5Stack");
+
+
+#ifdef M5EZ_WITH_FACES
+	_faces_state = 1;
+#else
+	_faces_state = 0
+#endif
 
 }
 
@@ -325,7 +329,7 @@ String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, cons
 	m5.lcd.setTextColor(color);
 	ez.setFont(font);
 	int16_t font_h = ez.fontHeight();
-	for (int16_t n = 0; n < num_lines; n++) {
+	for (int8_t n = 0; n < num_lines; n++) {
 		int16_t y = _canvas_t + _canvas_h / 2 - ( (num_lines - 1) * font_h / 2) + n * font_h;
 		m5.lcd.drawString(lines[n], TFT_W / 2, y);
 	}
@@ -343,18 +347,22 @@ String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, cons
 
 String M5ez::textInput(String header /* = "" */, String defaultText /* = "" */) {
 
+	Wire.begin();		// Doesn't mind being called multiple times, crashes when ran from ez's constructor
 	int16_t current_kb = 0, prev_kb = 0, locked_kb = 0;
+	if (_faces_state) current_kb = locked_kb = prev_kb = INPUT_FACES_BTNS;
 	String tmpstr;	
 	String text = defaultText;
 	clearScreen();
 	if (header != "") drawHeader(header);
 	_drawTextInputBox(text);
+	String key;
 	drawButtons(_keydefs[current_kb]);
 
 	while (true) {
-		String key = getButtons();
-	
-		if (key == "Done") return text;
+		key = getButtons();
+		if (key == "") key = getFACES();
+
+		if (key == "Done" || key == (String)char(13)) return text;
 		if (key.substring(0, 2) == "KB") {
 			prev_kb = current_kb;
 			tmpstr = key.substring(2);
@@ -379,7 +387,7 @@ String M5ez::textInput(String header /* = "" */, String defaultText /* = "" */) 
 			drawButtons(_keydefs[current_kb]);
 			key = "";
 		}
-		if (key == "Del") {
+		if (key == "Del" || key == (String)char(8) || key == (String)char(127)) {
 			text = text.substring(0, text.length() - 1);
 			_drawTextInputBox(text);
 			key = "";
@@ -538,6 +546,27 @@ void M5ez::scrollCanvas(int pixels) {
 }
 */
 
+String M5ez::getFACES() {
+	switch(_faces_state) {
+		case 1:
+			Wire.begin();
+			pinMode(5, INPUT);
+			digitalWrite(5,HIGH);
+			_faces_state = 2;
+			// rolling on...
+		case 2:
+			if (digitalRead(5) == LOW) {
+    			Wire.requestFrom(0x88, 1);   
+    			while (Wire.available()) {
+					char c = Wire.read();
+					return (String) c;
+				}
+			}
+	}
+	return "";
+}
+
+
 void M5ez::wifiStatus() {
 	while (true) {
 		clearScreen();
@@ -590,7 +619,7 @@ void M5ez::wifiJoin() {
 			} else {
 				ezMenu networks("Select your netork");
 				networks.txtSmall();
-				for (int16_t i = 0; i < n; ++i) {
+				for (uint16_t i = 0; i < n; ++i) {
 					// No duplicates (multiple BSSIDs on same SSID)
 					// because we're only picking an SSID here
 					if (!networks.getItemNum(WiFi.SSID(i))) {
@@ -695,7 +724,7 @@ void _WPShelper(WiFiEvent_t event, system_event_info_t info) {
 	_WPS_new_event = true;
 	if (event == SYSTEM_EVENT_STA_WPS_ER_PIN) {
 	    char wps_pin[9];
-	    for (int16_t i = 0; i < 8; i++) {
+	    for (int8_t i = 0; i < 8; i++) {
 	        wps_pin[i] = info.sta_er_pin.pin_code[i];
     	}
 	    wps_pin[8] = '\0';
@@ -1174,6 +1203,5 @@ void ezMenu::_Arrows() {
 	}
 	m5.lcd.fillTriangle(15, top + height - 25, 25, top + height - 25, 20, top + height - 10, fill_color);		
 }
-
 
 M5ez ez;

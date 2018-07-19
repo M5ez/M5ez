@@ -141,6 +141,14 @@ This function will provide a text-entry field, pre-filled with `defaulttext` if 
 
 >Advanced users can make their own keyboard definitions by looking at the `_keydefs` keyboard definition that is part of the default theme. As you can see there are multiple lines, each holding a key definition string like we have gotten to know them by now. Any key whose name is "KB" followed by a number causes nothing to be added to the input but the buttons in that line of the definitions to be printed instead. A key whose name is LCK: optionally followed by a string means that if it is pressed the current keyboard is what the user comes back to after a line is entered. Pressing a key whose name is "Back" returns to that keyboard as well. The string is used to denote the name of that keyboard in the on-screen capslock/numlock message.
 
+## FACES keyboard support
+
+**`String getFACES()`**
+
+![](images/FACES.png)
+
+M5ez supports the M5ez keyboard. Until I figure out how to properly detect that it is present, compile with `#define M5EZ_WITH_FACES` in the library's .h file. When you do, you will be able to use the `getFACES` function to get the last key pressed on the keyboard. The `textInput` function then also looks for keys from that keyboard, and starts with different key definitions for the M5Stack's own buttons.
+
 ## Printing text
 
 ```
