@@ -8,7 +8,7 @@
 
 ## introduction
 
-The M5Stack is a small computer that is a tinkerer's dream. It is based on Espressiv's ESP32 chip (with WiFi and Bluetooth), it has a 320x240 pixel color screen, three buttons, a speaker, an SD slot and it allows you to stack boards below it, each in their own plastic enclosure. The makers sell boards for GSM, GPS and LoRa (Long Range radio) as well as a motor controller board and an empty experimenter board. The Chinese operation that makes them apears to sell a lot of them and I could get mine off of Amazon in a week. If you like to build things that you can hold in your hand and not just write code for yet another naked-looking board plugged into your USB port, this thing is your friend.
+The M5Stack is a small computer that is a tinkerer's dream. It is based on Espressiv's ESP32 chip (with WiFi and Bluetooth), it has a 320x240 pixel color screen, three buttons, a speaker, an SD slot and it allows you to stack boards below it, each in their own plastic enclosure. The makers sell boards for GSM, GPS and LoRa (Long Range radio) as well as a motor controller board and an empty experimenter board. The Chinese operation that makes them appears to sell a lot of them and I could get mine off of Amazon in a week. If you like to build things that you can hold in your hand and not just write code for yet another naked-looking board plugged into your USB port, this thing is your friend.
 
 On the software side, the easiest way to program these is using the Arduino IDE. M5Stack provides a library which, when you include it, creates an m5 object instance that allows access to the various hardware components in the device. For instance: the display driver is accessible through commands all starting with `m5.lcd.`.
 
@@ -58,7 +58,7 @@ Clears the canvas area to the current background color.
 
 **`int16_t ez.canvasHeight()`**
 
-These other functions return canvas dimensions as their name implies. To be maximally flexible, your code should put its own stuff on te screen relative to `ez.canvasTop()` and make sure it is not heigher than `ez.canvasHeight()`. That way, if you decide to add or remove a header, your content will move accordingly.
+These other functions return canvas dimensions as their name implies. To be maximally flexible, your code should put its own stuff on te screen relative to `ez.canvasTop()` and make sure it is not higher than `ez.canvasHeight()`. That way, if you decide to add or remove a header, your content will move accordingly.
 
 The canvas is currently fixed at full width, meaning the left and right of the canvas are 0 and 319 respectively, but these functions return values already so that we can have vertical elements in the future.
 
@@ -92,7 +92,7 @@ If your button is captioned `up`, `down`, `left` or `right`, the caption is repl
 
 If a button has only one function, (no long press defined), the caption will be printed in the middle. If there is a short and a long press defined, they will be printed on the left and right, the right in cyan (in the default theme) to signify that it needs a longer press. 
 
-*In some cases it may be necessary to define only a long or only a hort press action explicitly. In that case, defining a the key with the placeholder "~" will make sure its function is not interpreted. Take the key definition string `~ # up # select # # right # down`: this defines the leftmost key to have the 'up' funtion, but only with a long press, a short press is ignored. The caption prints on the right side of the button and not in the middle. (One might use this to signify that the user got to the left edge of something she's navigating, not causing the 'up' function to trigger when she keeps pressing short before realising she's at the left edge.)*
+*In some cases it may be necessary to define only a long or only a hort press action explicitly. In that case, defining a the key with the placeholder "~" will make sure its function is not interpreted. Take the key definition string `~ # up # select # # right # down`: this defines the leftmost key to have the 'up' function, but only with a long press, a short press is ignored. The caption prints on the right side of the button and not in the middle. (One might use this to signify that the user got to the left edge of something she's navigating, not causing the 'up' function to trigger when she keeps pressing short before realising she's at the left edge.)*
 
 **`void ez.drawButtons(String buttons)`**
 
@@ -135,7 +135,7 @@ The font and color options allow you to use something other than the default (th
 
 **`String ez.textInput(String header = "", String defaultText = "")`**
 
-This function will provide a text-entry field, pre-filled with `defaulttext` if specified. The user can then select a group of letter and then press the letter using the short and long keypresses and multi-key presses as discussed above in the "Buttons" chapter. By using this method, the lower case letters can be reached in two presses, upper case letters in three. If you are in shifted or numeric mode and press lock, the keyboard will return there instead of to lower case after each sucessful key. Once the user presses "done" (buttons A and C together), the function returns the entered text.
+This function will provide a text-entry field, pre-filled with `defaulttext` if specified. The user can then select a group of letter and then press the letter using the short and long keypresses and multi-key presses as discussed above in the "Buttons" chapter. By using this method, the lower case letters can be reached in two presses, upper case letters in three. If you are in shifted or numeric mode and press lock, the keyboard will return there instead of to lower case after each sucessfull key. Once the user presses "done" (buttons A and C together), the function returns the entered text.
 
 ![](images/textInput.png)
 
@@ -159,7 +159,7 @@ void println(String text,
 	uint16_t color = PRINT_DEFAULT_COL)
 ```
 
-The `ez.print` and `ez.println` funtions behave much like the `m5.lcd.print` and `m5.lcd.println` functions from the M5Stack library: they print text at the current text position, in the case of `println` followed by a newline. But there are a few diferences. `ez.print` and `ez.println` have their own text location that is only used and updated by these two functions. This means you can print a few lines and then change the header text with `ez.drawHeader`, set new buttons with `ez.drawButtons` and then print the next line and it still ends up right underneath. You can specify an x and y position, which sets the new position for text to start from. If you specify a color and/or a font, they will only apply to this iteration of print. Any future iterations will still print in the default color and font.
+The `ez.print` and `ez.println` functions behave much like the `m5.lcd.print` and `m5.lcd.println` functions from the M5Stack library: they print text at the current text position, in the case of `println` followed by a newline. But there are a few differences. `ez.print` and `ez.println` have their own text location that is only used and updated by these two functions. This means you can print a few lines and then change the header text with `ez.drawHeader`, set new buttons with `ez.drawButtons` and then print the next line and it still ends up right underneath. You can specify an x and y position, which sets the new position for text to start from. If you specify a color and/or a font, they will only apply to this iteration of print. Any future iterations will still print in the default color and font.
 
 If you pass -1 as x or y parameter (or don't supply them), print and println will start at the current position. That means you can only specify x if you want to 'tab' ahead without affecting the vertical position, or supply -1 as x and then supply an explicit y value for the same in the vertical direction.
 
@@ -183,7 +183,7 @@ Determines whether or not whether text printed by `ez.print` and `ez.println` wr
 
 **`int16_t fontHeight()`**
 
-Just like when using the `m5.lcd.setFreeFont` function directly, you can speciify the FreeFont fonts to `ez.setFont` with a pointer to where they are in flash. M5ez makes it possible to do the same but also use the built-in "pre-FreeFont" fonts that are available. Normally, you would have to pass these as a numeric parameter to `m5.lcd.setTextFont`. M5ez provides a set of "fake pointers" that are treated specially to make this happen, but they can only be passed to `ez.setFont`, not to any of the `m5.lcd` functions.
+Just like when using the `m5.lcd.setFreeFont` function directly, you can specify the FreeFont fonts to `ez.setFont` with a pointer to where they are in flash. M5ez makes it possible to do the same but also use the built-in "pre-FreeFont" fonts that are available. Normally, you would have to pass these as a numeric parameter to `m5.lcd.setTextFont`. M5ez provides a set of "fake pointers" that are treated specially to make this happen, but they can only be passed to `ez.setFont`, not to any of the `m5.lcd` functions.
 
 The fontHeight without arguments returns the height of the current font - FreeFont` or otherwise - in pixels, without needing to specify which text font like in the `m5.lcd` version.
 
@@ -275,7 +275,7 @@ Note that these fonts need to be specified without the `&` in front, and that th
 
 ## Menus
 
-Menus are a way of letting users choose between different options, usually to influence program flow. With ezMenu, you can create a menu, give it some options and run it for the user to choose. An ezMenu can display as a list of options, allowing the user to go up and down the list (possibly scrolling off the screen). Or it can be a set of full-screen (or really full-canvas) images, with the user scrolling left and right before chooing one. They are both instances of the ezMenu object
+Menus are a way of letting users choose between different options, usually to influence program flow. With ezMenu, you can create a menu, give it some options and run it for the user to choose. An ezMenu can display as a list of options, allowing the user to go up and down the list (possibly scrolling off the screen). Or it can be a set of full-screen (or really full-canvas) images, with the user scrolling left and right before choosing one. They are both instances of the ezMenu object
 
 ![](images/ezMenu1.png)
 
@@ -445,7 +445,7 @@ As you will see in the function documentation below, there is much more you can 
 
 **`ezMenu yourMenu`**
 
-If you issue on of these statements, you are creating an instance of the ezMenu object called "yourMenu". This will allow you to reference it when you start adding items to it, change various properties of it. Eventually your code will run the menu, which means it will display on the screen. "yourMenu" should ofcourse be replaced by any name of your choice, but we'll use it in this text to show all the functions that apply to menus. These funtions should be called with the name of the menu followed by a dot in front of them, as they are "member functions" of the ezMenu object.
+If you issue on of these statements, you are creating an instance of the ezMenu object called "yourMenu". This will allow you to reference it when you start adding items to it, change various properties of it. Eventually your code will run the menu, which means it will display on the screen. "yourMenu" should offcourse be replaced by any name of your choice, but we'll use it in this text to show all the functions that apply to menus. These functions should be called with the name of the menu followed by a dot in front of them, as they are "member functions" of the ezMenu object.
 
 ```
 bool addItem(String nameAndCaption, 
@@ -467,7 +467,7 @@ The name is what is returned when you call `yourMenu.pickName()` after the menu 
 
 If an item is named "Back", "Exit" or "Done" (either with first letter capitalised all all lower case), the menu will exit is this item is picked, unless an advancedFunction is supplied (see below). Note that while it has to be *named* one of these three things, it can be *captioned* something completely different.
 
-If you want your code to have more access to what just happened in the menu, you can supply an advancedFunction pointer. This way you can have a function that has access to all the member functions of the menu that called it, and it can determine whether the memu exits or not by returning `true` (keep running) or `false` (exit). 
+If you want your code to have more access to what just happened in the menu, you can supply an advancedFunction pointer. This way you can have a function that has access to all the member functions of the menu that called it, and it can determine whether the menu exits or not by returning `true` (keep running) or `false` (exit). 
 
 ```
 bool myAdvancedFunction(ezMenu* callingMenu) {
@@ -485,7 +485,7 @@ Note that to address member functions of the calling menu in this function we ne
 
 **`bool deleteItem(String name)`**
 
-The first form deletes the menu item at the position indicated, startng with 1 for the first menu item. The second form allows you to deltee a menu item by name. Note that this will only delete the first menu item with that name. `deleteItem` will return true if it works, false if the name or index do not point to a valid menu item.
+The first form deletes the menu item at the position indicated, starting with 1 for the first menu item. The second form allows you to delete a menu item by name. Note that this will only delete the first menu item with that name. `deleteItem` will return true if it works, false if the name or index do not point to a valid menu item.
 
 **`int16_t getItemNum(String name)`**
 
@@ -493,7 +493,7 @@ Returns the index in the menu (starting at 1) of the first menu item with the sp
 
 **`void buttons(String bttns)`**
 
-This allows you to pass your own buttons to the function, using the format discused in the chapter on buttons earlier in the documentation. By default, a text menu has the buttons `up # select # down` defined while an image menu has `left # select # right`. You can provide your own button layout, moving the buttons or adding functions for long presses or key combinations. Note that there is nothing special about the word "Select". Any button not named "up", "down", "left" or "right" is used to pick the current item, and you can use either an advancedFunction or `.runOnce()` and then a call to `.pickButton()` to figure out which key was pressed.
+This allows you to pass your own buttons to the function, using the format discussed in the chapter on buttons earlier in the documentation. By default, a text menu has the buttons `up # select # down` defined while an image menu has `left # select # right`. You can provide your own button layout, moving the buttons or adding functions for long presses or key combinations. Note that there is nothing special about the word "Select". Any button not named "up", "down", "left" or "right" is used to pick the current item, and you can use either an advancedFunction or `.runOnce()` and then a call to `.pickButton()` to figure out which key was pressed.
 
 Buttons *captioned* "up", "down", "left" or "right" are displayed with a triangular arrow in the corresponding direction instead of that word. Buttons *named* "Back", "Exit" or "Done" cause the menu to exit. Note that menus without buttons named "up and "down" (text menus) or "left" and "right" (image menus) become impossible to navigate.
 
@@ -512,7 +512,7 @@ Then there are some functions that only apply to image menus
 
 **`void imgBackground(uint16_t color)`**
 
-This sets a temporary background color different from the background from the theme or set manually with `ez.background`. This is so that background between the buttons can match the background of the images displayed. The background will retunr to its previous setting when the menu exits or runs supplied use functions.
+This sets a temporary background color different from the background from the theme or set manually with `ez.background`. This is so that background between the buttons can match the background of the images displayed. The background will return to its previous setting when the menu exits or runs supplied use functions.
 
 **`void imgFromTop(int16_t offset)`**
 
@@ -613,7 +613,7 @@ and replace that line with:
     pinVal = analogRead(_pin);
 ```
 
-Now recompile and the problemn is gone.
+Now recompile and the problem is gone.
 
 ## Themes
 
@@ -621,4 +621,4 @@ If you look at the library file structure you will notice a directory called 'th
 
 ## Dual-use sketches
 
-With a simple trick, you can make code that does something pretty on its own, but that can also be included to provide a submenu in a bigger program. If you look at the M5ez-demo program, you will see that its directory includes another sketch named sysinfo.ino. This is the same sysinfo.ino that can be compiled on its own. (It is in the Examples directory.) But if it is included with another program, the compiler will see that this other "master" program has specified `#define MAIN_DECLARED`. Since the sub program has `#ifndef MAIN_DECLARED` and `#endif` around its declarion of `setup()` and `loop()`, it no longer conflicts, and the "master" program can call functions from it. As you can see sysinfo.ino using the `#ifndef` further down to determine whether to provide an "Exit" button. After all: if it is running stand-alone there is nothing to exit to. Note that you do not need to include any sketches placed in the same directory as your master program: the compiler combines them automatically. That also means you must ensure that no names are declared twice, or otherwise the compiler will complain.
+With a simple trick, you can make code that does something pretty on its own, but that can also be included to provide a submenu in a bigger program. If you look at the M5ez-demo program, you will see that its directory includes another sketch named sysinfo.ino. This is the same sysinfo.ino that can be compiled on its own. (It is in the Examples directory.) But if it is included with another program, the compiler will see that this other "master" program has specified `#define MAIN_DECLARED`. Since the sub program has `#ifndef MAIN_DECLARED` and `#endif` around its declaration of `setup()` and `loop()`, it no longer conflicts, and the "master" program can call functions from it. As you can see sysinfo.ino using the `#ifndef` further down to determine whether to provide an "Exit" button. After all: if it is running stand-alone there is nothing to exit to. Note that you do not need to include any sketches placed in the same directory as your master program: the compiler combines them automatically. That also means you must ensure that no names are declared twice, or otherwise the compiler will complain.
