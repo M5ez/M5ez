@@ -32,7 +32,7 @@ Documents\Arduino\libraries\M5ez-master\src\M5ez.cpp:1319:19:
 error: 'struct esp_wps_config_t' has no member named 'factory_info'
 ```
 
-**your ESP32 library may be out of date. Move aside the old $arduinodir$/hardware/espressive/ESP32 directory and re-follow the instructions on https://github.com/espressif/arduino-esp32/ and the problem should go away.**
+**your ESP32 library may be out of date. Move aside the old $arduinodir$/hardware/espressif/ESP32 directory and re-follow the instructions on https://github.com/espressif/arduino-esp32/ and the problem should go away.**
 
 # M5ez Documentation
 
