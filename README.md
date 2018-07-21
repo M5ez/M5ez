@@ -25,14 +25,16 @@ M5ez is an Arduino library. Simply put the M5ez directory in your Arduino librar
 
 ###Important note:
 
-**If you run into an error saying,**
+By default, the code has no support for WPS pushbutton or WPS pincode to connect to Wifi. If you turn off the `#define M5EZ_WITHOUT_WPS` define in the library's `M5ez.h` file it does compile it the WPS code. However you may then run into an error saying:
 
 ```
 Documents\Arduino\libraries\M5ez-master\src\M5ez.cpp:1319:19:
 error: 'struct esp_wps_config_t' has no member named 'factory_info'
 ```
 
-**your ESP32 library may be out of date. Move aside the old $arduinodir$/hardware/espressif/ESP32 directory and re-follow the instructions on https://github.com/espressif/arduino-esp32/ and the problem should go away.**
+This means your ESP32 library is out of date. They changed how WPS is done in late June 2018. . Move aside the old `$arduinodir$/hardware/espressif/ESP32` directory and re-follow the instructions on https://github.com/espressif/arduino-esp32/ and the problem should go away.
+
+**It's a good idea to periodically re-download the ESP32 libraries as they are continually fixing things, among other things making Wifi much more stable.**
 
 # M5ez Documentation
 

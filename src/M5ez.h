@@ -1,6 +1,10 @@
 #ifndef _M5EZ_H_
 #define _M5EZ_H_
 
+// Commnent line below to have WPS. I turned it off because people have old 
+ //libraries that did it differently.
+#define M5EZ_WITHOUT_WPS
+
 // Uncomment to support the FACES keyboard
 // #define M5EZ_WITH_FACES
 
@@ -239,10 +243,12 @@ extern M5ez ez;
 extern void ezWifiMenu();
 namespace {
 	void wifiJoin();
+#ifndef M5EZ_WITHOUT_WPS
 	WiFiEvent_t _WPS_event;
 	String _WPS_pin;
 	bool _WPS_new_event;
 	void _WPShelper(WiFiEvent_t event, system_event_info_t info);
+#endif
 	long _last_wifi_signal_update;
 	struct WifiNetwork_t {
 		String SSID;

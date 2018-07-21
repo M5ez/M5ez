@@ -1229,8 +1229,10 @@ namespace {
 			joinmenu.txtSmall();
 			joinmenu.addItem("Scan and join");
 			joinmenu.addItem("SmartConfig");
+#ifndef M5EZ_WITHOUT_WPS
 			joinmenu.addItem("WPS Button");
 			joinmenu.addItem("WPS Pin Code");
+#endif
 			joinmenu.addItem("Back");
 			joinmenu.runOnce();
 	
@@ -1307,7 +1309,7 @@ namespace {
 				}
 			}
 	
-	
+#ifndef M5EZ_WITHOUT_WPS
 			if (joinmenu.pickName().substring(0,3) == "WPS") {
 				ez.msgBox("WPS setup", "Waiting for WPS", "Abort", false);
 				WiFi.mode(WIFI_MODE_STA);
@@ -1355,13 +1357,16 @@ namespace {
 					}
 				}
 			}
-			
+#endif			
+
 			if (WiFi.isConnected()) _wifiAskAdd();
 		}
 		callingMenu->setCaption("connection", (String)(WiFi.isConnected() ? "Connected: " + WiFi.SSID() : "Join a network"));
 		return true;
 	} 
-						
+
+#ifndef M5EZ_WITHOUT_WPS						
+
 	void _WPShelper(WiFiEvent_t event, system_event_info_t info) {
 		_WPS_event = event;
 		_WPS_new_event = true;
@@ -1374,6 +1379,7 @@ namespace {
 			_WPS_pin = String(wps_pin);
 		}
 	}
+#endif
 	
 	void _wifiAskAdd() {
 		for (uint8_t n = 0; n < _networks.size(); n++) {
