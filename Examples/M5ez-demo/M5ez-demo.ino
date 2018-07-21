@@ -18,8 +18,8 @@ void loop() {
   main.addItem("Neat messages", main_msgs);
   main.addItem("Multi-function buttons", main_buttons);
   main.addItem("3-button text entry", main_entry);
-  main.addItem("Built-in WiFi support", main_wifi);
-  main.run();  
+  main.addItem("Built-in WiFi support", ezWifiMenu);
+  main.run(); 
 }
 
 void main_menus() { 
@@ -87,7 +87,7 @@ void main_image() {
   images.imgCaptionColor(TFT_WHITE);
   images.imgCaptionMargins(10,10);
   images.addItem(sysinfo_jpg, "System Information", sysInfo);
-  images.addItem(wifi_jpg, "WiFi Settings", main_wifi);
+  images.addItem(wifi_jpg, "WiFi Settings", ezWifiMenu);
   images.addItem(about_jpg, "About M5ez", aboutM5ez);
   images.addItem(sleep_jpg, "Power Off", powerOff);
   images.addItem(return_jpg, "Back");
@@ -151,8 +151,6 @@ void main_entry() {
     ez.msgBox("Don't worry", "(You do get better | with practice...)");
   }
 }
-
-void main_wifi() { ez.wifiStatus(); }
 
 void powerOff() { m5.powerOFF(); }
 
