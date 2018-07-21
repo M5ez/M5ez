@@ -1,7 +1,8 @@
 ez					KEYWORD3
 
+yield				KEYWORD1
+
 // Screen, canvas, etc...
-clearScreen			KEYWORD1
 clearScreen			KEYWORD1
 background			KEYWORD1
 clearCanvas			KEYWORD1
@@ -19,7 +20,6 @@ removeHeader		KEYWORD1
 // Buttons
 drawButtons			KEYWORD1
 getButtons			KEYWORD1
-waitForButtons		KEYWORD1
 waitForButtons		KEYWORD1
 
 // ez.msgBox
@@ -51,7 +51,21 @@ chopStringIntoArray	KEYWORD1
 charsFit			KEYWORD1
 clipString			KEYWORD1
 isBackExitOrDone	KEYWORD1
-	
+
+// ezWifiMenu
+ezWifiMenu			KEYWORD1
+wifiAddNetwork		KEYWORD1
+wifiDeleteNetwork	KEYWORD1
+getIndexForSSID		KEYWORD1
+wifiNumNetworks		KEYWORD1
+wifiSSID			KEYWORD1
+wifiKey				KEYWORD1
+wifiAutoconnectOn	KEYWORD1
+wifiAutoconnectOn	KEYWORD1
+wifiStatus			KEYWORD1
+wifiReadFlash		KEYWORD1
+wifiWriteFlash		KEYWORD1
+
 // m5.lcd wrappers that make fonts easier
 setFont				KEYWORD1
 fontHeight			KEYWORD1
@@ -60,9 +74,8 @@ fontHeight			KEYWORD1
 ezMenu				KEYWORD3
 
 addItem				KEYWORD1
-addItem				KEYWORD1
 deleteItem			KEYWORD1
-deleteItem			KEYWORD1
+setCaption			KEYWORD1
 getItemNum			KEYWORD1
 buttons				KEYWORD1
 pick				KEYWORD1

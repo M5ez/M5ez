@@ -66,4 +66,14 @@ static const char * _keydefs[] PROGMEM = {
 	".#,#Del##Done#"																	//KB13
 };
 
+// This defines how many bars show at what signal percentage.
+// Keep first bar at "anything over 0" to make sure you have connection-indication
+#define SIGNAL_BARS			{ 0, 25, 50, 75 }
+#define SIGNAL_INTERVAL		2000
+
+// If you set 10 bars and a much shorter interval you get more of a wifi VU-meter 
+// #define SIGNAL_BARS			{ 0, 10, 20, 30, 40, 50, 60, 70, 80, 90 }
+// #define SIGNAL_INTERVAL		200
+
+
 #endif		// #ifndef M5EZ_THEME_LOADED

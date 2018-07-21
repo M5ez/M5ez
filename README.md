@@ -100,7 +100,12 @@ Draws all the buttons you specified, only redrawing the buttons that have change
 
 **`String ez.getButtons()`**
 
-Then if you call `ez.getButtons`, it will return the name of the key pressed since you last called it, or the empty string is nothing was pressed.
+Then if you call `ez.getButtons`, it will return the name of the key pressed since you last called it, or the empty string is nothing was pressed. This function is where everyone's M5ez programs will spends most of their time: waiting for the user to make things continue. 
+
+**`ez.yield()`**
+
+Internally ez.getButtons()` calls `ez.yield()`, which does the button update as well
+the wifi signal strength indication and autoconnection if that is enabled. You would not need to call this from your code, unless you want the signal bars and autoconnect to work  while in a loop that is going to be running for extended periods of time and that does not involve (also) waiting for buttons.
 
 **`String ez.waitForButtons()`**
 
@@ -495,6 +500,12 @@ Note that to address member functions of the calling menu in this function we ne
 
 The first form deletes the menu item at the position indicated, starting with 1 for the first menu item. The second form allows you to delete a menu item by name. Note that this will only delete the first menu item with that name. `deleteItem` will return true if it works, false if the name or index do not point to a valid menu item.
 
+**`bool setCaption(int16_t index, String caption)`**
+
+**`bool setCaption(String name, String caption)`**
+
+As the name implies, changes the caption (but not the name) of the item specfied either by position or by name.
+
 **`int16_t getItemNum(String name)`**
 
 Returns the index in the menu (starting at 1) of the first menu item with the specified name, or 0 if no item with that name exists.
@@ -581,22 +592,35 @@ These functions will show the position, name and caption of the picked item. The
 
 ## Wifi
 
-> If you read this, I am still working on the Wifi code. It works, but it's not like I want it yet.
+**`ezWifiMenu()`**
 
-If you call `ez.wifiStatus()`, you will see the current wifi status. You can use Join to connect. You can even enter your Wifi password on the device itself, how cool is that? Use the M5-demo program to see how it works. 
+This may very well be the only function you'll need. Simply make it the function some menu item of yours points to and the user will have access to a menu that lets her connect to wifi, manage which networks are automatically connected to at boot and whenever the wifi connecttion disappears. Note that it does not have a dor between the ez and WifiMenu: it is one word. 
 
-![](images/wifi1.png)
+Note that this doesn't use the `WiFi.setAutoConnect` and `WiFi.setAutoReconnect` fucntions of the ESP32 WiFi library: they can only connect to one access point. Instead  M5ez has it's own logic for connecting, saving the ssid and password of networks you want to automatically connect to in flash.
 
-![](images/wifi2.png)
+The functions below give access to these troed networks as well as the stored "on/off" toggle for the autoconnect feature. You probably won't need them as `ezWifiMenu` lets the user manage all of this. Note that you have to call `ez.wifiWriteFlash()` when you are done making any changes.
 
-![](images/wifi3.png)
+**`void ez.wifiAddNetwork(String SSID, String key)`**
 
-![](images/wifi4.png)
+**`bool ez.wifiDeleteNetwork(int8_t index)`**
 
+**`bool ez.wifiDeleteNetwork(String ssid)`**
 
-Known issue: it presently doesn't initialise right: you have to scan use "Scan & Join" before you can use SmartConfig, even if you let it fail. It does not keep settings when you reset.
+**`int8_t ez.getIndexForSSID(String ssid)`**
 
-Wifi settings will soon have a flash-stored list of access points it will automatically connect to, so the M5Stack behaves much more like you phone.
+**`uint8_t ez.wifiNumNetworks()`**
+
+**`String ez.wifiSSID(uint8_t index)`**
+
+**`String ez.wifiKey(uint8_t index)`**
+
+**`bool ez.wifiAutoconnectOn()`**
+
+**`void ez.wifiAutoconnectOn(bool new_state)`**
+
+**`void ez.wifiReadFlash()`**
+
+**`void ez.wifiWriteFlash()`**
 
 ### The weird Wifi ghost button problem
 
@@ -621,7 +645,7 @@ and replace that line with:
     pinVal = analogRead(_pin);
 ```
 
-Now recompile and the problem is gone.
+Now recompile and the problem is gone. It does mean that you cannot use the speaker while  `ez.getButtons()` is checking for button presses.
 
 ## Themes
 

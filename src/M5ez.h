@@ -4,6 +4,9 @@
 // Uncomment to support the FACES keyboard
 // #define M5EZ_WITH_FACES
 
+// Have the autoconnect logic print debug messages on the serial port
+// #define M5EZ_WIFI_DEBUG
+
 #include <vector>			// std::vector
 #include <WiFi.h>			// WiFiEvent_t, system_event_info_t
 #include <M5Stack.h>		// GFXfont*
@@ -38,12 +41,13 @@
 #include <themes/default.h>
 #endif
 
-
 class M5ez {
 
 	public:
 
 		M5ez();
+
+		void yield();
 
 		// Screen, canvas, etc...
 		void clearScreen();
@@ -87,10 +91,23 @@ class M5ez {
 		void printWrap(bool state);
 		// void scrollCanvas(int16_t pixels);	//Not supported until we get m5.lcd.readRect(...) to work
 		
+		// wifi
+		void _wifiSignalBars(bool now = false);
+		
 #ifndef M5EZ_WITHOUT_WIFI
-		// ez.wifiMenu
-		void wifiStatus();
-		void wifiJoin();
+		// ezWifiMenu
+		void wifiAddNetwork(String SSID, String key);
+		bool wifiDeleteNetwork(int8_t index);
+		bool wifiDeleteNetwork(String ssid);
+		int8_t getIndexForSSID(String ssid);
+		uint8_t wifiNumNetworks();
+		String wifiSSID(uint8_t index);
+		String wifiKey(uint8_t index);
+		bool wifiAutoconnectOn();
+		void wifiAutoconnectOn(bool new_state);
+		void wifiStatus();		// Old entry point for ezWifiMenu()
+		void wifiReadFlash();
+		void wifiWriteFlash();
 #endif
 			
 		// Generic String object helper functions
@@ -153,12 +170,7 @@ class M5ez {
 		bool _print_wrap;
 		// bool _print_scroll;		//Not supported until we get m5.lcd.readRect(...) to work
 		
-		// Wifi
-		long _last_wifi_signal_update;
-		void _wifiSignalBars(bool now = false);
-
 };
-
 
 class ezMenu {
 
@@ -170,6 +182,8 @@ class ezMenu {
 		bool addItem(const char *image, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL);
 		bool deleteItem(int16_t index);
 		bool deleteItem(String name);
+		bool setCaption(int16_t index, String caption);
+		bool setCaption(String name, String caption);
 		void buttons(String bttns);
 		int16_t getItemNum(String name);
 		int16_t pick();
@@ -219,15 +233,42 @@ class ezMenu {
 
 };
 
+extern M5ez ez;
 
 #ifndef M5EZ_WITHOUT_WIFI
-// WiFi support
-extern WiFiEvent_t _WPS_event;
-extern String _WPS_pin;
-extern bool _WPS_new_event;
-void _WPShelper(WiFiEvent_t event, system_event_info_t info);
-#endif
-
-extern M5ez ez;
+extern void ezWifiMenu();
+namespace {
+	void wifiJoin();
+	WiFiEvent_t _WPS_event;
+	String _WPS_pin;
+	bool _WPS_new_event;
+	void _WPShelper(WiFiEvent_t event, system_event_info_t info);
+	long _last_wifi_signal_update;
+	struct WifiNetwork_t {
+		String SSID;
+		String key;
+	};
+	std::vector<WifiNetwork_t> _networks;
+	bool _wifi_autoconnect_on;
+	enum WifiState_t {
+		EZWIFI_NOT_INIT,
+		EZWIFI_WAITING,
+		EZWIFI_IDLE,
+		EZWIFI_SCANNING,
+		EZWIFI_CONNECTING,
+		EZWIFI_AUTOCONNECT_DISABLED
+	};
+	WifiState_t _wifi_state;
+	uint8_t _wifi_current_from_scan;
+	int32_t _wifi_until;
+	void _wifiLoop();
+	bool _wifiConnection(ezMenu* callingMenu);
+	bool _wifiOnOff(ezMenu* callingMenu);
+	bool _wifiBack(ezMenu* callingMenu);
+	void _wifiAskAdd();
+	void _wifiManageAutoconnects();
+	bool _wifiAutoconnectSelected(ezMenu* callingMenu);
+}
+#endif // M5EZ_WITHOUT_WIFI
 
 #endif	//_M5EZ_H_
