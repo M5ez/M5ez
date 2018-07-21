@@ -22,6 +22,18 @@ In the budding M5Stack community, there have been some initiatives to make it ea
 
 M5ez is an Arduino library. Simply put the M5ez directory in your Arduino libraries directory, restart the IDE and start programming. You'll have your first application on the screen in no time. (Or start with one of the sketches below in the "Menus" section of the documentation, or the demo program from the video which is in the "Examples" directory of the library.
 
+
+###Important note:
+
+**If you run into an error saying,**
+
+```
+Documents\Arduino\libraries\M5ez-master\src\M5ez.cpp:1319:19:
+error: 'struct esp_wps_config_t' has no member named 'factory_info'
+```
+
+**your ESP32 library may be out of date. Move aside the old $arduinodir$/hardware/espressive/ESP32 directory and re-follow the instructions on https://github.com/espressif/arduino-esp32/ and the problem should go away.**
+
 # M5ez Documentation
 
 ## The screen
