@@ -23,7 +23,7 @@ In the budding M5Stack community, there have been some initiatives to make it ea
 M5ez is an Arduino library. Simply put the M5ez directory in your Arduino libraries directory, restart the IDE and start programming. You'll have your first application on the screen in no time. (Or start with one of the sketches below in the "Menus" section of the documentation, or the demo program from the video which is in the "Examples" directory of the library.
 
 
-###Important note:
+### Important note:
 
 By default, the code has no support for WPS pushbutton or WPS pincode to connect to Wifi. If you turn off the `#define M5EZ_WITHOUT_WPS` define in the library's `M5ez.h` file it does compile it the WPS code. However you may then run into an error saying:
 
