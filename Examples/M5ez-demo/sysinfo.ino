@@ -26,12 +26,6 @@ void loop() {
 
 }
 
-const String exit_button = "";
-
-#else
-
-const String exit_button = "Exit";
-
 #endif  // #ifndef MAIN_DECLARED
 
 
@@ -52,7 +46,7 @@ void sysInfoPage1() {
   const byte tab = 120;
   ez.clearScreen();
   ez.drawHeader("System Information   (1/2)");
-  ez.drawButtons("#" + exit_button + "#down");
+  ez.drawButtons("#" + String(MAIN_DECLARED ? "Exit" : "") + "#down");
   ez.printFont(&FreeSans9pt7b);
   ez.printLmargin(10);
   ez.println("");
@@ -69,7 +63,7 @@ void sysInfoPage2() {
   const byte tab = 140;
   ez.clearScreen();
   ez.drawHeader("System Information   (2/2)");
-  ez.drawButtons("up#" + exit_button + "#");
+  ez.drawButtons("up#" + String(MAIN_DECLARED ? "Exit" : "") + "#");
   ez.printFont(&FreeSans9pt7b);
   ez.printLmargin(10);
   ez.println("");

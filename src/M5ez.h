@@ -6,7 +6,7 @@
 #define M5EZ_WITHOUT_WPS
 
 // Uncomment to support the FACES keyboard
-// #define M5EZ_WITH_FACES
+#define M5EZ_WITH_FACES
 
 // Have the autoconnect logic print debug messages on the serial port
 // #define M5EZ_WIFI_DEBUG
@@ -189,6 +189,10 @@ class ezMenu {
 		bool setCaption(int16_t index, String caption);
 		bool setCaption(String name, String caption);
 		void buttons(String bttns);
+		void upOnFirst(String nameAndCaption);
+		void leftOnFirst(String nameAndCaption);
+		void downOnLast(String nameAndCaption);
+		void rightOnLast(String nameAndCaption);
 		int16_t getItemNum(String name);
 		int16_t pick();
 		String pickName(), pickCaption(), pickButton();
@@ -216,6 +220,7 @@ class ezMenu {
 		std::vector<MenuItem_t> _items;
 		int16_t _selected, _offset;
 		String _header, _buttons, _pick_button;
+		String _up_on_first, _down_on_last;
 		int16_t _per_item_h, _vmargin;
 		int16_t _items_per_screen;
 		uint16_t _old_background;

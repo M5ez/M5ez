@@ -530,6 +530,25 @@ This allows you to pass your own buttons to the function, using the format discu
 
 Buttons *captioned* "up", "down", "left" or "right" are displayed with a triangular arrow in the corresponding direction instead of that word. Buttons *named* "Back", "Exit" or "Done" cause the menu to exit. Note that menus without buttons named "up and "down" (text menus) or "left" and "right" (image menus) become impossible to navigate.
 
+Buttons named "first" and "last" ump to the first or last item of the menu repectively.
+
+**`void upOnFirst(String nameAndCaption)`**
+
+**`void leftOnFirst(String nameAndCaption)`**
+
+**`void downOnLast(String nameAndCaption)`**
+
+**`void rightOnLast(String nameAndCaption)`**
+
+These functions allow you to replace the navigation button that would navigate off the menu with something else. Normally this button would just disappear. You can make menu rotate (like the main menu in the demo app) like this:
+
+```
+  main.upOnFirst("last|up");
+  main.downOnLast("first|down");
+```
+
+Note that the "first" and "last" are button *names* with special functions, and "up" and "down" are *captions* with special functions (they are replaced by triangle arrows). The first two and last two are actually synonyms: they do they same thing, it's just clearer to use the second form when creating an image menu that is horizontal.
+
 **`void txtFont(const GFXfont* font)`**
 
 **`void txtBig()`**

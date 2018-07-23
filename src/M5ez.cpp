@@ -347,7 +347,6 @@ String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, cons
 
 String M5ez::textInput(String header /* = "" */, String defaultText /* = "" */) {
 
-	Wire.begin();		// Doesn't mind being called multiple times, crashes when ran from ez's constructor
 	int16_t current_kb = 0, prev_kb = 0, locked_kb = 0;
 	if (_faces_state) current_kb = locked_kb = prev_kb = INPUT_FACES_BTNS;
 	String tmpstr;	
@@ -873,6 +872,22 @@ void ezMenu::buttons(String bttns) {
 	_buttons = bttns;
 }	
 
+void ezMenu::upOnFirst(String nameAndCaption) {
+	_up_on_first = nameAndCaption;
+}
+
+void ezMenu::leftOnFirst(String nameAndCaption) {
+	_up_on_first = nameAndCaption;
+}
+
+void ezMenu::downOnLast(String nameAndCaption) {
+	_down_on_last = nameAndCaption;
+}
+
+void ezMenu::rightOnLast(String nameAndCaption) {
+	_down_on_last = nameAndCaption;
+}
+
 void ezMenu::run() {
 	while (runOnce()) {}
 }
@@ -898,8 +913,8 @@ int16_t ezMenu::_runTextOnce() {
 		int16_t old_selected = _selected;
 		int16_t old_offset = _offset;
 		String tmp_buttons = _buttons;
-		if (_selected <= 0) tmp_buttons.replace("up", ""); 
-		if (_selected >= _items.size() - 1) tmp_buttons.replace("down", ""); 
+		if (_selected <= 0) tmp_buttons.replace("up", _up_on_first); 
+		if (_selected >= _items.size() - 1) tmp_buttons.replace("down", _down_on_last); 
 		ez.drawButtons(tmp_buttons);
 		String name = ez.leftOf(_items[_selected].nameAndCaption, "|");
 		String pressed = ez.waitForButtons();
@@ -908,6 +923,13 @@ int16_t ezMenu::_runTextOnce() {
 			_fixOffset();
 		} else if (pressed == "down") {
 			_selected++;
+			_fixOffset();
+		} else if (pressed == "first") {
+			_selected = 0;
+			_offset = 0;
+		} else if (pressed == "last") {
+			_selected = _items.size() - 1;
+			_offset = 0;
 			_fixOffset();
 		} else if ( (ez.isBackExitOrDone(name) && !_items[_selected].advancedFunction) || ez.isBackExitOrDone(pressed) ) {
 			_pick_button = pressed;

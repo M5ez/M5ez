@@ -3,7 +3,7 @@
 
 #include "images.h"
 
-#define MAIN_DECLARED
+#define MAIN_DECLARED   true
 
 void setup() {
 
@@ -19,6 +19,8 @@ void loop() {
   main.addItem("Multi-function buttons", main_buttons);
   main.addItem("3-button text entry", main_entry);
   main.addItem("Built-in WiFi support", ezWifiMenu);
+  main.upOnFirst("last|up");
+  main.downOnLast("first|down");
   main.run(); 
 }
 
