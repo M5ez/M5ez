@@ -1,18 +1,17 @@
 /* This example shows how to use M5ez to do simple display things. 
  * The "#ifndef MAIN_DECLARED" part is there so that it can also 
  * simply be added to the directory of another sketch. As long as
- * it contains "#define MAIN_DECLARED", the sketches do not conflict
- * and the other program can simply call sysInfo() if it wants to
- * display system information.
+ * it contains "#define MAIN_DECLARED true", the sketches do not 
+ * conflict and the other program can simply call sysInfo() if it 
+ * wants to display system information.
  * 
- * The exit_button variable is there so that the version that runs
- * stand-alone does not display an exit button, since there is
- * nothing to exit to, whereas the version that is called from a
- * bigger program does.
- */
-
+ * The MAIN_DECLARED is used further down to determine whether
+ * the app has an exit button. After all: if it is running stand-
+ * alone there is nothing to exit to.
+*/
 
 #ifndef MAIN_DECLARED
+#define MAIN_DECLARED false
 
 #include <M5Stack.h>
 #include <M5ez.h>
