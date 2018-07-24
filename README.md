@@ -581,11 +581,11 @@ The offset in pixels from `canvasTop()` where the top of the image is rendered.
 
 These settings allow for the menu item caption to be printed somewhere on the canvas. The font and color options are obvious, the location is one of 
 
-     | left | middle | right
-:----|:-----|:-----|:------
-**top** | `TL_DATUM` | `TC_DATUM` | `TR_DATUM`
-**middle** | `ML_DATUM` | `MC_DATUM` | `MR_DATUM`
-**right** | `BL_DATUM` | `BC_DATUM` | `BR_DATUM`
+|     | left | middle | right |
+| ----|:-----|:-----|:------ |
+| **top** | `TL_DATUM` | `TC_DATUM` | `TR_DATUM` |
+| **middle** | `ML_DATUM` | `MC_DATUM` | `MR_DATUM` |
+| **right** | `BL_DATUM` | `BC_DATUM` | `BR_DATUM` |
 
 and the margins specify how far away from the edges of the canvas the caption is printed. The default is for no caption to be printed, you must specify all these options if you want captions. 
 
@@ -686,4 +686,4 @@ If you look at the library file structure you will notice a directory called 'th
 
 ## Dual-use sketches
 
-With a simple trick, you can make code that does something pretty on its own, but that can also be included to provide a submenu in a bigger program. If you look at the M5ez-demo program, you will see that its directory includes another sketch named sysinfo.ino. This is the same sysinfo.ino that can be compiled on its own. (It is in the Examples directory.) But if it is included with another program, the compiler will see that this other "master" program has specified `#define MAIN_DECLARED true`. Since the sub program has `#ifndef MAIN_DECLARED` and `#endif` around its declaration of `setup()` and `loop()`, it no longer conflicts, and the "master" program can call functions from it. As you can see sysinfo.ino uses the value of MAIN_DECLARED to determine whether to provide an "Exit" button. After all: if it is running stand-alone there is nothing to exit to. Note that you do not need to `#include` any sketches placed in the same directory as your master program: the compiler combines them automatically. That also means you must ensure that no names are declared twice, or otherwise the compiler will complain.
+With a simple trick, you can make code that does something pretty on its own, but that can also be included to provide a submenu in a bigger program. If you look at the M5ez-demo program, you will see that its directory includes another sketch named sysinfo.ino. This is the same sysinfo.ino that can be compiled on its own. (It is in the Examples directory.) But if it is included with another program, the compiler will see that this other "master" program has specified `#define MAIN_DECLARED true`. Since the sub program has `#ifndef MAIN_DECLARED` and `#endif` around its declaration of `setup()` and `loop()`, it no longer conflicts, and the "master" program can call functions from it. As you can see sysinfo.ino uses the value of `MAIN_DECLARED` to determine whether to provide an "Exit" button. After all: if it is running stand-alone there is nothing to exit to. Note that you do not need to `#include` any sketches placed in the same directory as your master program: the compiler combines them automatically. That also means you must ensure that no names are declared twice, or otherwise the compiler will complain.
