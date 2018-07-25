@@ -547,7 +547,7 @@ These functions allow you to replace the navigation button that would navigate o
   main.downOnLast("first|down");
 ```
 
-Note that the "first" and "last" are button *names* with special functions, and "up" and "down" are *captions* with special functions (they are replaced by triangle arrows). The first two and last two are actually synonyms: they do they same thing, it's just clearer to use the second form when creating an image menu that is horizontal.
+Note that the "first" and "last" are button *names* with special functions, and "up" and "down" are *captions* with special functions (they are replaced by triangle arrows). The first two and last two functions are actually synonyms: they do they same thing, it's just clearer to use the second form when creating an image menu (which is horizontal).
 
 **`void txtFont(const GFXfont* font)`**
 
@@ -564,7 +564,7 @@ Then there are some functions that only apply to image menus
 
 **`void imgBackground(uint16_t color)`**
 
-This sets a temporary background color different from the background from the theme or set manually with `ez.background`. This is so that background between the buttons can match the background of the images displayed. The background will return to its previous setting when the menu exits or runs supplied use functions.
+This sets a temporary background color different from the background from the theme or set manually with `ez.background`. This is so that background between the buttons can match the background of the images displayed. The background will return to its previous setting when the menu exits or runs any of the functions supplied with the `addItem`.
 
 **`void imgFromTop(int16_t offset)`**
 
