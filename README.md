@@ -564,7 +564,7 @@ Then there are some functions that only apply to image menus
 
 **`void imgBackground(uint16_t color)`**
 
-This sets a temporary background color different from the background from the theme or set manually with `ez.background`. This is so that background between the buttons can match the background of the images displayed. The background will return to its previous setting when the menu exits or runs any of the functions supplied with the `addItem`.
+This sets a temporary background color different from the background from the theme or set manually with `ez.background`. This is so that background between the buttons can match the background of the images displayed. The background will return to its previous setting when the menu exits or runs any of the functions supplied with `addItem`.
 
 **`void imgFromTop(int16_t offset)`**
 
