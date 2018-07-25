@@ -1,16 +1,23 @@
 {
-  "name": "M5easy",
-  "description": "easy app platform for M5Stack",
-  "keywords": "M5PAP",
+  "name": "M5ez",
+  "description": "Complete interface builder for the M5Stack, an ESP32 based mini tinker-computer",
+  "keywords": "m5ez, m5stack, esp32",
   "authors": {
-    "name": "Rop",
+    "name": "Rop Gonggrijp",
     "url": "https://github.com/ropg"
+    "maintainer": true
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ropg/M5easy"
+    "url": "https://github.com/ropg/M5ez"
   },
-  "version": "0.0.0",
+  "dependencies": {
+  	"name": "M5Stack"
+  },
+  "version": "1.0.0",
   "framework": "arduino",
   "platforms": "espressif32"
+  "build": {
+    "libArchive": false
+  }
 }
