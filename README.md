@@ -210,7 +210,7 @@ Determines whether or not whether text printed by `ez.print` and `ez.println` wr
 
 **`int16_t fontHeight()`**
 
-Just like when using the `m5.lcd.setFreeFont` function directly, you can specify the FreeFont fonts to `ez.setFont` with a pointer to where they are in flash. M5ez makes it possible to do the same but also use the built-in "pre-FreeFont" fonts that are available. Normally, you would have to pass these as a numeric parameter to `m5.lcd.setTextFont`. M5ez provides a set of "fake pointers" that are treated specially to make this happen, but they can only be passed to `ez.setFont`, not to any of the `m5.lcd` functions.
+Just like when using the `m5.lcd.setFreeFont` function directly, you can specify the FreeFont fonts to `ez.setFont` with a pointer to where they are in flash. M5ez makes it possible to do the same but also use the built-in "pre-FreeFont" fonts that are available. Normally, you would have to pass these as a numeric parameter to `m5.lcd.setTextFont`. M5ez provides a set of "fake pointers" that are treated specially to make this happen, but they can only be used by M5ez functions, not with any of the `m5.lcd` functions.
 
 The fontHeight without arguments returns the height of the current font - FreeFont` or otherwise - in pixels, without needing to specify which text font like in the `m5.lcd` version.
 
@@ -280,7 +280,7 @@ What that means is that without adding any fonts of your own, you can specify th
 	&Yellowtail_32
 ```
 
-### older fonts available only through `ez.setFont`
+### older fonts available only through M5ez
 
 ```
 	mono6x8

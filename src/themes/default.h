@@ -68,7 +68,7 @@ static const char * _keydefs[] PROGMEM = {
 
 // This defines how many bars show at what signal percentage.
 // Keep first bar at "anything over 0" to make sure you have connection-indication
-#define SIGNAL_BARS			{ 0, 25, 50, 75 }
+#define SIGNAL_BARS			{ 0, 20, 40, 70 }
 #define SIGNAL_INTERVAL		2000
 
 // If you set 10 bars and a much shorter interval you get more of a wifi VU-meter 
