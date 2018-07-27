@@ -187,7 +187,7 @@ void ez.print(String text,
 ```
 
 ```
-void println(String text,
+void ez.println(String text,
 	int16_t x = -1,
 	int16_t y = -1,
 	const GFXfont* font = NULL,
@@ -204,19 +204,19 @@ If you pass -1 as x or y parameter (or don't supply them), print and println wil
 
 These two set the default print font and color respectively. Work as you would expect.
 
-**`void printLmargin(int16_t lmargin)`**
+**`void ez.printLmargin(int16_t lmargin)`**
 
 Sets a left margin (in pixels) for print to return to if a newline is printed. If you set it to something to the right of the current text position, the position moves to the new margin.
 
-**`void printWrap(bool state)`**
+**`void ez.printWrap(bool state)`**
 
 Determines whether or not whether text printed by `ez.print` and `ez.println` wraps to the next line if it doesn't fit. By default it does.
 
 ## Fonts
 
-**`void setFont(const GFXfont* font)`**
+**`void ez.setFont(const GFXfont* font)`**
 
-**`int16_t fontHeight()`**
+**`int16_t ez.fontHeight()`**
 
 Just like when using the `m5.lcd.setFreeFont` function directly, you can specify the FreeFont fonts to `ez.setFont` with a pointer to where they are in flash. M5ez makes it possible to do the same but also use the built-in "pre-FreeFont" fonts that are available. Normally, you would have to pass these as a numeric parameter to `m5.lcd.setTextFont`. M5ez provides a set of "fake pointers" that are treated specially to make this happen, but they can only be used by M5ez functions, not with any of the `m5.lcd` functions.
 
