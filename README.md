@@ -20,8 +20,16 @@ In the budding M5Stack community, there have been some initiatives to make it ea
 
 ## Getting started
 
-M5ez is an Arduino library. Simply put the M5ez directory in your Arduino libraries directory, restart the IDE and start programming. You'll have your first application on the screen in no time. (Or start with one of the sketches below in the "Menus" section of the documentation, or the demo program from the video which is in the "Examples" directory of the library.
+M5ez is an Arduino library. To start using it with the Arduino IDE:
 
+* Choose Sketch -> Include Library -> Manage Libraries...
+* Type m5ez into the search box.
+* Click the row to select the library.
+* Click the Install button to install the library.
+
+in File -> Examples you will now see an M5ez heading down under "Examples from custom libraries"
+
+You'll have your first application on the screen in no time. You can also start with one of the sketches below in the "Menus" section of the documentation.
 
 ### Important note:
 
