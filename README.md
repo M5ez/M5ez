@@ -16,7 +16,7 @@ Making something that looks good and allows users to interact with it is not sim
 
 In the budding M5Stack community, there have been some initiatives to make it easier to create user interfaces. Most notably a M5Stack forum user named Calin make something called "M5Stack MultiApp" which allows more easy integration of multiple existing programs into one app. His work serves as an inspiration for my work. But as much as you could have multiple programs have a common user interface, creating the programs still was nowhere near simple enough.
 
->This library and the documentation are all still very much a work in progress, but you have to publish something at some point. Please play with this and tell me what you like and don't like about it. 
+Enter M5ez, my contribution to making programming on the M5Stack *a lot* easier. I hope you'll enjoy programming with this.
 
 ## Getting started
 
