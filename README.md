@@ -1,6 +1,6 @@
 # `M5ez` The easy way to program on the M5Stack
 
->*M5ez (pronounced "M5 easy") is complete interface builder library for the M5Stack ESP32 system. It allows even novice programmers to create good looking interfaces. It comes with menus as text or as images, message boxes, very flexible button setup (including different length presses and multi-button functions), 3-button text input (you have to see it to believe it) and built-in Wifi support. Now you can concentrate on what your program does, and let M5ez worry about everything else.*
+>*M5ez (pronounced "M5 easy") is a complete interface builder library for the M5Stack ESP32 system. It allows even novice programmers to create good looking interfaces. It comes with menus as text or as images, message boxes, very flexible button setup (including different length presses and multi-button functions), 3-button text input (you have to see it to believe it) and built-in Wifi support. Now you can concentrate on what your program does, and let M5ez worry about everything else.*
 
 *written by Rop Gonggrijp*
 
@@ -114,7 +114,7 @@ If your button is captioned `up`, `down`, `left` or `right`, the caption is repl
 
 If a button has only one function, (no long press defined), the caption will be printed in the middle. If there is a short and a long press defined, they will be printed on the left and right, the right in cyan (in the default theme) to signify that it needs a longer press. 
 
-*In some cases it may be necessary to define only a long or only a hort press action explicitly. In that case, defining a the key with the placeholder "~" will make sure its function is not interpreted. Take the key definition string `~ # up # select # # right # down`: this defines the leftmost key to have the 'up' function, but only with a long press, a short press is ignored. The caption prints on the right side of the button and not in the middle. (One might use this to signify that the user got to the left edge of something she's navigating, not causing the 'up' function to trigger when she keeps pressing short before realising she's at the left edge.)*
+*In some cases it may be necessary to define only a long or only a short press action explicitly. In that case, defining a the key with the placeholder "~" will make sure its function is not interpreted. Take the key definition string `~ # up # select # # right # down`: this defines the leftmost key to have the 'up' function, but only with a long press, a short press is ignored. The caption prints on the right side of the button and not in the middle. (One might use this to signify that the user got to the left edge of something she's navigating, not causing the 'up' function to trigger when she keeps pressing short before realising she's at the left edge.)*
 
 **`void ez.drawButtons(String buttons)`**
 
@@ -126,12 +126,12 @@ Then if you call `ez.getButtons`, it will return the name of the key pressed sin
 
 **`ez.yield()`**
 
-Internally ez.getButtons()` calls `ez.yield()`, which does the button update as well
+Internally `ez.getButtons()` calls `ez.yield()`, which does the button update as well
 the wifi signal strength indication and autoconnection if that is enabled. You would not need to call this from your code, unless you want the signal bars and autoconnect to work  while in a loop that is going to be running for extended periods of time and that does not involve (also) waiting for buttons.
 
 **`String ez.waitForButtons()`**
 
- `ez.waitforButtons` does the same thing except it does not return if nothing is pressed. If you call it with no arguments, it assumes the buttons have already been drawn with `ez.drawButtons`. (And if not your program is stuck.) 
+ `ez.waitforButtons` does the same thing as `ez.getButtons()` except it does not return if nothing is pressed. If you call it with no arguments, it assumes the buttons have already been drawn with `ez.drawButtons`. (And if not your program is stuck.) 
  
 **`String ez.waitForButtons(String buttons)`**
   
@@ -154,7 +154,7 @@ String ez.msgBox(String header,
 
 ![](images/msgBox2.png)
 
-By default, msgBox then waits for the user to press any of the keys specified and returns the name of that key. If you want to scan for the keys yourself with `ez.getKeys()` (for instance because there are other things your code need to wait for or check) then you can specify `false` with blocking, msgBox will then show the message, header and buttons and exit.
+By default, msgBox then waits for the user to press any of the keys specified and returns the name of that key. If you want to scan for the keys yourself with `ez.getButtons()` (for instance because there are other things your code need to wait for or check) then you can specify `false` with blocking, msgBox will then show the message, header and buttons and exit.
 
 The font and color options allow you to use something other than the default (theme determined) defaults for the message printed by msgBox. They act as you would expect, see the section on fonts and colors for details.
 
@@ -639,7 +639,7 @@ This may very well be the only function you'll need. Simply make it the function
 
 Note that this doesn't use the `WiFi.setAutoConnect` and `WiFi.setAutoReconnect` fucntions of the ESP32 WiFi library: they can only connect to one access point. Instead  M5ez has it's own logic for connecting, saving the ssid and password of networks you want to automatically connect to in flash.
 
-The functions below give access to these troed networks as well as the stored "on/off" toggle for the autoconnect feature. You probably won't need them as `ezWifiMenu` lets the user manage all of this. Note that you have to call `ez.wifiWriteFlash()` when you are done making any changes.
+The functions below give access to these stored networks as well as the stored "on/off" toggle for the autoconnect feature. You probably won't need them as `ezWifiMenu` lets the user manage all of this. Note that you have to call `ez.wifiWriteFlash()` when you are done making any changes.
 
 **`void ez.wifiAddNetwork(String SSID, String key)`**
 
