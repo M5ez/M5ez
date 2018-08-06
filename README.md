@@ -593,7 +593,7 @@ These settings allow for the menu item caption to be printed somewhere on the ca
 | ----|:-----|:-----|:------ |
 | **top** | `TL_DATUM` | `TC_DATUM` | `TR_DATUM` |
 | **middle** | `ML_DATUM` | `MC_DATUM` | `MR_DATUM` |
-| **right** | `BL_DATUM` | `BC_DATUM` | `BR_DATUM` |
+| **bottom** | `BL_DATUM` | `BC_DATUM` | `BR_DATUM` |
 
 and the margins specify how far away from the edges of the canvas the caption is printed. The default is for no caption to be printed, you must specify all these options if you want captions. 
 
