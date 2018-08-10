@@ -180,7 +180,7 @@ M5ez supports the M5ez keyboard. Until I figure out how to properly detect that 
 ```
 String ez.textBox(String header = "",
 	String text = "", bool readonly = false,
-	String buttons "up#Done#down",
+	String buttons = "up#Done#down",
 	const GFXfont* font = TB_FONT, uint16_t color = TB_COLOR)
 ```
 
