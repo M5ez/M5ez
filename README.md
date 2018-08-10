@@ -141,7 +141,6 @@ You can specify the keys to be drawn straight into `ez.waitForButtons` for simpl
 
 ![](images/msgBox1.png)
 
-
 ```
 String ez.msgBox(String header,
 	String msg, String buttons = "OK", 
@@ -150,7 +149,7 @@ String ez.msgBox(String header,
     uint16_t color = MSG_COLOR)
 ```
 
-`ez.msgBox` produces a screen that just has your text message centered in the middle. If your message consists of multiple lines, you have to indicate where to break the lines yourself with a pipe sign (`|`). msgBox will then make sure that these lines are horizontally and vertically centered. The only two arguments you have to provide are the header text and the message to be printed. If you do not specify buttons, `ez.msgBox` will put a single "OK" button in the middle. You can specify buttons in the same way it's done with the button commands seen earlier.
+`ez.msgBox` produces a screen that just has your text message centered in the middle. If your message consists of multiple lines, msgBox will word-wrap and justify to the best fit on the screen. You can indicate where to break the lines yourself with a pipe sign (`|`). The only two arguments you have to provide are the header text and the message to be printed. If you do not specify buttons, `ez.msgBox` will put a single "OK" button in the middle. You can specify buttons in the same way it's done with the button commands seen earlier.
 
 ![](images/msgBox2.png)
 
@@ -175,6 +174,20 @@ This function will provide a text-entry field, pre-filled with `defaulttext` if 
 ![](images/FACES.png)
 
 M5ez supports the M5ez keyboard. Until I figure out how to properly detect that it is present, compile with `#define M5EZ_WITH_FACES` in the library's .h file. When you do, you will be able to use the `getFACES` function to get the last key pressed on the keyboard. The `textInput` function then also looks for keys from that keyboard, and starts with different key definitions for the M5Stack's own buttons.
+
+## Composing or viewing Longer texts: textBox
+
+```
+String ez.textBox(String header = "",
+	String text = "", bool readonly = false,
+	String buttons "up#Done#down",
+	const GFXfont* font = TB_FONT, uint16_t color = TB_COLOR)
+```
+
+This will word-wrap and display the string in `text` (up to 32 kB), allowing the user to page through it. Ideal for LoRa or SMS messages, short mails or whatever else. If a FACES keyboard is attached and `readonly` is false, the user can edit the text: a cursor appears, which can be moved with the arrow keys on the FACES keyboard. `TB_FONT` and `TB_COLOR` are the defaults from the theme, but they can be overridden by supplying a font and/or a color directly. 
+
+![](images/textBox.png)
+
 
 ## Printing text
 
@@ -635,7 +648,7 @@ These functions will show the position, name and caption of the picked item. The
 
 **`ezWifiMenu()`**
 
-This may very well be the only function you'll need. Simply make it the function some menu item of yours points to and the user will have access to a menu that lets her connect to wifi, manage which networks are automatically connected to at boot and whenever the wifi connecttion disappears. Note that it does not have a dor between the ez and WifiMenu: it is one word. 
+This may very well be the only function you'll need. Simply make it the function some menu item of yours points to and the user will have access to a menu that lets her connect to wifi, manage which networks are automatically connected to at boot and whenever the wifi connecttion disappears. Note that it does not have a dot between the ez and WifiMenu: it is one word. 
 
 Note that this doesn't use the `WiFi.setAutoConnect` and `WiFi.setAutoReconnect` fucntions of the ESP32 WiFi library: they can only connect to one access point. Instead  M5ez has it's own logic for connecting, saving the ssid and password of networks you want to automatically connect to in flash.
 
@@ -690,8 +703,10 @@ Now recompile and the problem is gone. It does mean that you cannot use the spea
 
 ## Themes
 
-If you look at the library file structure you will notice a directory called 'themes'. The file 'default.h' contains all sorts of interface defaults you can tinker with. Simply copy it to your sketch directory, rename it, change the values you want and include it before including M5ez itself. There will be more themes in the library's themes directory to choose from soon: if you make a pretty theme, let's include it in there for others to play with.
+If you look at the library file structure you will notice a directory called 'themes'. The file 'default.h' contains all sorts of interface defaults you can tinker with. You can include another theme file from that directory from M5ez.h, by uncommenting the theme include near the top. You can also create a new theme file in that directory, change the values you want and include it in the same way. There will be more themes in the library's themes directory to choose from soon. If you make a pretty theme, please send it along so I can include it in there for others to play with.
 
 ## Dual-use sketches
 
-With a simple trick, you can make code that does something pretty on its own, but that can also be included to provide a submenu in a bigger program. If you look at the M5ez-demo program, you will see that its directory includes another sketch named sysinfo.ino. This is the same sysinfo.ino that can be compiled on its own. (It is in the Examples directory.) But if it is included with another program, the compiler will see that this other "master" program has specified `#define MAIN_DECLARED true`. Since the sub program has `#ifndef MAIN_DECLARED` and `#endif` around its declaration of `setup()` and `loop()`, it no longer conflicts, and the "master" program can call functions from it. As you can see sysinfo.ino uses the value of `MAIN_DECLARED` to determine whether to provide an "Exit" button. After all: if it is running stand-alone there is nothing to exit to. Note that you do not need to `#include` any sketches placed in the same directory as your master program: the compiler combines them automatically. That also means you must ensure that no names are declared twice, or otherwise the compiler will complain.
+With a simple trick, you can make code that does something pretty on its own, but that can also be included to provide a submenu in a bigger program. If you look at the M5ez-demo program, you will see that its directory includes another sketch named sysinfo.ino. This is the same sysinfo.ino that can be compiled on its own. (It is in the Examples directory.) But if it is included with another program, the compiler will see that this other "master" program has specified `#define MAIN_DECLARED`. Since the sub program has `#ifndef MAIN_DECLARED` and `#endif` around its declaration of `setup()` and `loop()`, it no longer conflicts, and the "master" program can call functions from it. As you can see sysinfo.ino also uses whether or not `MAIN_DECLARED` is defined to determine whether to provide an "Exit" button. After all: if it is running stand-alone there is nothing to exit to. 
+
+Also note that you do not need to `#include` any sketches placed in the same directory as your master program: the compiler combines them automatically. That also means you must ensure that no names are declared twice, or otherwise the compiler will complain.

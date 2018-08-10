@@ -1,8 +1,11 @@
 #ifndef _M5EZ_H_
 #define _M5EZ_H_
 
+// uncomment to use a different theme
+// #include <themes/dark.h>
+
 // Commnent line below to have WPS. I turned it off because people have old 
- //libraries that did it differently.
+// ESP32 libraries that did WPS differently.
 #define M5EZ_WITHOUT_WPS
 
 // Uncomment to support the FACES keyboard
@@ -84,6 +87,9 @@ class M5ez {
 		
 		// FACES support
 		String getFACES();
+		
+		//ez.textBox
+		String textBox(String header = "", String text = "", bool readonly = false, String buttons = "up#Done#down", const GFXfont* font = TB_FONT, uint16_t color = TB_COLOR);
 	
 		// ez.print
 		void print(String text, int16_t x = -1, int16_t y = -1, const GFXfont* font = NULL, uint16_t color = PRINT_DEFAULT_COL);
@@ -118,7 +124,7 @@ class M5ez {
 		String rightOf(String input, String separator, bool trim = true);
 		String leftOf(String input, String separator, bool trim = true);
 		int16_t countStringInString(String haystack, String needle);
-		int16_t chopStringIntoArray(String input, String separator, String array[], bool trim = true);
+		int16_t chopString(String input, String separator, std::vector<String>& chops, bool trim = true);
 		int16_t charsFit(String input, int16_t cutoff);
 		String clipString(String input, int16_t cutoff, bool dots = true);
 		bool isBackExitOrDone(String str);
@@ -163,6 +169,13 @@ class M5ez {
 		void _textCursor();
 		void _textCursor(bool state);
 		long  _text_cursor_millis;
+
+		// ez.textBox
+		struct line_t {
+			int16_t position;
+			String line;
+		};
+		void wrapLines(String text, uint16_t width, std::vector<line_t>& lines);
 		
 		// FACES keyboard support
 		uint8_t _faces_state;

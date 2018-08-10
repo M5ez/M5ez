@@ -28,6 +28,9 @@ msgBox				KEYWORD2
 // ez.textInput
 textInput			KEYWORD2
 
+//ez.textBox
+textBox				KEYWORD2
+
 // FACES support
 getFACES			KEYWORD2
 	
@@ -46,8 +49,7 @@ wifiJoin			KEYWORD2
 // Generic String object helper functions
 rightOf				KEYWORD2
 leftOf				KEYWORD2
-countStringInString	KEYWORD2
-chopStringIntoArray	KEYWORD2
+chopString			KEYWORD2
 charsFit			KEYWORD2
 clipString			KEYWORD2
 isBackExitOrDone	KEYWORD2

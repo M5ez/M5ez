@@ -1,7 +1,7 @@
 /* This example shows how to use M5ez to do simple display things. 
  * The "#ifndef MAIN_DECLARED" part is there so that it can also 
  * simply be added to the directory of another sketch. As long as
- * it contains "#define MAIN_DECLARED true", the sketches do not 
+ * it contains "#define MAIN_DECLARED", the sketches do not 
  * conflict and the other program can simply call sysInfo() if it 
  * wants to display system information.
  * 
@@ -11,7 +11,6 @@
 */
 
 #ifndef MAIN_DECLARED
-#define MAIN_DECLARED false
 
 #include <M5Stack.h>
 #include <M5ez.h>
@@ -24,6 +23,12 @@ void setup() {
 void loop() {
 
 }
+
+String exit_button = "";
+
+#else
+
+String exit_button = "Exit";
 
 #endif  // #ifndef MAIN_DECLARED
 
@@ -45,7 +50,7 @@ void sysInfoPage1() {
   const byte tab = 120;
   ez.clearScreen();
   ez.drawHeader("System Information   (1/2)");
-  ez.drawButtons("#" + String(MAIN_DECLARED ? "Exit" : "") + "#down");
+  ez.drawButtons("#" + exit_button + "#down");
   ez.printFont(&FreeSans9pt7b);
   ez.printLmargin(10);
   ez.println("");
@@ -62,7 +67,7 @@ void sysInfoPage2() {
   const byte tab = 140;
   ez.clearScreen();
   ez.drawHeader("System Information   (2/2)");
-  ez.drawButtons("up#" + String(MAIN_DECLARED ? "Exit" : "") + "#");
+  ez.drawButtons("up#" + exit_button + "#");
   ez.printFont(&FreeSans9pt7b);
   ez.printLmargin(10);
   ez.println("");

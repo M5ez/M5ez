@@ -102,26 +102,24 @@ void M5ez::removeHeader() {
 
 void M5ez::drawButtons(String buttons) {
 	buttons.trim();
-	// number of elements is one more than number of separators
-	int16_t num = countStringInString(buttons, "#") + 1;
-	if (num == 1) {
-		// One element, so center button only
-		_drawButtons("", "", buttons, "", "", "", "", "", "");
-	} else {
-		String ButtonArray[num];
-		chopStringIntoArray(buttons, "#", ButtonArray, true);
-		if (num == 3) {
+	std::vector<String> buttonVector;
+	chopString(buttons, "#", buttonVector, true);
+	switch (buttonVector.size()) {
+		case 1:
+			_drawButtons("", "", buttons, "", "", "", "", "", "");
+			break;
+		case 3:
 			// Three elements, so shortpress only
-			_drawButtons(ButtonArray[0], "", ButtonArray[1], "", ButtonArray[2], "", "", "", "");
-		}
-		if (num == 6) {
+			_drawButtons(buttonVector[0], "", buttonVector[1], "", buttonVector[2], "", "", "", "");
+			break;
+		case 6:
 			// Six elements, so all buttons long and short
-			_drawButtons(ButtonArray[0], ButtonArray[1], ButtonArray[2], ButtonArray[3], ButtonArray[4], ButtonArray[5], "", "", "");
-		}
-		if (num == 9) {
+			_drawButtons(buttonVector[0], buttonVector[1], buttonVector[2], buttonVector[3], buttonVector[4], buttonVector[5], "", "", "");
+			break;
+		case 9:
 			// Nine elements, so all buttons long and short plus the top row of three multi-keys
-			_drawButtons(ButtonArray[0], ButtonArray[1], ButtonArray[2], ButtonArray[3], ButtonArray[4], ButtonArray[5], ButtonArray[6], ButtonArray[7], ButtonArray[8]);
-		}
+			_drawButtons(buttonVector[0], buttonVector[1], buttonVector[2], buttonVector[3], buttonVector[4], buttonVector[5], buttonVector[6], buttonVector[7], buttonVector[8]);
+			break;
 	}
 }
 
@@ -322,16 +320,24 @@ String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, cons
 	clearScreen();
 	if (header != "") drawHeader(header);
 	drawButtons(buttons);
-	int16_t num_lines = countStringInString(msg, "|") + 1;
-	String lines[num_lines];
-	chopStringIntoArray(msg, "|", lines);
+	std::vector<line_t> lines;
+	msg.replace("|", (String)char(13));	
 	m5.lcd.setTextDatum(CC_DATUM);
 	m5.lcd.setTextColor(color);
 	ez.setFont(font);
+	uint8_t	prev_num_lines = 100;
+	for (int16_t n = canvasWidth() - 2 * MSG_HMARGIN; n > canvasWidth() / 3; n -= 10) {
+		wrapLines(msg, n, lines);
+		if (lines.size() > prev_num_lines) {
+			wrapLines(msg, n + 10, lines);
+			break;
+		}
+		prev_num_lines = lines.size();
+	}
 	int16_t font_h = ez.fontHeight();
-	for (int8_t n = 0; n < num_lines; n++) {
-		int16_t y = _canvas_t + _canvas_h / 2 - ( (num_lines - 1) * font_h / 2) + n * font_h;
-		m5.lcd.drawString(lines[n], TFT_W / 2, y);
+	for (int8_t n = 0; n < lines.size(); n++) {
+		int16_t y = _canvas_t + _canvas_h / 2 - ( (lines.size() - 1) * font_h / 2) + n * font_h;
+		m5.lcd.drawString(lines[n].line, TFT_W / 2, y);
 	}
 	if (buttons != "" && blocking) {
 		String ret = waitForButtons();
@@ -392,7 +398,7 @@ String M5ez::textInput(String header /* = "" */, String defaultText /* = "" */) 
 			key = "";
 		}
 		if (key == "SP") key = " ";
-		if (key != "") {
+		if (key >= " " && key <= "~") {
 			current_kb = locked_kb;
 			drawButtons(_keydefs[current_kb]);
 			text += key;
@@ -458,6 +464,215 @@ void M5ez::_textCursor(bool state) {
 	_text_cursor_millis = millis();
 }
 
+String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonly /*= false*/, String buttons /*= "up#Done#down"*/, const GFXfont* font /*= TB_FONT*/, uint16_t color /*= TB_COLOR*/) {
+	if (!_faces_state) readonly = true;
+	std::vector<line_t> lines;
+	ez.clearScreen();
+	uint16_t cursor_pos = text.length();
+	bool cursor_state = false;
+	long cursor_time = 0;
+	if (header != "") ez.drawHeader(header);
+	int8_t per_line_h = ez.fontHeight();
+	String tmp_buttons = buttons;
+	tmp_buttons.replace("up", "");
+	tmp_buttons.replace("down", "");	
+	ez.drawButtons(tmp_buttons); 	//we need to draw the buttons here to make sure canvasHeight() is correct
+	uint8_t lines_per_screen = (ez.canvasHeight()) / per_line_h;
+	uint8_t remainder = (ez.canvasHeight()) % per_line_h;
+	Serial.println(text);
+	wrapLines(text, ez.canvasWidth() - 2 * TB_HMARGIN, lines);
+	for (int n = 0; n < lines.size(); n++) {
+		Serial.println(lines[n].line);
+	}
+	uint16_t offset = 0;
+	bool redraw = true;
+	ez.setFont(font);
+	uint8_t cursor_width = m5.lcd.textWidth("|");
+	uint8_t cursor_height = per_line_h * 0.8;
+	int16_t cursor_x, cursor_y;
+	while (true) {
+		if (redraw) {
+			if (!readonly && cursor_x && cursor_y) m5.lcd.fillRect(cursor_x, cursor_y, cursor_width, cursor_height, _background);		//Remove current cursor
+			cursor_x = cursor_y = 0;
+			tmp_buttons = buttons;
+			if (offset >= lines.size() - lines_per_screen) {
+				tmp_buttons.replace("down", "");
+			}
+			if (offset <= 0) {
+				offset = 0;
+				tmp_buttons.replace("up", "");
+			}
+			ez.drawButtons(tmp_buttons);
+			ez.setFont(font);
+			m5.lcd.setTextColor(color, _background);
+			m5.lcd.setTextDatum(TL_DATUM);
+			uint16_t x, y;
+			uint16_t sol, eol;
+			String this_line;
+			for (int8_t n = offset; n < offset + lines_per_screen; n++) {
+				if (n < lines.size() - 1) {
+					this_line = lines[n].line;
+					sol = lines[n].position;
+					eol = lines[n + 1].position - 1;
+				} else if (n == lines.size() - 1) {
+					this_line = lines[n].line;
+					sol = lines[n].position;
+					eol = text.length();
+				} else {
+					this_line = "";
+					sol = -1;
+					eol = text.length();
+				}
+				y = ez.canvasTop() + remainder * 0.7 + (n - offset) * per_line_h;
+				x = TB_HMARGIN;
+				if (!readonly && sol != -1 && cursor_pos >= sol && cursor_pos <= eol && n < lines.size()) { 		// if cursor is on current line
+					x += m5.lcd.drawString(this_line.substring(0, cursor_pos - sol), x, y);
+					cursor_x = x;
+					cursor_y = y;
+					x += cursor_width;
+					x += m5.lcd.drawString(this_line.substring(cursor_pos - sol), x, y);
+				} else {
+					x += m5.lcd.drawString(this_line, x, y);
+				}
+				m5.lcd.fillRect(x, y, canvasWidth() - x, per_line_h, _background);
+			}
+			redraw = false;
+		}
+		if (!readonly && cursor_x && cursor_y && millis() - cursor_time > INPUT_CURSOR_BLINK) {
+			cursor_time = millis();
+			if (cursor_state) {
+				m5.lcd.fillRect(cursor_x, cursor_y, cursor_width, cursor_height, _background);
+				cursor_state = false;
+			} else {
+				m5.lcd.fillRect(cursor_x, cursor_y, cursor_width, cursor_height, color);
+				cursor_state = true;
+			}
+		}
+		String key = ez.getButtons();
+		if (key == "") key = getFACES();
+		if (key == "down") {
+			offset += lines_per_screen;
+			ez.clearCanvas();
+			redraw = true;
+			key = "";
+		}
+		if (key == "up") {
+			offset -= lines_per_screen;
+			ez.clearCanvas();
+			redraw = true;
+			key = "";
+		}
+		if (key == "Done") {
+			ez.clearScreen();
+			return text;
+		}
+		if (key == (String)char(8)) {		// Delete
+			if (cursor_pos > 0) {
+				text = text.substring(0, cursor_pos - 1) + text.substring(cursor_pos);
+				cursor_pos--;
+				wrapLines(text, ez.canvasWidth() - 2 * TB_HMARGIN, lines);
+				redraw = true;
+			}
+			key = "";
+		}
+		if (key == (String)char(191)) {		// left arrow on FACES keyboard
+			if (cursor_pos > 0) {
+				cursor_pos--;
+				redraw = true;
+			}
+			key = "";
+		}
+		if (key == (String)char(193)) {		// right arrow on FACES keyboard
+			if (cursor_pos < text.length()) {
+				cursor_pos++;
+				redraw = true;
+			}
+			key = "";
+		}
+		if (key == (String)char(183) || key == (String)char(192)) {		// up or down arrow on FACES keyboard
+			uint16_t cursor_line = lines.size() - 1;
+			for (uint16_t n = 0; n < lines.size(); n++) {
+				if (cursor_pos < lines[n].position) {
+					cursor_line = n - 1;
+					break;
+				}
+			}
+			float relative_pos = (float)(cursor_pos - lines[cursor_line].position) / lines[cursor_line].line.length();
+			if (key == (String)char(183)) {		//up
+				if (cursor_line >= 1) {
+					cursor_pos = lines[cursor_line - 1].position + lines[cursor_line - 1].line.length() * relative_pos;
+					redraw = true;
+				}
+			} else {	//down
+				if (cursor_line < lines.size() - 1) {
+					cursor_pos = lines[cursor_line + 1].position + lines[cursor_line + 1].line.length() * relative_pos;
+					redraw = true;
+				}
+			}
+			key = "";
+		}
+		
+		if (!readonly) {
+			if (key >= " " && key <= "~") {
+				if (cursor_pos == text.length()) {
+					text = text + key;
+				} else {
+					text = text.substring(0, cursor_pos) + key + text.substring(cursor_pos);
+				}
+				cursor_pos++;
+				wrapLines(text, ez.canvasWidth() - 2 * TB_HMARGIN, lines);
+				redraw = true;
+			}
+		} 
+	}
+}
+
+void M5ez::wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
+	lines.clear();
+	int16_t offset = 0;
+	int16_t last_space = 0;
+	int16_t cur_space = 0;
+	int16_t newline = 0;
+	bool all_done = false;
+	line_t new_line;
+	while (!all_done) {
+		cur_space = text.indexOf(" ", last_space + 1);
+		if (cur_space == -1) {
+			cur_space = text.length();
+			all_done = true;
+		}
+		newline = text.indexOf(char(13), last_space + 1);
+		if (newline != -1 && newline < cur_space) cur_space = newline;
+		if (m5.lcd.textWidth(text.substring(offset, cur_space)) > width || text.substring(last_space, last_space + 1) == (String)char(13)) {
+			if (m5.lcd.textWidth(text.substring(offset, last_space)) <= width) {
+				new_line.position = offset;
+				new_line.line = text.substring(offset, last_space);
+				Serial.println(text.substring(offset, last_space));
+				lines.push_back(new_line);
+				offset = last_space + 1;
+				last_space = cur_space;
+			} else {
+				for (uint16_t n = offset; n < text.length(); n++) {
+					if (m5.lcd.textWidth(text.substring(offset, n + 1)) > width) {
+						new_line.position = offset;
+						new_line.line = text.substring(offset, n);
+						lines.push_back(new_line);
+						offset = n;
+						break;
+					}
+				}
+			}
+		} else {
+			last_space = cur_space;
+		}
+		if (all_done and offset < text.length()) {
+			new_line.position = offset;
+			new_line.line = text.substring(offset);
+			lines.push_back(new_line);
+		}
+		
+	}		
+}
 
 // ez.print
 
@@ -568,50 +783,43 @@ String M5ez::getFACES() {
 // Some generic String object helper functions. Made public because they might be useful in user code
 
 String M5ez::rightOf(String input, String separator, bool trim /* = true */ ) {
-	int16_t i;
-	for (i = 0; i < input.length() - separator.length() + 1; i++) {
-		if (input.substring(i, i + separator.length()) == separator) {
-			String o = input.substring(i + separator.length() );
-			if (trim) o.trim();
-			return o;
-		}
-	}
-	return input;
-}
+	input.replace("\\" + separator, (String)char(255));		// allow for backslash escaping of the separator
+	int16_t sep_pos = input.indexOf(separator);
+	input.replace((String)char(255), separator);
+	String out = input.substring(sep_pos + 1);
+	if (trim) out.trim();
+	return out;
+}	
 
-String M5ez::leftOf(String input, String separator, bool trim /* = true */) {
-	int16_t i;
-	for (i = 0; i < input.length() - separator.length() + 1; i++) {
-		if (input.substring(i, i + separator.length()) == separator) {
-			String o = input.substring(0, i);
-			if (trim) o.trim();
-			return o;
-		}
-	}
-	return input;
-}
+String M5ez::leftOf(String input, String separator, bool trim /* = true */ ) {
+	input.replace("\\" + separator, (String)char(255));		// allow for backslash escaping of the separator
+	int16_t sep_pos = input.indexOf(separator);
+	input.replace((String)char(255), separator);
+	if (sep_pos == -1) sep_pos = input.length();
+	String out = input.substring(0, sep_pos);
+	if (trim) out.trim();
+	return out;
+}	
 
-int16_t M5ez::countStringInString(String haystack, String needle) {
-	int16_t count = 0, i;
-	for (i = 0; i < haystack.length() - needle.length() + 1; i++) {
-		if (haystack.substring(i, i + needle.length()) == needle) count++;
-	}
-	return count;
-}
-
-int16_t M5ez::chopStringIntoArray(String input, String separator, String array[], bool trim /* = true */) {
-	int16_t i, last_separator_end = 0, count = 0;
-	for (i = 0; i < input.length() - separator.length() + 1; i++) {
-		if (input.substring(i, i + separator.length()) == separator) {
-			array[count] = input.substring(last_separator_end, i);
-			if (trim) array[count].trim();
-			count++;
-			last_separator_end = i + separator.length();
+int16_t M5ez::chopString(String input, String separator, std::vector<String>& chops, bool trim /* = true */) {
+	Serial.println(input);
+	input.replace("\\" + separator, (String)char(255));		// allow for backslash escaping of the separator
+	Serial.println(input);
+	int16_t next_sep, offset = 0;
+	bool done = false;
+	while (!done) {
+		next_sep = input.indexOf(separator, offset);
+		if (next_sep == -1) {
+			next_sep = input.length();
+			done = true;
 		}
-	}
-	array[count] = input.substring(last_separator_end);
-	if (trim) array[count].trim();
-	return count;
+		String chop = input.substring(offset, next_sep);
+		chop.replace((String)char(255), separator);
+		if (trim) chop.trim();
+		chops.push_back(chop);
+		offset = next_sep + 1;
+	}	
+	return chops.size();
 }
 
 int16_t M5ez::charsFit(String input, int16_t cutoff) {

@@ -3,7 +3,7 @@
 
 #include "images.h"
 
-#define MAIN_DECLARED   true
+#define MAIN_DECLARED
 
 void setup() {
 
@@ -12,19 +12,19 @@ void setup() {
 }
 
 void loop() {
-  ezMenu main("Welcome to M5ez");
-  main.addItem("Flexible text menus", main_menus);
-  main.addItem("Image menus", main_image);
-  main.addItem("Neat messages", main_msgs);
-  main.addItem("Multi-function buttons", main_buttons);
-  main.addItem("3-button text entry", main_entry);
-  main.addItem("Built-in WiFi support", ezWifiMenu);
-  main.upOnFirst("last|up");
-  main.downOnLast("first|down");
-  main.run(); 
+  ezMenu mainmenu("Welcome to M5ez");
+  mainmenu.addItem("Flexible text menus", mainmenu_menus);
+  mainmenu.addItem("Image menus", mainmenu_image);
+  mainmenu.addItem("Neat messages", mainmenu_msgs);
+  mainmenu.addItem("Multi-function buttons", mainmenu_buttons);
+  mainmenu.addItem("3-button text entry", mainmenu_entry);
+  mainmenu.addItem("Built-in WiFi support", ezWifiMenu);
+  mainmenu.upOnFirst("last|up");
+  mainmenu.downOnLast("first|down");
+  mainmenu.run(); 
 }
 
-void main_menus() { 
+void mainmenu_menus() { 
   ezMenu submenu("This is a sub menu");
   submenu.txtSmall();
   submenu.addItem("You can make small menus");
@@ -48,12 +48,12 @@ void submenu_more() {
   ez.drawHeader("A simple menu in code...");
   ez.printLmargin(10);
   ez.println("");
-  ez.println("ezMenu main(\"Main menu\");");
-  ez.println("main.addItem(\"Option 1\");");
-  ez.println("main.addItem(\"Option 2\");");
-  ez.println("main.addItem(\"Option 3\");");
-  ez.println("while ( main.run() ) {");
-  ez.println("  if (main.pick == 1) {");
+  ez.println("ezMenu menu(\"Main menu\");");
+  ez.println("menu.addItem(\"Option 1\");");
+  ez.println("menu.addItem(\"Option 2\");");
+  ez.println("menu.addItem(\"Option 3\");");
+  ez.println("while ( menu.run() ) {");
+  ez.println("  if (menu.pick == 1) {");
   ez.println("    ez.msgBox (\"One!\");");
   ez.println("  }");
   ez.println("}");
@@ -80,7 +80,7 @@ void submenu_more() {
   }
 }
 
-void main_image() {
+void mainmenu_image() {
   ezMenu images;
   images.imgBackground(TFT_BLACK);
   images.imgFromTop(40);
@@ -96,14 +96,16 @@ void main_image() {
   images.run();
 }
     
-void main_msgs() {
+void mainmenu_msgs() {
+  String cr = (String)char(13);
   ez.msgBox("You can show messages", "ez.msgBox shows text");
   ez.msgBox("Looking the way you want", "In any font !", "OK", true, &FreeSerifBold24pt7b, TFT_RED);
-  ez.msgBox("More ez.msgBox", "Even multi-line messages | where everything lines up | and is kept in the middle | of the screen");
-  ez.msgBox("Questions, questions...", "But can it also show | any buttons you want?", "No # # Yes"); 
+  ez.msgBox("More ez.msgBox", "Even multi-line messages where everything lines up and is kept in the middle of the screen");
+  ez.msgBox("Questions, questions...", "But can it also show any buttons you want?", "No # # Yes"); 
+  ez.textBox("And there's ez.textBox", "To present or compose longer word-wrapped texts, you can use the ez.textBox function." + cr + cr + "M5ez (pronounced \"M5 easy\") is a complete interface builder library for the M5Stack ESP32 system. It allows even novice programmers to create good looking interfaces. It comes with menus as text or as images, message boxes, very flexible button setup (including different length presses and multi-button functions), 3-button text input (you have to see it to believe it) and built-in Wifi support. Now you can concentrate on what your program does, and let M5ez worry about everything else.", true);
 }
     
-void main_buttons() {
+void mainmenu_buttons() {
   ez.drawHeader("Simple buttons...");
   ez.printFont(&FreeSans12pt7b);
   ez.printLmargin(20);
@@ -146,11 +148,11 @@ void printButton(){
   }
 }
 
-void main_entry() {
-  if (ez.msgBox("We're gonna enter text ... !", "Have you learned to use| the buttons? Go there first | if you haven't been there. | Or hit 'Go' to see if you | can enter your name.", "Back # # Go") == "Go") {
+void mainmenu_entry() {
+  if (ez.msgBox("We're gonna enter text ... !", "Have you learned to use the buttons? Go there first if you haven't been there. Or hit 'Go' to see if you can enter your name.", "Back # # Go") == "Go") {
     String your_name = ez.textInput();
-    ez.msgBox("Pfew...", "Hi " + your_name +" !| | Now that was a pain ! | But it is good enough for | entering, say, a WPA key, | or don't you think?");
-    ez.msgBox("Don't worry", "(You do get better | with practice...)");
+    ez.msgBox("Pfew...", "Hi " + your_name + "! | | Now that was a pain! But it is good enough for entering, say, a WPA key, or don't you think?");
+    ez.msgBox("Don't worry", "(You do get better with practice...)");
   }
 }
 
