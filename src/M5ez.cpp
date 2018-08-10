@@ -479,11 +479,7 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 	ez.drawButtons(tmp_buttons); 	//we need to draw the buttons here to make sure canvasHeight() is correct
 	uint8_t lines_per_screen = (ez.canvasHeight()) / per_line_h;
 	uint8_t remainder = (ez.canvasHeight()) % per_line_h;
-	Serial.println(text);
 	wrapLines(text, ez.canvasWidth() - 2 * TB_HMARGIN, lines);
-	for (int n = 0; n < lines.size(); n++) {
-		Serial.println(lines[n].line);
-	}
 	uint16_t offset = 0;
 	bool redraw = true;
 	ez.setFont(font);
@@ -647,7 +643,6 @@ void M5ez::wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
 			if (m5.lcd.textWidth(text.substring(offset, last_space)) <= width) {
 				new_line.position = offset;
 				new_line.line = text.substring(offset, last_space);
-				Serial.println(text.substring(offset, last_space));
 				lines.push_back(new_line);
 				offset = last_space + 1;
 				last_space = cur_space;
@@ -677,7 +672,6 @@ void M5ez::wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
 // ez.print
 
 void M5ez::print(String text, int16_t x /* = -1 */, int16_t y /* = -1 */, const GFXfont* font /* = NULL */, uint16_t color /* = TFT_TRANSPARENT */) {
-	//Serial.println ("print - x:" + String(x) + " y:" + String(y) + " text:" + text);
 	if (font == NULL) font = _print_font;
 	if (color == TFT_TRANSPARENT) color = _print_color;
 	if (x == -1) x = _print_x;
@@ -696,11 +690,9 @@ void M5ez::print(String text, int16_t x /* = -1 */, int16_t y /* = -1 */, const 
 
 	if (y + h <= _canvas_t + _canvas_h) {
 		if (_print_wrap && m5.lcd.textWidth(text) > TFT_W - x) {	// Doesn't fit, needs truncation or wrap
-			//Serial.println("doesn't fit");
 			String this_fits;
 			for (int16_t n = text.length(); n > 0; n--) {
 				this_fits = text.substring(0, n - 1);
-				Serial.println("New try: " + this_fits);
 				if (m5.lcd.textWidth(this_fits) <= TFT_W - _print_x) {
 					println (this_fits, x, y, font, color);
 					print(text.substring(n - 1));	//if it still doesn't fit, the next iteration of print will deal with it
@@ -716,7 +708,6 @@ void M5ez::print(String text, int16_t x /* = -1 */, int16_t y /* = -1 */, const 
 }
 
 void M5ez::println(String text, int16_t x /* = -1 */, int16_t y /* = -1 */, const GFXfont* font /* = NULL */, uint16_t color /* = TFT_TRANSPARENT */) {
-	//Serial.println ("println - x:" + String(x) + " y:" + String(y) + " text:" + text);
 	print(text, x, y, font, color);
 	_print_x = _print_lmargin;
 	_print_y = _print_y + ez.fontHeight();
@@ -802,9 +793,7 @@ String M5ez::leftOf(String input, String separator, bool trim /* = true */ ) {
 }	
 
 int16_t M5ez::chopString(String input, String separator, std::vector<String>& chops, bool trim /* = true */) {
-	Serial.println(input);
 	input.replace("\\" + separator, (String)char(255));		// allow for backslash escaping of the separator
-	Serial.println(input);
 	int16_t next_sep, offset = 0;
 	bool done = false;
 	while (!done) {
@@ -1470,9 +1459,7 @@ namespace {
 				ez.msgBox("WiFi setup menu", "Scanning ...", "");
 				WiFi.disconnect();
 				delay(100);
-				Serial.println("Scan start");
 				int16_t n = WiFi.scanNetworks();
-				Serial.println("Scan done");
 				if (n == 0) {
 					ez.msgBox("WiFi setup menu", "No networks found", "OK");
 				} else {
@@ -1506,7 +1493,6 @@ namespace {
 							}
 							status = WiFi.status();
 							if (status != prev_status) {
-								Serial.println("Wifi status: " + String(status));
 								prev_status = status;
 							}
 							if (status == WL_CONNECTED) {
