@@ -175,7 +175,7 @@ This function will provide a text-entry field, pre-filled with `defaulttext` if 
 
 M5ez supports the M5ez keyboard. Until I figure out how to properly detect that it is present, compile with `#define M5EZ_WITH_FACES` in the library's .h file. When you do, you will be able to use the `getFACES` function to get the last key pressed on the keyboard. The `textInput` function then also looks for keys from that keyboard, and starts with different key definitions for the M5Stack's own buttons.
 
-## Composing or viewing Longer texts: textBox
+## Composing or viewing longer texts: textBox
 
 ```
 String ez.textBox(String header = "",
