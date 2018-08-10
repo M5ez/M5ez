@@ -9,7 +9,7 @@
 #define M5EZ_WITHOUT_WPS
 
 // Uncomment to support the FACES keyboard
-// #define M5EZ_WITH_FACES
+#define M5EZ_WITH_FACES
 
 // Have the autoconnect logic print debug messages on the serial port
 // #define M5EZ_WIFI_DEBUG

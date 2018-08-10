@@ -34,7 +34,11 @@
 #define INPUT_BGCOLOR		TFT_BLACK
 #define INPUT_FGCOLOR		TFT_GREEN
 #define INPUT_CURSOR_BLINK	500		// milliseconds
-#define INPUT_FACES_BTNS	13
+#define INPUT_FACES_BTNS	18
+
+#define TB_FONT				&FreeSans9pt7b
+#define TB_COLOR			TFT_BLACK
+#define TB_HMARGIN			5
 
 #define MENU_LMARGIN			40
 #define MENU_RMARGIN			20
@@ -48,6 +52,7 @@
 
 #define MSG_FONT			&FreeSans12pt7b
 #define MSG_COLOR			TFT_BLACK
+#define MSG_HMARGIN			20
 
 static const char * _keydefs[] PROGMEM = {
 	"KB3|qrstu.#SP#KB4|vwxyz,#Del#KB5|More#LCK:|Lock#KB1|abcdefgh#KB2|ijklmnop#Done",	//KB0
@@ -60,10 +65,16 @@ static const char * _keydefs[] PROGMEM = {
 	"K#L#M#N#O#P#I#J#Back",																//KB7
 	"S#T#U#.###Q#R#Back",																//KB8
 	"X#Y#Z#,###V#W#Back",																//KB9
-	"KB11|1-5.#SP#KB12|6-0,#Del#KB0|More#LCK:NUM|Lock###Done",							//KB10
+	"KB11|1-5.#SP#KB12|6-0,#Del#KB13|More#LCK:NUM|Lock###Done",							//KB10
 	"1#2#3#4#5#,###Back",																//KB11
 	"6#7#8#9#0#.###Back",																//KB12
-	".#,#Del##Done#"																	//KB13
+	"KB14|!?:;\\#$^&#SP#KB15|*()_-+=\|#Del#KB0|More#LCK:SYM|Lock#KB16|'\"`@%\\/#KB17|<>{}[]()#Done",	//KB13
+	"!#?#:#;#\\##$#^#&#Back",															//KB14
+	"*#(#)#_#-#+#=#\\|#Back",															//KB15
+	"'#\"#`#@#%#/#\##Back",																//KB16
+	"<#>#{#}#[#]#(#)#Back",																//KB17
+	".#,#Del##Done#"																	//KB18
+	
 };
 
 // This defines how many bars show at what signal percentage.
