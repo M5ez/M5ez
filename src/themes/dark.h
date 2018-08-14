@@ -2,6 +2,7 @@
 #define M5EZ_THEME_LOADED
 
 #define SCREEN_BGCOLOR		TFT_BLACK
+#define THEME_FGCOLOR		TFT_WHITE
 
 #define HEADER_HEIGHT		23
 #define HEADER_FONT			&FreeSansBold9pt7b
@@ -11,7 +12,7 @@
 #define HEADER_FGCOLOR		TFT_WHITE
 
 #define EP_FONT				mono12x16
-#define	EP_COLOR			TFT_WHITE
+#define	EP_COLOR			THEME_FGCOLOR
 
 #define LONGPRESS_TIME		250		// milliseconds
 
@@ -37,13 +38,13 @@
 #define INPUT_FACES_BTNS	18
 
 #define TB_FONT				&FreeSans9pt7b
-#define TB_COLOR			TFT_WHITE
+#define TB_COLOR			THEME_FGCOLOR
 #define TB_HMARGIN			5
 
 #define MENU_LMARGIN			40
 #define MENU_RMARGIN			20
-#define MENU_ITEM_COLOR			TFT_WHITE
-#define MENU_SEL_BGCOLOR		TFT_WHITE
+#define MENU_ITEM_COLOR			THEME_FGCOLOR
+#define MENU_SEL_BGCOLOR		THEME_FGCOLOR
 #define MENU_SEL_FGCOLOR		SCREEN_BGCOLOR
 #define MENU_BIG_FONT			&FreeSans12pt7b
 #define MENU_SMALL_FONT			&FreeSans9pt7b
@@ -51,8 +52,15 @@
 #define MENU_ITEM_RADIUS		10
 
 #define MSG_FONT			&FreeSans12pt7b
-#define MSG_COLOR			TFT_WHITE
+#define MSG_COLOR			THEME_FGCOLOR
 #define MSG_HMARGIN			20
+
+#define PROGRESSBAR_LINE_WIDTH	4
+#define PROGRESSBAR_WIDTH		25
+#define PROGRESSBAR_COLOR		THEME_FGCOLOR
+
+#define WDGT_CAPTION_BIG		&FreeSansBold12pt7b
+#define WDGT_CAPTION_SMALL		&FreeSansBold9pt7b
 
 static const char * _keydefs[] PROGMEM = {
 	"KB3|qrstu.#SP#KB4|vwxyz,#Del#KB5|More#LCK:|Lock#KB1|abcdefgh#KB2|ijklmnop#Done",	//KB0

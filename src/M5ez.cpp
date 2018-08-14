@@ -326,14 +326,7 @@ String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, cons
 	m5.lcd.setTextColor(color);
 	ez.setFont(font);
 	uint8_t	prev_num_lines = 100;
-	for (int16_t n = canvasWidth() - 2 * MSG_HMARGIN; n > canvasWidth() / 3; n -= 10) {
-		wrapLines(msg, n, lines);
-		if (lines.size() > prev_num_lines) {
-			wrapLines(msg, n + 10, lines);
-			break;
-		}
-		prev_num_lines = lines.size();
-	}
+	_fitLines(msg, canvasWidth() - 2 * MSG_HMARGIN, canvasWidth() / 3, lines);
 	int16_t font_h = ez.fontHeight();
 	for (int8_t n = 0; n < lines.size(); n++) {
 		int16_t y = _canvas_t + _canvas_h / 2 - ( (lines.size() - 1) * font_h / 2) + n * font_h;
@@ -479,7 +472,7 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 	ez.drawButtons(tmp_buttons); 	//we need to draw the buttons here to make sure canvasHeight() is correct
 	uint8_t lines_per_screen = (ez.canvasHeight()) / per_line_h;
 	uint8_t remainder = (ez.canvasHeight()) % per_line_h;
-	wrapLines(text, ez.canvasWidth() - 2 * TB_HMARGIN, lines);
+	_wrapLines(text, ez.canvasWidth() - 2 * TB_HMARGIN, lines);
 	uint16_t offset = 0;
 	bool redraw = true;
 	ez.setFont(font);
@@ -566,7 +559,7 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 			if (cursor_pos > 0) {
 				text = text.substring(0, cursor_pos - 1) + text.substring(cursor_pos);
 				cursor_pos--;
-				wrapLines(text, ez.canvasWidth() - 2 * TB_HMARGIN, lines);
+				_wrapLines(text, ez.canvasWidth() - 2 * TB_HMARGIN, lines);
 				redraw = true;
 			}
 			key = "";
@@ -616,14 +609,14 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 					text = text.substring(0, cursor_pos) + key + text.substring(cursor_pos);
 				}
 				cursor_pos++;
-				wrapLines(text, ez.canvasWidth() - 2 * TB_HMARGIN, lines);
+				_wrapLines(text, ez.canvasWidth() - 2 * TB_HMARGIN, lines);
 				redraw = true;
 			}
 		} 
 	}
 }
 
-void M5ez::wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
+void M5ez::_wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
 	lines.clear();
 	int16_t offset = 0;
 	int16_t last_space = 0;
@@ -668,6 +661,19 @@ void M5ez::wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
 		
 	}		
 }
+
+void M5ez::_fitLines(String text, uint16_t max_width, uint16_t min_width, std::vector<line_t>& lines) {
+	uint8_t	prev_num_lines = 100;
+	for (int16_t n = max_width; n > min_width; n -= 10) {
+		_wrapLines(text, n, lines);
+		if (lines.size() > prev_num_lines) {
+			_wrapLines(text, n + 10, lines);
+			return;
+		}
+		prev_num_lines = lines.size();
+	}
+}
+
 
 // ez.print
 
@@ -829,14 +835,7 @@ String M5ez::clipString(String input, int16_t cutoff, bool dots /* = true */ ) {
 		for (int16_t n = input.length(); n >= 0; n--) {
 			String toMeasure = input.substring(0, n);
 			if (dots) toMeasure = toMeasure + "...";
-			int16_t measured = m5.lcd.textWidth(input.substring(0, n) + "...");
-			if (m5.lcd.textWidth(toMeasure) <= cutoff) {
-				if (dots) {
-					return toMeasure + "..." ;
-				} else {
-					return toMeasure;
-				}
-			}
+			if (m5.lcd.textWidth(toMeasure) <= cutoff) return toMeasure;
 		}
 		return "";
 	}
@@ -994,6 +993,39 @@ bool M5ez::wifiAutoconnectOn() { return _wifi_autoconnect_on; }
 void M5ez::wifiStatus() { ezWifiMenu(); }  // Old name for wifiMenu(), keeps working
 
 #endif
+
+
+//
+// ezProgressBar class
+//
+
+ezProgressBar::ezProgressBar(String header /* = "" */, String msg /* = "" */, String buttons /* = "" */, const GFXfont* font /* = MSG_FONT */, uint16_t color /* = MSG_COLOR */, uint16_t bar_color /* = PROGRESSBAR_COLOR */) {
+	_bar_color = bar_color;
+	ez.clearScreen();
+	if (header != "") ez.drawHeader(header);
+	ez.drawButtons(buttons);
+	std::vector<line_t> lines;
+	msg.replace("|", (String)char(13));	
+	m5.lcd.setTextDatum(CC_DATUM);
+	m5.lcd.setTextColor(color);
+	ez.setFont(font);
+	uint8_t	prev_num_lines = 100;
+	ez._fitLines(msg, ez.canvasWidth() - 2 * MSG_HMARGIN, ez.canvasWidth() / 3, lines);
+	uint8_t font_h = ez.fontHeight();
+	uint8_t num_lines = lines.size() + 2;
+	for (uint8_t n = 0; n < lines.size(); n++) {
+		int16_t y = ez.canvasTop() + ez.canvasHeight() / 2 - ( (num_lines - 1) * font_h / 2) + n * font_h;
+		m5.lcd.drawString(lines[n].line, TFT_W / 2, y);
+	}
+	_bar_y = ez.canvasTop() + ez.canvasHeight() / 2 + ( (num_lines - 1) * font_h / 2) - PROGRESSBAR_WIDTH / 2;
+	for (uint8_t n = 0; n < PROGRESSBAR_LINE_WIDTH; n++) {
+		m5.lcd.drawRect(ez.canvasLeft() + MSG_HMARGIN + n, _bar_y + n, ez.canvasWidth() - 2 * MSG_HMARGIN - 2 * n, PROGRESSBAR_WIDTH - 2 * n, bar_color);
+	}
+}
+
+void ezProgressBar::value(float val) {
+	m5.lcd.fillRect(ez.canvasLeft() + MSG_HMARGIN + PROGRESSBAR_LINE_WIDTH, _bar_y + PROGRESSBAR_LINE_WIDTH, (int16_t)(ez.canvasWidth() - 2 * MSG_HMARGIN - 2 * PROGRESSBAR_LINE_WIDTH) * val / 100, PROGRESSBAR_WIDTH - 2 * PROGRESSBAR_LINE_WIDTH, _bar_color);
+}
 
 
 //

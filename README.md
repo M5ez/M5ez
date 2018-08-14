@@ -33,14 +33,14 @@ You'll have your first application on the screen in no time. You can also start 
 
 ### Important note:
 
-By default, the code has no support for WPS pushbutton or WPS pincode to connect to Wifi. If you turn off the `#define M5EZ_WITHOUT_WPS` define in the library's `M5ez.h` file it does compile it the WPS code. However you may then run into an error saying:
+By default, the code has no support for the "WPS pushbutton" or "WPS pincode" ways to connect to Wifi. If you turn off the `#define M5EZ_WITHOUT_WPS` define in the library's `M5ez.h` file it does compile it the WPS code. However you may then run into an error saying:
 
 ```
 Documents\Arduino\libraries\M5ez-master\src\M5ez.cpp:1319:19:
 error: 'struct esp_wps_config_t' has no member named 'factory_info'
 ```
 
-This means your ESP32 library is out of date. They changed how WPS is done in late June 2018. . Move aside the old `$arduinodir$/hardware/espressif/ESP32` directory and re-follow the instructions on https://github.com/espressif/arduino-esp32/ and the problem should go away.
+This means your ESP32 library is out of date. They changed how WPS is done in late June 2018. If this happens and you would like to have WPS, simply move aside the old `$arduinodir$/hardware/espressif/ESP32` directory and re-follow the instructions on https://github.com/espressif/arduino-esp32/ and the problem should go away.
 
 **It's a good idea to periodically re-download the ESP32 libraries as they are continually fixing things, among other things making Wifi much more stable.**
 
@@ -344,17 +344,17 @@ void setup() {
 
 void loop() {
   ezMenu myMenu;
-  myMenu.addItem("Option 1", main_one);
-  myMenu.addItem("Option 2", main_two);
+  myMenu.addItem("Option 1", mainmenu_one);
+  myMenu.addItem("Option 2", mainmenu_two);
   myMenu.addItem("Option 3");
   myMenu.run();  
 }
 
-void main_one() {
+void mainmenu_one() {
   ez.msgBox("", "You pressed one");
 }
 
-void main_two() {
+void mainmenu_two() {
   Serial.println("Number two was pressed");
 }
 ```
@@ -375,21 +375,21 @@ void setup() {
 
 void loop() {
   ezMenu myMenu("Main menu");
-  myMenu.addItem("Item 1", main_one);
-  myMenu.addItem("Item 2", main_two);
-  myMenu.addItem("Item 3", main_three);
+  myMenu.addItem("Item 1", mainmenu_one);
+  myMenu.addItem("Item 2", mainmenu_two);
+  myMenu.addItem("Item 3", mainmenu_three);
   myMenu.run();    
 }
 
-void main_one() {
+void mainmenu_one() {
   ez.msgBox("", "You pressed one");
 }
 
-void main_two() {
+void mainmenu_two() {
   Serial.println("Number two was pressed");
 }
 
-void main_three() {
+void mainmenu_three() {
   ezMenu subMenu("Submenu");
   subMenu.addItem("Item A");
   subMenu.addItem("Item B");
@@ -399,7 +399,7 @@ void main_three() {
 }
 ```
 
-As you can see, the submenu called `subMenu` has three items that do nothing because we did not supply functions, as well as a fourth item called "Back" (which displays "Back to main menu"), which, when selected, causes `subMenu.run()` to exit, which in turn causes `main_three` to exit which brings us back to the main menu. The main menu will sit there as if we never left, still showing "Item 3" highlighted. The subMenu object instance meanwhile has gone out of scope when the function exited, neatly cleaning up the RAM it used.
+As you can see, the submenu called `subMenu` has three items that do nothing because we did not supply functions, as well as a fourth item called "Back" (which displays "Back to main menu"), which, when selected, causes `subMenu.run()` to exit, which in turn causes `mainmenu_three` to exit which brings us back to the main menu. The main menu will sit there as if we never left, still showing "Item 3" highlighted. The subMenu object instance meanwhile has gone out of scope when the function exited, neatly cleaning up the RAM it used.
 
 > Did you notice we're now providing brackets and an argument when we create the menu. That is the header above our menu.
 
@@ -467,7 +467,7 @@ You can include jpg files in the flash by creating a special .h file that holds 
 The code in the demo application to show the picture menu looks as follows:
 
 ```
-void main_image() {
+void mainmenu_image() {
   ezMenu images;
 ```
 
@@ -475,7 +475,7 @@ void main_image() {
 
 ```
   images.addItem(sysinfo_jpg, "System Information", sysInfo);
-  images.addItem(wifi_jpg, "WiFi Settings", main_wifi);
+  images.addItem(wifi_jpg, "WiFi Settings", mainmenu_wifi);
   images.addItem(about_jpg, "About M5ez", aboutM5ez);
   images.addItem(sleep_jpg, "Power Off", powerOff);
   images.addItem(return_jpg, "Back");

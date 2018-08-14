@@ -41,14 +41,21 @@
 // no color is specified. The actual default print color is defined in the theme file. 
 #define PRINT_DEFAULT_COL	TFT_TRANSPARENT
 
-#define TFT_W 				320
-#define TFT_H				240
+#define TFT_W		320
+#define TFT_H		240
 
 #ifndef M5EZ_THEME_LOADED
 #include <themes/default.h>
 #endif
 
+struct line_t {
+	int16_t position;
+	String line;
+};
+
 class M5ez {
+	
+	friend class ezProgressBar;
 
 	public:
 
@@ -171,11 +178,12 @@ class M5ez {
 		long  _text_cursor_millis;
 
 		// ez.textBox
-		struct line_t {
-			int16_t position;
-			String line;
-		};
-		void wrapLines(String text, uint16_t width, std::vector<line_t>& lines);
+// 		struct line_t {
+// 			int16_t position;
+// 			String line;
+// 		};
+		void _wrapLines(String text, uint16_t width, std::vector<line_t>& lines);
+		void _fitLines(String text, uint16_t max_width, uint16_t min_width, std::vector<line_t>& lines);
 		
 		// FACES keyboard support
 		uint8_t _faces_state;
@@ -186,6 +194,20 @@ class M5ez {
 		int16_t _print_x, _print_y, _print_lmargin;
 		bool _print_wrap;
 		// bool _print_scroll;		//Not supported until we get m5.lcd.readRect(...) to work
+		
+};
+
+class ezProgressBar {
+
+	public:
+	
+		ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR);
+		void value(float val);
+		
+	private:
+	
+		int16_t _bar_y;
+		uint16_t _bar_color;
 		
 };
 
