@@ -103,8 +103,9 @@ imgCaptionColor		KEYWORD2
 imgCaptionMargins	KEYWORD2
 
 
-// extras from Dual-Use Sketches, not really part of library, but hey..
-OTA_https			KEYWORD2
+// ez.update
+update				KEYWORD2
+updateError			KEYWORD2
 
 // because it was forgotten in the M5Stack keywords.txt
 // (They only have it as "Lcd", but they made the "lcd" alias.)

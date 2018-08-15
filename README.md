@@ -157,6 +157,22 @@ By default, msgBox then waits for the user to press any of the keys specified an
 
 The font and color options allow you to use something other than the default (theme determined) defaults for the message printed by msgBox. They act as you would expect, see the section on fonts and colors for details.
 
+## ezProgressBar
+
+**`class ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR)`**
+
+If you want to show progress on a download or something else, use the `ezProgressBar` class. It behaves very simmilarly to msgBox, except you need to create a class instance. To create an ezProgressBar instance called pb, one could use:
+
+```
+	ezProgressBar pb ("This is a header", "Message, just like with msgBox", "Abort");
+```
+
+This will draw header, message, an empty (0 %) progress bar and the specified single "Abort" button. To advance the bar, one would then call:
+
+**`pb.value(float val)`**
+
+where `val` is a floating point value between 0 and 100. Check out the [Over-The-Air https update example](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) to how the ezProgressBar object is used there.
+
 ## 3-button text input
 
 **`String ez.textInput(String header = "", String defaultText = "")`**
@@ -704,6 +720,20 @@ Now recompile and the problem is gone. It does mean that you cannot use the spea
 ## Themes
 
 If you look at the library file structure you will notice a directory called 'themes'. The file 'default.h' contains all sorts of interface defaults you can tinker with. You can include another theme file from that directory from M5ez.h, by uncommenting the theme include near the top. You can also create a new theme file in that directory, change the values you want and include it in the same way. There will be more themes in the library's themes directory to choose from soon. If you make a pretty theme, please send it along so I can include it in there for others to play with.
+
+## Over-The-Air (OTA) updates via https
+
+You might deploy hardware that needs updates but that you don't wnat to hook up via USB every time. But you will want this upload mechanism to offer some security against attackers that culd otherwise compromise large numbers of internet-connected IoT devices. M5ez allows you to boot from a compiled binary file that is downloaded from the internet over https.
+
+**`bool ez.update(String url, const char* root_cert, ezProgressBar* pb = NULL)`**
+
+**`String ez.updateError()`**
+
+Takes a URL and a root certificate. A shell script called `get_cert` is provided in the `/tools` directory of this repository to get the right (non-forwarded) URL and create an include file to provide the correct certificate. The optional third argument is a pointer to the `ezProgressBar` instance that will show the progress of the firmware download. It must be provided with a leading ampersand. 
+
+`ez.update` returns `true` if the file is downloaded and everything is set up. The next reboot - which can be forced with `ESP.restart()` - will start the new binary. If `ez.update` returns `false`, you can use `ez.updateError()` to return a String with a human-readbale error message. (The way the https stream data is handled by the underlying ESP32 `Update` library does not seem terribly robust: stream timeouts happen, even on otherwise good internet connections.)
+
+The [README.rd file of the OTA_https sample sketch](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) provides a step-by-step recipe that describes how to determine the URL and get the certficate using `get_cert`.
 
 ## Dual-use sketches
 
