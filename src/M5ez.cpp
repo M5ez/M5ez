@@ -999,11 +999,6 @@ bool M5ez::wifiAutoconnectOn() { return _wifi_autoconnect_on; }
 
 void M5ez::wifiStatus() { ezWifiMenu(); }  // Old name for wifiMenu(), keeps working
 
-bool M5ez::testlala(const char* poep) {
-	Serial.println(poep);
-	return true;
-}
-
 bool M5ez::update(String url, const char* root_cert, ezProgressBar* pb /* = NULL */) {
 
 	_update_progressbar = pb;

@@ -142,7 +142,6 @@ class M5ez {
 		void wifiWriteFlash();
 		
 		// ez.update
-		bool testlala(const char* poep);
 		bool update(String url, const char* root_cert, ezProgressBar* pb = NULL);
 		String updateError();
 #endif
