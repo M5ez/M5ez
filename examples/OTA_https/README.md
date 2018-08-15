@@ -2,6 +2,8 @@
 
 OTA stands for Over The Air, and in the context of the M5Stack usually means we're upgrading compiled firmware via the WiFi network, without hooking the USB port to a computer and running the Arduino IDE. The ez.update routine that we will be using to update the firmware uses https to transport the firmware, because code that is going to be running on all sorts of devices should be encrypted.
 
+![](../../images/ezProgressBar.png)
+
 ### Using the demo
 
 Load this program in your Arduino IDE and load it to your M5Stack. The menu will allow you to get the larger M5ez-demo program from the `/compiled_binaries` directory on the M5ez Github repository and replaces this `OTA_http` demo sketch with it. There's a menu item that points to M5ez's built-in WiFi menu in case you haven't set up any autoconnecting networks with M5ez before.
