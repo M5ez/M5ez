@@ -171,7 +171,7 @@ This will draw header, message, an empty (0 %) progress bar and the specified si
 
 **`pb.value(float val)`**
 
-where `val` is a floating point value between 0 and 100. Check out the [Over-The-Air https update example](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) to how the ezProgressBar object is used there.
+where `val` is a floating point value between 0 and 100. Check out the [Over-The-Air https update example](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) to see how the ezProgressBar object is used there.
 
 ## 3-button text input
 
