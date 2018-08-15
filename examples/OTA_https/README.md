@@ -31,7 +31,7 @@ In case you want to use it from your own code, follow the follwing steps:
 * Run `./get_cert https://github.com/ropg/M5ez/blob/master/compiled_binaries/M5ez-demo.bin?raw=true`, or in other words, supply the URL that you want to download from.
 
 ```
-your_prompt$ ./get_cert https://raw.githubusercontent.com/ropg/M5ez/master/compiled_binaries/M5ez-demo.bin
+your_prompt$ ./get_cert https://github.com/ropg/M5ez/blob/master/compiled_binaries/M5ez-demo.bin?raw=true
 The effective download URL (after resolving forwards) is:
     https://raw.githubusercontent.com/ropg/M5ez/master/compiled_binaries/M5ez-demo.bin
 
