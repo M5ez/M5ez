@@ -165,6 +165,7 @@ void mainmenu_ota() {
       ez.msgBox("Over The Air updater", "OTA download successful. Reboot to new firmware", "Reboot");
       ESP.restart();
     } else {
+      ez.msgBox("OTA error", ez.updateError(), "OK");
     }
   }
 }
