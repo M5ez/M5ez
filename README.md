@@ -161,17 +161,19 @@ The font and color options allow you to use something other than the default (th
 
 **`class ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR)`**
 
-If you want to show progress on a download or something else, use the `ezProgressBar` class. It behaves very simmilarly to msgBox, except you need to create a class instance. To create an ezProgressBar instance called pb, one could use:
+If you want to show progress on a download or something else, use the `ezProgressBar` class. It behaves very similarly to msgBox, except you need to create a class instance. To create an ezProgressBar instance called pb, one could use:
 
 ```
 	ezProgressBar pb ("This is a header", "Message, just like with msgBox", "Abort");
 ```
 
-This will draw header, message, an empty (0 %) progress bar and the specified single "Abort" button. To advance the bar, one would then call:
+This will draw header, message, an empty (0 %) progress bar and the specified single "Abort" button. Unlike msgBox this will not block by default. In code that executes after this, one would presumably check for the "Abort" button with `ez.getButtons()`. To advance the bar, the code would simply call:
 
-**`pb.value(float val)`**
+```
+	pb.value(float val)
+```
 
-where `val` is a floating point value between 0 and 100. Check out the [Over-The-Air https update example](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) to see how the ezProgressBar object is used there.
+where `val` is a floating point value between 0 and 100. Check out the [Over-The-Air https update example](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) to see how the ezProgressBar object is used there. (You'll see that the `ez.update()` software update function accepts a pointer to an ezProgressBar instance to show its progress. 
 
 ## 3-button text input
 
