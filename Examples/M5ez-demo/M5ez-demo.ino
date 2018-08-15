@@ -19,6 +19,7 @@ void loop() {
   mainmenu.addItem("Multi-function buttons", mainmenu_buttons);
   mainmenu.addItem("3-button text entry", mainmenu_entry);
   mainmenu.addItem("Built-in WiFi support", ezWifiMenu);
+  mainmenu.addItem("Updates via https", mainmenu_ota);
   mainmenu.upOnFirst("last|up");
   mainmenu.downOnLast("first|down");
   mainmenu.run(); 
@@ -153,6 +154,19 @@ void mainmenu_entry() {
     String your_name = ez.textInput();
     ez.msgBox("Pfew...", "Hi " + your_name + "! | | Now that was a pain! But it is good enough for entering, say, a WPA key, or don't you think?");
     ez.msgBox("Don't worry", "(You do get better with practice...)");
+  }
+}
+
+void mainmenu_ota() {
+  if (ez.msgBox("Get OTA_https demo", "This will replace the demo with a program that can then load the demo program again.", "Cancel#OK#") == "OK") {
+    ezProgressBar progress_bar("OTA update in progress", "Downloading ...", "Abort");
+    #include "raw_githubusercontent_com.h" // the root certificate is now in const char * root_cert
+    if (ez.update("https://raw.githubusercontent.com/ropg/M5ez/master/compiled_binaries/OTA_https.bin", root_cert, &progress_bar)) {
+      ez.msgBox("Over The Air updater", "OTA download successful. Reboot to new firmware", "Reboot");
+      ESP.restart();
+    } else {
+      ez.msgBox("OTA error", ez.updateError(), "OK");
+    }
   }
 }
 

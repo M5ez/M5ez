@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# This script will take an https URL as an argument. It will do the following:
+#
+# It will find whether this URL is the "effective URL", or whether it redirects
+# (possibly multiple times) to something else. It will output this "effective URL".
+#
+# It will then take the host part of that URL, connect to port 443 on it, and get the
+# certificate chain. It will take the last certificate on the chain (the root cert)
+# and obtain the issuer details as well as the notAfter date.
+#
+# The certicate is then saved in a format that can be included in an Arduino sketch
+# or any C/C++ environment to provide a "const char * root_cert" variable to hold
+# the entire root certificate.
+
+
+URL=`curl -w "%{url_effective}\n" -I -L -s -S $1 -o /dev/null`
+HOST=`echo $URL | awk -F[/:] '{print $4}'`
+FILENAME=`echo $HOST | sed -e 's/\./_/g'`.h
+TMPFILE=/tmp/cert.get_cert
+openssl s_client -showcerts -connect $HOST:443 < /dev/null 2>/dev/null| sed -n 'H; /^-----BEGIN CERTIFICATE-----/h; ${g;p;}' |sed  -e '/-----END CERTIFICATE-----/q' > $TMPFILE          
+ 
+NOTAFTER=`cat $TMPFILE | openssl x509 -noout -dates | grep 'notAfter'`
+ISSUER=`cat $TMPFILE | openssl x509 -noout -issuer`
+
+echo "The effective download URL (after resolving forwards) is:"
+echo "    $URL"
+
+cat > $FILENAME <<EOF
+// This is the root certificate include file for $HOST
+// as obtained by the get_cert script on: `date`
+//
+//
+// Certificate info:
+//     $ISSUER
+//     $NOTAFTER
+//
+
+const char* root_cert = \\
+EOF
+        
+cat $TMPFILE | sed 's/^/  "/g' | sed 's/$/\\n" \\/g' | sed '$ s/..$/;/' >> $FILENAME
+rm $TMPFILE
+
+echo ""
+echo "The root certificate include file is saved as:"
+echo "    $FILENAME"

@@ -6,9 +6,16 @@ extern "C" {
 #include "esp_wifi.h"
 #include "esp_wps.h"
 }
+
+// For wifi autoconnect storage
+#include <Preferences.h>
+
+// For ez.update
+#include <WiFiClientSecure.h>
+#include <Update.h>
+
 #endif //M5EZ_WITHOUT_WIFI
 
-#include <Preferences.h>
 
 #include <M5ez.h>
 
@@ -992,7 +999,165 @@ bool M5ez::wifiAutoconnectOn() { return _wifi_autoconnect_on; }
 
 void M5ez::wifiStatus() { ezWifiMenu(); }  // Old name for wifiMenu(), keeps working
 
-#endif
+bool M5ez::testlala(const char* poep) {
+	Serial.println(poep);
+	return true;
+}
+
+bool M5ez::update(String url, const char* root_cert, ezProgressBar* pb /* = NULL */) {
+
+	_update_progressbar = pb;
+  
+	if (!WiFi.isConnected()) {
+		_update_error = "No WiFi connection.";
+		return false;
+	}
+
+	if (!url.startsWith("https://")) {
+		_update_error = "URL must start with 'https://'";
+		return false;
+  	}
+
+	url = url.substring(8);
+
+	String host, file;
+	uint16_t port;
+	int16_t first_slash_pos = url.indexOf("/");
+	if (first_slash_pos == -1) {
+		host = url;
+		file = "/";
+	} else {
+		host = url.substring(0, first_slash_pos);
+		file = url.substring(first_slash_pos);
+	}
+	int16_t colon = host.indexOf(":");
+
+	if (colon == -1) {
+		port = 443;
+	} else {
+		host = host.substring(0, colon);
+		port = host.substring(colon + 1).toInt();
+	}
+
+	WiFiClientSecure client;
+	client.setTimeout(30);
+	client.setCACert(root_cert);
+
+	int contentLength = 0;
+
+	if (!client.connect(host.c_str(), port)) {
+		_update_error = "Connection to " + String(host) + " failed.";
+		return false;
+	}
+  
+	client.print(String("GET ") + file + " HTTP/1.1\r\n" +
+		"Host: " + host + "\r\n" +
+		"Cache-Control: no-cache\r\n" +
+		"Connection: close\r\n\r\n");
+
+	unsigned long timeout = millis();
+	while (!client.available()) {
+		if (millis() - timeout > 10000) {
+			_update_error = "Client Timeout";
+			client.stop();
+			return false;
+		}
+	}
+  
+	// Process header
+	while (client.available()) {
+		String line = client.readStringUntil('\n');
+		line.trim();
+		if (!line.length()) break; // empty line, assume headers done
+
+		if (line.startsWith("HTTP/1.1")) {
+			String http_response = line.substring(line.indexOf(" ") + 1);
+			http_response.trim();
+			if (http_response.indexOf("200") == -1) {
+				_update_error = "Got response: \"" + http_response + "\", must be 200";
+				return false;
+			}
+		}
+
+		if (line.startsWith("Content-Length: ")) {
+			contentLength = atoi(line.substring(  line.indexOf(":") + 1  ).c_str());
+			if (contentLength <= 0) {
+				_update_error = "Content-Length zero";
+				return false;
+			}
+		}
+
+		if (line.startsWith("Content-Type: ")) {
+			String contentType = line.substring(line.indexOf(":") + 1);
+			contentType.trim();
+			if (contentType != "application/octet-stream") {
+				_update_error = "Content-Type must be \"application/octet-stream\", got \"" + contentType + "\"";
+				return false;
+			}
+		}
+	}
+
+	// Process payload
+	Update.onProgress(_update_progress);
+  
+	if (!Update.begin(contentLength)) {
+		_update_error = "Not enough space to begin OTA";
+		client.flush();
+		return false;
+	}
+
+	size_t written = Update.writeStream(client);
+    
+	if (!Update.end()) {
+		_update_error = "Error: " + String(_update_err2str(Update.getError())) + " | (after " + String(written) + " of " + String(contentLength) + " bytes)";
+		return false;
+	}
+
+	if (!Update.isFinished()) {
+		_update_error = "Update not finished. Something went wrong.";
+		return false;
+	}
+
+	return true;
+
+}
+
+String M5ez::updateError() { return _update_error; }
+
+// Stupid Updater library only wants to print readable errors to a Stream object, 
+// so we just copied its _err2str function. Bleh...
+String M5ez::_update_err2str(uint8_t _error) {
+    if(_error == UPDATE_ERROR_OK){
+        return ("No Error");
+    } else if(_error == UPDATE_ERROR_WRITE){
+        return ("Flash Write Failed");
+    } else if(_error == UPDATE_ERROR_ERASE){
+        return ("Flash Erase Failed");
+    } else if(_error == UPDATE_ERROR_READ){
+        return ("Flash Read Failed");
+    } else if(_error == UPDATE_ERROR_SPACE){
+        return ("Not Enough Space");
+    } else if(_error == UPDATE_ERROR_SIZE){
+        return ("Bad Size Given");
+    } else if(_error == UPDATE_ERROR_STREAM){
+        return ("Stream Read Timeout");
+    } else if(_error == UPDATE_ERROR_MD5){
+        return ("MD5 Check Failed");
+    } else if(_error == UPDATE_ERROR_MAGIC_BYTE){
+        return ("Wrong Magic Byte");
+    } else if(_error == UPDATE_ERROR_ACTIVATE){
+        return ("Could Not Activate The Firmware");
+    } else if(_error == UPDATE_ERROR_NO_PARTITION){
+        return ("Partition Could Not be Found");
+    } else if(_error == UPDATE_ERROR_BAD_ARGUMENT){
+        return ("Bad Argument");
+    } else if(_error == UPDATE_ERROR_ABORT){
+        return ("Aborted");
+    }
+    return ("UNKNOWN");
+}
+
+#endif // M5EZ_WITHOUT_WIFI
 
 
 //
@@ -1727,7 +1892,18 @@ namespace {
 		}
 	}
 	
-}
+	void _update_progress(int done, int total) {
+		if (ez.getButtons() != "") {
+			Update.abort();
+		} else {
+			if (total && _update_progressbar != NULL) {
+				_update_progressbar->value((done * 100) / total);
+	  		}
+	  	}
+	}
+
+	
+} // anonymous namespace
 
 #endif //M5EZ_WITHOUT_WIFI
 

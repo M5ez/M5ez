@@ -53,6 +53,21 @@ struct line_t {
 	String line;
 };
 
+
+class ezProgressBar {
+
+	public:
+	
+		ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR);
+		void value(float val);
+		
+	private:
+	
+		int16_t _bar_y;
+		uint16_t _bar_color;
+		
+};
+
 class M5ez {
 	
 	friend class ezProgressBar;
@@ -125,6 +140,11 @@ class M5ez {
 		void wifiStatus();		// Old entry point for ezWifiMenu()
 		void wifiReadFlash();
 		void wifiWriteFlash();
+		
+		// ez.update
+		bool testlala(const char* poep);
+		bool update(String url, const char* root_cert, ezProgressBar* pb = NULL);
+		String updateError();
 #endif
 			
 		// Generic String object helper functions
@@ -139,17 +159,9 @@ class M5ez {
 		// m5.lcd wrappers that make fonts easier
 		void setFont(const GFXfont* font);
 		int16_t fontHeight();
-		
-		
-		// Color helpers
-		// uint16_t to16bit(RGB color);
-		// uint16_t to16bit(String htmlcolor);
-		// RGB toRGB(String htmlcolor);
-		// RGB toRGB(uint16_t color);
 
 	private:
-	
-	
+
 		// Screen, canvas, etc...
 		uint16_t _background;
 		bool _lower_button_row;
@@ -178,10 +190,6 @@ class M5ez {
 		long  _text_cursor_millis;
 
 		// ez.textBox
-// 		struct line_t {
-// 			int16_t position;
-// 			String line;
-// 		};
 		void _wrapLines(String text, uint16_t width, std::vector<line_t>& lines);
 		void _fitLines(String text, uint16_t max_width, uint16_t min_width, std::vector<line_t>& lines);
 		
@@ -194,22 +202,15 @@ class M5ez {
 		int16_t _print_x, _print_y, _print_lmargin;
 		bool _print_wrap;
 		// bool _print_scroll;		//Not supported until we get m5.lcd.readRect(...) to work
-		
+
+		//ez.update
+#ifndef M5EZ_WITHOUT_WIFI
+		String _update_err2str(uint8_t _error);
+		String _update_error;
+#endif
+
 };
 
-class ezProgressBar {
-
-	public:
-	
-		ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR);
-		void value(float val);
-		
-	private:
-	
-		int16_t _bar_y;
-		uint16_t _bar_color;
-		
-};
 
 class ezMenu {
 
@@ -314,6 +315,10 @@ namespace {
 	void _wifiAskAdd();
 	void _wifiManageAutoconnects();
 	bool _wifiAutoconnectSelected(ezMenu* callingMenu);
+	
+	ezProgressBar* _update_progressbar;
+	void _update_progress(int done, int total);
+	
 }
 #endif // M5EZ_WITHOUT_WIFI
 
