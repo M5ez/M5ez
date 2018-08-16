@@ -107,7 +107,7 @@ ezProgressBar pb("OTA update in progress", "Downloading ...", "Abort");
 
 * Over the Air updates only work if your partition table allows for two concurrent firmwares to be present. This means that if you do not plan to use OTA, you can have twice as much space for your programs. (Tools / Partition Scheme / No OTA in the Arduino IDE.)
 
-* As you can see, the `ez.update` function takes two arguments: the first one is the https url for the firmware, the optional second one is a pointer to the ezProgressBar instance that will show progress for this download. (Don't forget the ampersand - `&` - in front.)
+* As you can see, the `ez.update` function takes three arguments: the first one is the https url for the firmware, the second one is the root certificate and the (optional) third one is a pointer to the ezProgressBar instance that will show progress for this download. (Don't forget the ampersand - `&` - in front.)
 
 * Should `ez.update` return `false`: the human-readable error is provided when you call `ez.updateError()`.
  
