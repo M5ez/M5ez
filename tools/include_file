@@ -1,0 +1,31 @@
+#!/bin/sh
+
+INPUT_PATH=$1
+INPUT_FILE=`basename $1`
+# The byte array is named like the file, but in lower case with dots replaced by underscores 
+ARRAYNAME=`echo $INPUT_FILE | sed -e 's/\\./_/g'`
+OUTPUT_FILE=$ARRAYNAME.h
+BYTES=`wc -c $INPUT_PATH | awk '{print $1}'`
+
+echo "Converting input file:"
+echo "    $INPUT_PATH"
+echo "Creating include file:"
+echo "    $OUTPUT_FILE"
+
+cat > $OUTPUT_FILE <<EOF
+#pragma once
+
+//
+// Include this file to use $INPUT_FILE ($BYTES bytes) in your sketch.
+//
+// File created on `date` 
+// Made by the include_file script that is part of
+// "M5ez: the easiest way to program on M5Stack."
+// https://github.com/ropg/M5ez
+//
+
+const char $ARRAYNAME[] PROGMEM = {
+EOF
+
+hexdump -v -e '"    " 14/1 "0x%02x, " "\n"' $INPUT_PATH | sed -e "s/, 0x  //g" | sed '$ s/.$//' >> $OUTPUT_FILE
+echo "};" >> $OUTPUT_FILE
