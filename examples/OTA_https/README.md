@@ -89,14 +89,14 @@ const char* root_cert = \
 
 ```
 ezProgressBar pb("OTA update in progress", "Downloading ...", "Abort");
-	String url = "https://raw.githubusercontent.com/ropg/M5ez/master/compiled_binaries/M5ez-demo.bin";
-    #include "raw_githubusercontent_com.h"
-    if (ez.update(url, root_cert, &pb)) {
-      ez.msgBox("Over The Air updater", "OTA download successful. Reboot to new firmware", "Reboot");
-      ESP.restart();
-    } else {
-      ez.msgBox("OTA error", ez.updateError(), "OK");
-    }
+Sring url = "https://raw.githubusercontent.com/ropg/M5ez/master/compiled_binaries/M5ez-demo.bin";
+#include "raw_githubusercontent_com.h"
+if (ez.update(url, root_cert, &pb)) {
+    ez.msgBox("Over The Air updater", "OTA download successful. Reboot to new firmware", "Reboot");
+    ESP.restart();
+} else {
+    ez.msgBox("OTA error", ez.updateError(), "OK");
+}
 ```
 
 * And presto: you have Over The Air updates using https.
