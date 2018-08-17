@@ -1035,7 +1035,7 @@ bool M5ez::update(String url, const char* root_cert, ezProgressBar* pb /* = NULL
 	}
 
 	WiFiClientSecure client;
-	client.setTimeout(30);
+	client.setTimeout(20000);
 	client.setCACert(root_cert);
 
 	int contentLength = 0;
