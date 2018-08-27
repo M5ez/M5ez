@@ -2,7 +2,7 @@ ez					KEYWORD3
 
 yield				KEYWORD2
 
-// Screen, canvas, etc...
+# Screen, canvas, etc...
 clearScreen			KEYWORD2
 background			KEYWORD2
 clearCanvas			KEYWORD2
@@ -13,28 +13,28 @@ canvasRight			KEYWORD2
 canvasWidth			KEYWORD2
 canvasHeight		KEYWORD2
 		
-// Header
+# Header
 drawHeader			KEYWORD2
 removeHeader		KEYWORD2
 
-// Buttons
+# Buttons
 drawButtons			KEYWORD2
 getButtons			KEYWORD2
 waitForButtons		KEYWORD2
 
-// ez.msgBox
+# ez.msgBox
 msgBox				KEYWORD2
 
-// ez.textInput
+# ez.textInput
 textInput			KEYWORD2
 
-//ez.textBox
+# ez.textBox
 textBox				KEYWORD2
 
-// FACES support
+# FACES support
 getFACES			KEYWORD2
 	
-// ez.print
+# ez.print
 print				KEYWORD2
 println				KEYWORD2
 printFont			KEYWORD2
@@ -42,11 +42,11 @@ printColor			KEYWORD2
 printLmargin		KEYWORD2
 printWrap			KEYWORD2
 		
-// ez.wifiMenu
+# ez.wifiMenu
 wifiStatus			KEYWORD2
 wifiJoin			KEYWORD2
 
-// Generic String object helper functions
+# Generic String object helper functions
 rightOf				KEYWORD2
 leftOf				KEYWORD2
 chopString			KEYWORD2
@@ -54,7 +54,7 @@ charsFit			KEYWORD2
 clipString			KEYWORD2
 isBackExitOrDone	KEYWORD2
 
-// ezWifiMenu
+# ezWifiMenu
 ezWifiMenu			KEYWORD2
 wifiAddNetwork		KEYWORD2
 wifiDeleteNetwork	KEYWORD2
@@ -68,15 +68,15 @@ wifiStatus			KEYWORD2
 wifiReadFlash		KEYWORD2
 wifiWriteFlash		KEYWORD2
 
-// m5.lcd wrappers that make fonts easier
+# m5.lcd wrappers that make fonts easier
 setFont				KEYWORD2
 fontHeight			KEYWORD2
 
-// ezProgressBar
+# ezProgressBar
 ezProgressBar		KEYWORD3
 value				KEYWORD2		
 		
-// ezMenu
+# ezMenu
 ezMenu				KEYWORD3
 addItem				KEYWORD2
 deleteItem			KEYWORD2
@@ -103,10 +103,10 @@ imgCaptionColor		KEYWORD2
 imgCaptionMargins	KEYWORD2
 
 
-// ez.update
+# ez.update
 update				KEYWORD2
 updateError			KEYWORD2
 
-// because it was forgotten in the M5Stack keywords.txt
-// (They only have it as "Lcd", but they made the "lcd" alias.)
+# because it was forgotten in the M5Stack keywords.txt
+# (They only have it as "Lcd", but they made the "lcd" alias.)
 lcd					KEYWORD2
