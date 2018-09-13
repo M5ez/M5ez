@@ -484,6 +484,8 @@ void loop() {
 
 You can include jpg files in the flash by creating a special .h file that holds byte arrays encoding the bytes in the JPG file. If you `#include` this file in your program and then add at least one menu items with `addItem(picture1, "Item 1")` where `picture1` is the name of the JPG array in the .h file, the menu's `.run()` and `.runOnce()` functions will change behaviour: they will show an image menu instead of a text menu.
 
+You can also include the images to be shown as files, either on an SD card or on the special SPIFFS partition in the flash memory of the M5Stack.
+
 The code in the demo application to show the picture menu looks as follows:
 
 ```
@@ -527,7 +529,17 @@ bool addItem(const char *image, String nameAndCaption,
 	bool (*advancedFunction)(ezMenu* callingMenu) = NULL)
 ```
 
-Adds items to a menu. The first form adds a text only item, the second form adds a pointer to the image that which is encoded as a byte array in a special .h file that you should have included. The `simpleFunction` should be the name of a `void` function without parameters that will simply be executed as the menu item is picked. You supply the name of the function **without the brackets** here, as you are passing a pointer to the function and not the output of it.
+```
+bool addItem(fs::FS &fs, String path, String nameAndCaption, 
+	void (*simpleFunction)() = NULL,
+	bool (*advancedFunction)(ezMenu* callingMenu) = NULL)
+```
+
+Adds items to a menu. The first form adds a text only item, the second and third forms make image menus. You can either supply a pointer to the image which is encoded as a byte array in a special .h file that you should have included, or a file system reference and a path for a file stored on SD of SPIFFS. 
+
+In the latter case your sketch must do either `#include <SPIFFS.h>` and `SPIFFS.begin()` or `#include <SD.h>' and 'SD.begin()`, and provide both the SD or SPIFFS object reference as well as the path to the file. The "ImagesSPIFFSorSD" example shows how to use this feature. Images from program flash, SPIFFS and SD-card can be freely mixed in the same menu.
+
+The `simpleFunction` should be the name of a `void` function without parameters that will simply be executed as the menu item is picked. You supply the name of the function **without the brackets** here, as you are passing a pointer to the function and not the output of it.
 
 The string named `nameAndCaption` can (as the name implies) hold both a name and a caption. If you don't do anything special they are set to the same string you supply. But if you pass `somename | Some caption`, the name is the part before the first pipe sign (`|`), the caption is everything after it. (Spaced around the pipe sign are removed.)
 

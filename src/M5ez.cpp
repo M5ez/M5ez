@@ -1219,6 +1219,20 @@ bool ezMenu::addItem(String nameAndCaption, void (*simpleFunction)() /* = NULL *
 bool ezMenu::addItem(const char *image, String nameAndCaption , void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */) {
 	MenuItem_t new_item;
 	new_item.image = image;
+	new_item.fs = NULL;
+	new_item.nameAndCaption = nameAndCaption;
+	new_item.simpleFunction = simpleFunction;
+	new_item.advancedFunction = advancedFunction;
+	if (_selected == -1) _selected = _items.size();
+	_items.push_back(new_item);
+	return true;
+}
+
+bool ezMenu::addItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */) {
+	MenuItem_t new_item;
+	new_item.image = NULL;
+	new_item.fs = &fs;
+	new_item.path = path;
 	new_item.nameAndCaption = nameAndCaption;
 	new_item.simpleFunction = simpleFunction;
 	new_item.advancedFunction = advancedFunction;
@@ -1283,7 +1297,7 @@ void ezMenu::run() {
 
 int16_t ezMenu::runOnce() {
 	for (int16_t n = 0; n < _items.size(); n++) {
-		if (_items[n].image != NULL) return _runImagesOnce();
+		if (_items[n].image != NULL || _items[n].fs != NULL) return _runImagesOnce();
 	}
 	return _runTextOnce();
 }
@@ -1410,7 +1424,7 @@ int16_t ezMenu::_runImagesOnce() {
 	ez.drawButtons(tmp_buttons);
 	ez.clearScreen();
 	if (_header != "") ez.drawHeader(_header);
-	_drawImage(_items[_selected].image);
+	_drawImage(_items[_selected]);
 	_drawCaption();
 	while (true) {
 		int16_t old_selected = _selected;
@@ -1423,12 +1437,12 @@ int16_t ezMenu::_runImagesOnce() {
 		if (pressed == "left") {
 			_selected--;
 			ez.clearCanvas();
-			_drawImage(_items[_selected].image);
+			_drawImage(_items[_selected]);
 			_drawCaption();
 		} else if (pressed == "right") {
 			_selected++;
 			ez.clearCanvas();
-			_drawImage(_items[_selected].image);
+			_drawImage(_items[_selected]);
 			_drawCaption();
 		} else if ( (ez.isBackExitOrDone(name) && !_items[_selected].advancedFunction) || ez.isBackExitOrDone(pressed) ) {
 			_pick_button = pressed;
@@ -1458,8 +1472,13 @@ int16_t ezMenu::_runImagesOnce() {
 	}			
 }
 
-void ezMenu::_drawImage(const char *image) {
-	m5.lcd.drawJpg((uint8_t *)image, (sizeof(image) / sizeof(image[0])), 0, ez.canvasTop() + _img_from_top, TFT_W, ez.canvasHeight() - _img_from_top);
+void ezMenu::_drawImage(MenuItem_t &item) {
+	if (item.image) {
+		m5.lcd.drawJpg((uint8_t *)item.image, (sizeof(item.image) / sizeof(item.image[0])), 0, ez.canvasTop() + _img_from_top, TFT_W, ez.canvasHeight() - _img_from_top);
+	}
+	if (item.fs) {
+		m5.lcd.drawJpgFile(*(item.fs), item.path.c_str(), 0, ez.canvasTop() + _img_from_top, TFT_W, ez.canvasHeight() - _img_from_top);
+	}
 }
 
 void ezMenu::_drawCaption() {

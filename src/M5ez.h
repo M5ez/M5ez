@@ -219,6 +219,7 @@ class ezMenu {
 		~ezMenu();
 		bool addItem(String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL);
 		bool addItem(const char *image, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL);
+		bool addItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL);
 		bool deleteItem(int16_t index);
 		bool deleteItem(String name);
 		bool setCaption(int16_t index, String caption);
@@ -249,6 +250,8 @@ class ezMenu {
 		struct MenuItem_t {
 			String nameAndCaption;
 			const char *image;
+			fs::FS *fs;
+			String path;
 			void (*simpleFunction)();
 			bool (*advancedFunction)(ezMenu* callingMenu);
 		};
@@ -259,7 +262,7 @@ class ezMenu {
 		int16_t _per_item_h, _vmargin;
 		int16_t _items_per_screen;
 		uint16_t _old_background;
-		void _drawImage(const char *image);
+		void _drawImage(MenuItem_t &item);
 		void _drawCaption();
 		const GFXfont* _font;
 		int16_t _runImagesOnce();
