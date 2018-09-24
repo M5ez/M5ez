@@ -505,32 +505,35 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 			uint16_t x, y;
 			uint16_t sol, eol;
 			String this_line;
-			for (int8_t n = offset; n < offset + lines_per_screen; n++) {
-				if (n < lines.size() - 1) {
-					this_line = lines[n].line;
-					sol = lines[n].position;
-					eol = lines[n + 1].position - 1;
-				} else if (n == lines.size() - 1) {
-					this_line = lines[n].line;
-					sol = lines[n].position;
-					eol = text.length();
-				} else {
-					this_line = "";
-					sol = -1;
-					eol = text.length();
+			if(lines.size()>0)
+			{
+				for (int8_t n = offset; n < offset + lines_per_screen; n++) {
+					if (n < lines.size() - 1) {
+						this_line = lines[n].line;
+						sol = lines[n].position;
+						eol = lines[n + 1].position - 1;
+					} else if (n == lines.size() - 1) {
+						this_line = lines[n].line;
+						sol = lines[n].position;
+						eol = text.length();
+					} else {
+						this_line = "";
+						sol = -1;
+						eol = text.length();
+					}
+					y = ez.canvasTop() + remainder * 0.7 + (n - offset) * per_line_h;
+					x = TB_HMARGIN;
+					if (!readonly && sol != -1 && cursor_pos >= sol && cursor_pos <= eol && n < lines.size()) { 		// if cursor is on current line
+						x += m5.lcd.drawString(this_line.substring(0, cursor_pos - sol), x, y);
+						cursor_x = x;
+						cursor_y = y;
+						x += cursor_width;
+						x += m5.lcd.drawString(this_line.substring(cursor_pos - sol), x, y);
+					} else {
+						x += m5.lcd.drawString(this_line, x, y);
+					}
+					m5.lcd.fillRect(x, y, canvasWidth() - x, per_line_h, _background);
 				}
-				y = ez.canvasTop() + remainder * 0.7 + (n - offset) * per_line_h;
-				x = TB_HMARGIN;
-				if (!readonly && sol != -1 && cursor_pos >= sol && cursor_pos <= eol && n < lines.size()) { 		// if cursor is on current line
-					x += m5.lcd.drawString(this_line.substring(0, cursor_pos - sol), x, y);
-					cursor_x = x;
-					cursor_y = y;
-					x += cursor_width;
-					x += m5.lcd.drawString(this_line.substring(cursor_pos - sol), x, y);
-				} else {
-					x += m5.lcd.drawString(this_line, x, y);
-				}
-				m5.lcd.fillRect(x, y, canvasWidth() - x, per_line_h, _background);
 			}
 			redraw = false;
 		}
@@ -631,15 +634,23 @@ void M5ez::_wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
 	int16_t newline = 0;
 	bool all_done = false;
 	line_t new_line;
+
+	//If there are no return chars, it's either a single line,
+	//Or it's using linux/mac line endings which are a single char
+	char nlchar = 13;
+	if (text.indexOf(13)==-1)
+	{
+		nlchar = 10;
+	}
 	while (!all_done) {
 		cur_space = text.indexOf(" ", last_space + 1);
 		if (cur_space == -1) {
 			cur_space = text.length();
 			all_done = true;
 		}
-		newline = text.indexOf(char(13), last_space + 1);
+		newline = text.indexOf(char(nlchar), last_space + 1);
 		if (newline != -1 && newline < cur_space) cur_space = newline;
-		if (m5.lcd.textWidth(text.substring(offset, cur_space)) > width || text.substring(last_space, last_space + 1) == (String)char(13)) {
+		if (m5.lcd.textWidth(text.substring(offset, cur_space)) > width || text.substring(last_space, last_space + 1) == (String)char(nlchar)) {
 			if (m5.lcd.textWidth(text.substring(offset, last_space)) <= width) {
 				new_line.position = offset;
 				new_line.line = text.substring(offset, last_space);
@@ -660,7 +671,27 @@ void M5ez::_wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
 		} else {
 			last_space = cur_space;
 		}
+
+		//Special case handle the last line
 		if (all_done and offset < text.length()) {
+
+			while(text.indexOf(char(nlchar), offset)>offset)
+				{
+					if(offset < text.length())
+					{
+						new_line.line = text.substring(offset, text.indexOf(char(nlchar), offset));
+						new_line.position = offset;
+						offset = text.indexOf(char(nlchar), offset);
+						lines.push_back(new_line);
+					}
+					else
+					{
+						break;
+					}
+				}			
+			}
+
+		if (all_done and offset < text.length()) {		
 			new_line.position = offset;
 			new_line.line = text.substring(offset);
 			lines.push_back(new_line);

@@ -275,7 +275,7 @@ class ezMenu {
 		uint8_t _img_caption_location;
 		uint16_t _img_caption_color;
 		uint16_t _img_background;
-		const GFXfont* _img_caption_font;
+		const GFXfont* _img_caption_font = &FreeSans24pt7b;
 		int16_t _img_caption_hmargin, _img_caption_vmargin;	
 
 };
