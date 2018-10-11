@@ -4,11 +4,11 @@
 
 *written by Rop Gonggrijp*
 
-[![](images/M5ez.png)](https://www.youtube.com/watch?v=qRbE3FXEWJQ)
+[![](images/M5ez.png)](https://youtu.be/132gvdlwKZw)
 
 ## introduction
 
-The M5Stack is a small computer that is a tinkerer's dream. It is based on Espressiv's ESP32 chip (with WiFi and Bluetooth), it has a 320x240 pixel color screen, three buttons, a speaker, an SD slot and it allows you to stack boards below it, each in their own plastic enclosure. The makers sell boards for GSM, GPS and LoRa (Long Range radio) as well as a motor controller board and an empty experimenter board. The Chinese operation that makes them appears to sell a lot of them and I could get mine off of Amazon in a week. If you like to build things that you can hold in your hand and not just write code for yet another naked-looking board plugged into your USB port, this thing is your friend.
+The M5Stack is a small computer that is a tinkerer's dream. It is based on Espressif's ESP32 chip (with WiFi and Bluetooth), it has a 320x240 pixel color screen, three buttons, a speaker, an SD slot and it allows you to stack boards below it, each in their own plastic enclosure. The makers sell boards for GSM, GPS and LoRa (LOng RAnge radio) as well as a motor controller board and an empty experimenter board. The Chinese operation that makes them appears to sell a lot of them and I could get mine off of Amazon in a week. If you like to build things that you can hold in your hand and not just write code for yet another naked-looking board plugged into your USB port, this thing is your friend.
 
 On the software side, the easiest way to program these is using the Arduino IDE. M5Stack provides a library which, when you include it, creates an m5 object instance that allows access to the various hardware components in the device. For instance: the display driver is accessible through commands all starting with `m5.lcd.`.
 
@@ -18,83 +18,262 @@ In the budding M5Stack community, there have been some initiatives to make it ea
 
 Enter M5ez, my contribution to making programming on the M5Stack *a lot* easier. I hope you'll enjoy programming with this.
 
+&nbsp;
+
 ## Getting started
 
 M5ez is an Arduino library. To start using it with the Arduino IDE:
 
 * Choose Sketch -> Include Library -> Manage Libraries...
-* Type m5ez into the search box.
+* Type **`M5ez`** into the search box.
 * Click the row to select the library.
 * Click the Install button to install the library.
+* Repeat this process for the **`ezTime`** library
 
 in File -> Examples you will now see an M5ez heading down under "Examples from custom libraries"
 
 You'll have your first application on the screen in no time. You can also start with one of the sketches below in the "Menus" section of the documentation.
 
-### Important note:
+> *If you do not want M5ez to depend on the ezTime library, simply comment out the `#define M5EZ_CLOCK` line in the `M5ez.h` file in M5ez's library's directory.*
 
-By default, the code has no support for the "WPS pushbutton" or "WPS pincode" ways to connect to Wifi. If you turn off the `#define M5EZ_WITHOUT_WPS` define in the library's `M5ez.h` file it does compile it the WPS code. However you may then run into an error saying:
+&nbsp;
+
+### If you get a WPS error: outdated ESP32 Arduino platform support
+
+By default, M5ez supports "WPS pushbutton" and "WPS pincode" as ways to connect to Wifi. If you run into an error saying ...
 
 ```
 Documents\Arduino\libraries\M5ez-master\src\M5ez.cpp:1319:19:
 error: 'struct esp_wps_config_t' has no member named 'factory_info'
 ```
 
-This means your ESP32 library is out of date. They changed how WPS is done in late June 2018. If this happens and you would like to have WPS, simply move aside the old `$arduinodir$/hardware/espressif/ESP32` directory and re-follow the instructions on https://github.com/espressif/arduino-esp32/ and the problem should go away.
+... it means your ESP32 library is out of date. Espressif (the ESP32 people) changed how WPS is done in late June 2018. If this happens to you and you would like to have WPS, simply follow the instructions [here](https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/boards_manager.md) to make sure you have the latest ESP32 Arduino support and the problem should go away.
 
-**It's a good idea to periodically re-download the ESP32 libraries as they are continually fixing things, among other things making Wifi much more stable.**
+Alternatively, if you do not plan to use WPS, you can also comment out `#define M5EZ_WPS` in the `M5ez.h` file in the library's directory.
 
-# M5ez Documentation
+&nbsp;
 
-## The screen
+## M5ez 2.0 
 
-**`void ez.clearScreen()`**
+### What's new in M5ez 2.x ?
 
-**`void ez.clearScreen(uint16_t bgcol)`**
+* Many user-selectable settings, including backlight, clock/timezone, FACES keyboard, etc.
+* Theme values can be changed at runtime, multiple thmes can be loaded; a theme chooser then shows up in the settings
+* Header can have user-defined widgets (internally used for clock and wifi signal display)
+* The canvas now inherits from the Print class, so everything print and println could do, you can now also do on the canvas.
+* The canvas scrolls (unless you don't want it to)
+* you can create your own events that get ran in the M5ez button wait loops
+* Many bugs got fixed
+* Code is a lot cleaner now, easier to add things without the sometimes ad-hoc and organically grown constructs of M5ez 1.x
 
-M5ez has its own function to clear the screen that will also reset some of the M5ez things: it will reset the ez.print location to the top left, and it will change some internal state to reflect that you now have no header and no buttons on the display. M5ez calls this internally whenever your code runs a menu, displays a msgBox or does anything else where M5ez takes over the whole screen. After it is done (the menu runs one of your functions, msgBox exits, etc etc) it will call it again. You will only need to call this when your own code needs a clear screen after drawing something. Optionally you specify `bgcol` to blank the screen to another color than the current background color (see below), but this does not change the current background setting.
+However, all of this comes with some changes to the names of common fucntions in M%ez. Generally things are more consistent now, but that does mean they are different: your M5ez 1.x code will not run without modifications. I am not planning an M5ez 3.0, so expect no further modifications to be needed to existing code for a while.
 
-**`void ez.background(uint16_t color)`**
+### Converting code from M5ez 1.x to 2.x
 
-**`uint16_t ez.background()`**
+To convert code form 1.x to 2.x, it is recommended you start by replacing the following functions:
 
-When M5ez starts, the screen background is set to the default from the theme (a very light grey in the default theme). With `ez.background` You can specify a 16-bit color to become the new M5ez background color, or (with no arguments) read what the background is currently set to.
+| M5ez 1.x |    | M5ez 2.x |
+|:---------|:---|:---------|
+| `ez.clearScreen()` | **&mdash;>** | `ez.screen.clear()`
+| `ez.background()` | **&mdash;>** | `ez.screen.background()`
+| `ez.drawHeader(` | **&mdash;>** | `ez.header.show(`
+| `ez.removeHeader()` | **&mdash;>** | `ez.header.hide()`
+| `ez.clearCanvas()` | **&mdash;>** | `ez.canvas.clear()`
+| `ez.canvasTop()` | **&mdash;>** | `ez.canvas.top()`
+| `ez.canvasBottom()` | **&mdash;>** | `ez.canvas.bottom()`
+| `ez.canvasLeft()` | **&mdash;>** | `ez.canvas.left()`
+| `ez.canvasRight()` | **&mdash;>** | `ez.canvas.right()`
+| `ez.canvasWidth()` | **&mdash;>** | `ez.canvas.width()`
+| `ez.canvasHeight()` | **&mdash;>** | `ez.canvas.height()`
+| `ez.print(` | **&mdash;>** | `ez.canvas.print(`
+| `ez.println(` | **&mdash;>** | `ez.canvas.println(`
+| `ez.drawButtons(` | **&mdash;>** | `ez.buttons.show(`
+| `ez.getButtons(` | **&mdash;>** | `ez.buttons.poll(`
+| `ez.waitForButtons(` | **&mdash;>** | `ez.buttons.wait(`
 
-## The canvas
+Then, check all your print functions: they no longer support the setting of font, location or color in the statement itself: these need to be done with `ez.canvas.font`, `ez.canvas.color` etc. Print is much nicer now because the canvas object inherited from the Print class, and because the cavas can scroll now.
 
-The "canvas" is M5ez's name for the area between the header and buttons. So if there are no header or no buttons, the canvas is the whole screen. Once they are drawn, the canvas becomes smaller.
+Then simply fix any remaining problems by first fixing any compiler complaints with this document in hand, and then walk through all of your program's functioniality to see if everything works as expected.
 
-**`void ez.clearCanvas()`**
+&nbsp;
 
-Clears the canvas area to the current background color.
+# M5ez User Manual
 
-**`int16_t ez.canvasTop()`**
+M5ez is a complete system for building appliance-grade interfaces for the M5Stack. It comes with a lot of the common functionality built-in that a programmer would otherwise have to create. While it is very easy to create functional programs &mdash; just have a look at the examples that come with the library &mdash; the entire library can be a bit overwhelming because of how much it offers. The following is a reference for programmers that want to get the most out of M5ez. It is certainly not necessary to know or fully understand every function, but at some point you probably want to go through this document very quickly to see what M5ez can do for you. 
 
-**`int16_t ez.canvasBottom()`**
+If you feel anything is still unclear after reading this document, please file an issue in the repository. I take documentation seriously &mdash; if something is not clear in here, it is as much a bug as something that's wrong with the software itself. Pull requests for typos etc. gladly accepted.
 
-**`int16_t ez.canvasLeft()`**
+&nbsp;
 
-**`int16_t ez.canvasRight()`**
+## How it all works
 
-**`int16_t ez.canvasWidth()`**
+As you can see from the examples, the commands that activate M5ez's functionality start with `ez.`. That `ez` refers to an object `ez` that is within the "root namespace" of the sketch. Within it are commands like `ez.msgBox`, but also other objects. For instance: commands that deal with the entire screen are prefixed with `ez.screen.`, WiFi commands start with `ez.wifi.` and so forth.
 
-**`int16_t ez.canvasHeight()`**
+After you include the library with `#include <M5ez.h>`, those objects all exist. To get things going you then &mdash; in the `void setup()` part of your sketch &mdash; do `ez.begin()`. This replaces `m5.begin`, which is called from within `ez.begin()`. You still need to `#include <M5Stack.h>` before `#include <M5ez.h>` if you want to use any commands from the m5 library in your sketch.
 
-These other functions return canvas dimensions as their name implies. To be maximally flexible, your code should put its own stuff on te screen relative to `ez.canvasTop()` and make sure it is not higher than `ez.canvasHeight()`. That way, if you decide to add or remove a header, your content will move accordingly.
+&nbsp;
 
-The canvas is currently fixed at full width, meaning the left and right of the canvas are 0 and 319 respectively, but these functions return values already so that we can have vertical elements in the future.
+## Screen
 
-The functions `ez.print` and `ez.println` (see below) are aware of the canvas and stop printing when they reach `ez.canvasBottom()`.
+The screen object deals with the entire screen, which consists of an optional header at the top, optional buttons at the bottom and an area called "the canvas" in between.
 
-## The header
+`void ez.screen.clear()`
 
-**`void ez.drawHeader(String header_txt)`**
+`void ez.screen.clear(uint16_t color)`
 
-**`void ez.removeHeader()`**
+`uint16_t ez.screen.background()`
 
-The header is the bar at the top of the screen. In the default theme it is 30 pixels high and blue, and it has text in font `&FreeSansBold9pt7b`, but all of that can be changed if you make your own theme. `ez.drawHeader` places the header, and `ez.removeHeader' removes it. Both change the canvas state accordingly.
+If you clear the screen, the header and buttons are hidden, the canvas is cleared, and the current background color is set to the color you specify, or to the background color from the current theme (`ez.theme->background`, see the chapter on themes) if you do not specify a color. `ez.screen.background()` will return the currently set background color.
 
-In `ez.msgBox`, `ez.textInput`, when creating menus, or basically everywhere where you specify a header text, specifying the empty string will make that function not draw a header (and thus have more screen height available).
+If you clear the screen, the header and buttons are hidden, so the canvas takes up the entire screen.
+
+&nbsp;
+
+## Header
+
+The header is the bar at the top of the screen. In the default theme it is 30 pixels high and blue, and it has text in font `&FreeSansBold9pt7b`, but all of that can be changed, either by modifying the values in the current theme on the fly or by creating your own theme.
+
+### Showing, hiding, title
+
+`void ez.header.show(String title = "")`
+
+`void ez.header.title(String title = "")`
+
+`bool ez.header.shown()`
+
+`void ez.header.clear(bool wipe = true)`
+
+`ez.header.show` will show the header, either with the present title or with a new one provided as an argument. `ez.header.title` will merely change the title, but will not change whether the header is displayed or not. `ez.header.shown()` returns true or false depending on whether the header is currently shown, and `ez.header.clear` removes the header, returning the top of the screen to the canvas. If you set `wipe` to false, it will not draw background pixels there. (This may help prevent flicker or add a bit of performance if you're about to clear the canvas anyway.)
+
+### Your own header widgets
+
+The clock and WiFi signal strength displayed in the M5ez header are "widgets". You can register your own code to display widgets too.
+
+`void ez.header.insert(uint8_t position, String name, uint16_t width, void (*function)(uint16_t x, uint16_t w), bool leftover = false)`
+
+`void ez.header.remove(String name)`
+
+`uint8_t ez.header.position(String name)`
+
+`void ez.header.draw(String name = "")`
+
+`ez.header.insert` lets you add your own header widget. The header widget positions start at 0 (the leftmost widget), and `position` specifies t the left of which widget to insert the new one. `name` is just a name you use to refer to your widget. The names `title`, `clock` and `wifi` are reserved for use by M5ez. 
+
+Exactly one widget can be specified as `leftover`, meaning it gets all the pixels not claimed by any other widgets. By default, this is the widget called "title" that holds the header title. All other widgets must have a width in pixels specified. 
+
+`function` refers to the name of the function that draws your widget. It must be a function that returns nothing (`void`) and that takes two `uint16_t` arguments: the x position and width of your widget. This function will be called by the header code whenever the header is redrawn. But you can also force a redraw with `ez.header.draw`. For instance: the clock code calls for the `clock` widget to be redrawn every minute, for instance. Note that you would never call your widget draw function directly, because your code doesn't know where all the widgets are within the header. You would only ever call it indirectly using `ez.header.draw("your_widget_name")`, which will then see if the header is currently displayed, and if so lookup x position and width and call your draw function.
+
+Your widget draw function has to make sure to stay inside the lines: not lower than `ez.theme->header_height`, not further left than x, not further right than x + w. If you want to be able to use your widget with multiple themes, your code should probably also respect `ez.theme->header_bgcolor` and `ez.theme->header_fgcolor` to make sure things look pretty.
+
+`ez.header.position` will return the relative position of an existing header widget, starting with 0 for the leftmost widget, adding one for each further widget. This can be quite useful. For instance, if you want to make sure a widget is insert directly to the left of the title, you can specify `ez.header.insert(ez.header.position("title"), ...`. If you specify `(ez.header.position("title") + 1` your new widget gets inserted directly to the right of the title.
+
+As the name implies, `ez.header.remove` removes the widget with the given name.
+
+&nbsp;
+
+## Canvas
+
+The "canvas" is M5ez's name for the area between the header and buttons. So if there are no header and no buttons, the canvas is the whole screen. Once they are drawn, the canvas becomes smaller.
+
+`void ez.canvas.clear()`
+
+Clears the canvas area to the current background color &mdash; either the default from the theme or the one specified in the most recent `ez.screen.clear` command. Sets x and y positions for the the next print command to the top left (repecting the currently set left margin). 
+
+`void ez.canvas.reset()`
+
+Reset does everything `ez.canvas.clear()` does, but also turns on text wrap and scrolling, sets the print font and color back to the defaults from the theme and sets the left margin to 0.
+
+### Canvas dimensions
+
+Because the canvas size differs when header or buttons are shown, your code can ask for various locations and dimensions of the canvas as follows:
+
+`uint8_t ez.canvas.top()`
+
+`uint8_t ez.canvas.bottom()`
+
+`uint16_t ez.canvas.left()`
+
+`uint16_t ez.canvas.right()`
+
+`uint8_t ez.canvas.height()`
+
+`uint16_t ez.canvas.width()`
+
+### Printing to the canvas
+
+The M5ez canvas inherits from the Arduino `Print` object. What that means is that you can use the `print` and `println` functions in just the way you are used to using them. Here's all the different arguments taken by `printf`, `print` and `println`.
+
+```
+size_t ez.canvas.printf(const char * format, ...)  __attribute__ ((format (printf, 2, 3)));
+size_t ez.canvas.print(const __FlashStringHelper *);
+size_t ez.canvas.print(const String &);
+size_t ez.canvas.print(const char[]);
+size_t ez.canvas.print(char);
+size_t ez.canvas.print(unsigned char, int = DEC);
+size_t ez.canvas.print(int, int = DEC);
+size_t ez.canvas.print(unsigned int, int = DEC);
+size_t ez.canvas.print(long, int = DEC);
+size_t ez.canvas.print(unsigned long, int = DEC);
+size_t ez.canvas.print(double, int = 2);
+size_t ez.canvas.print(const Printable&);
+size_t ez.canvas.print(struct tm * timeinfo, const char * format = NULL);
+
+size_t ez.canvas.println(const __FlashStringHelper *);
+size_t ez.canvas.println(const String &s);
+size_t ez.canvas.println(const char[]);
+size_t ez.canvas.println(char);
+size_t ez.canvas.println(unsigned char, int = DEC);
+size_t ez.canvas.println(int, int = DEC);
+size_t ez.canvas.println(unsigned int, int = DEC);
+size_t ez.canvas.println(long, int = DEC);
+size_t ez.canvas.println(unsigned long, int = DEC);
+size_t ez.canvas.println(double, int = 2);
+size_t ez.canvas.println(const Printable&);
+size_t ez.canvas.println(struct tm * timeinfo, const char * format = NULL);
+size_t ez.canvas.println(void);
+```
+
+`bool ez.canvas.scroll()`
+
+`void ez.canvas.scroll(bool s)`
+
+M5ez stores what has been printed to the screen, so the contents of the screen can scroll. Note that when the canvas starts scrolling, only the contents places there with the print functions from above will scroll, everything else will be wiped. So if, for example, you have drawn something with `m5.lcs.fillRect`, it will be gone once you print beyond the last line. You can turn this off with `ez.canvas.scroll(false)`, and you can ask what the present scroll status is with `ez.canvas.scroll()`.
+
+`bool ez.canvas.wrap()`
+
+`void ez.canvas.wrap(bool w)`	
+
+`wrap` determines whether the excess from the print functions that doesn't fit the current line is wrapped to the next line.
+
+`uint16_t ez.canvas.lmargin()`
+
+`void ez.canvas.lmargin(uint16_t newmargin)`
+
+Ask for and set the left margin for printing.
+
+`void ez.canvas.font(const GFXfont* font)`
+
+`const GFXfont* ez.canvas.font()`
+
+`void ez.canvas.color(uint16_t color)`
+
+`uint16_t ez.canvas.color()`
+
+Ask for and set the font and color for printing.
+
+`uint16_t ez.canvas.x()`
+
+`void ez.canvas.x(uint16_t newx)`
+
+`uint8_t ez.canvas.y()`
+
+`void ez.canvas.y(uint8_t newy)`
+
+`void pos(uint16_t x, uint8_t y)`
+
+Ask for and set the x and y position for the next print command.
+
+&nbsp;
 
 ## Buttons
 
@@ -116,26 +295,49 @@ If a button has only one function, (no long press defined), the caption will be 
 
 *In some cases it may be necessary to define only a long or only a short press action explicitly. In that case, defining a the key with the placeholder "~" will make sure its function is not interpreted. Take the key definition string `~ # up # select # # right # down`: this defines the leftmost key to have the 'up' function, but only with a long press, a short press is ignored. The caption prints on the right side of the button and not in the middle. (One might use this to signify that the user got to the left edge of something she's navigating, not causing the 'up' function to trigger when she keeps pressing short before realising she's at the left edge.)*
 
-**`void ez.drawButtons(String buttons)`**
+`void ez.buttons.show(String buttons)`
 
-Draws all the buttons you specified, only redrawing the buttons that have changed from the buttons displayed already to prevent flicker. If needed it updates the canvas size to account for a changed number of keyboard rows displayed on the screen.
+Shows all the buttons you specified, only redrawing the buttons that have changed from the buttons displayed already to prevent flicker. If needed it updates the canvas size to account for a changed number of keyboard rows displayed on the screen.
 
-**`String ez.getButtons()`**
+`void ez.buttons.clear(bool wipe = true)`
 
-Then if you call `ez.getButtons`, it will return the name of the key pressed since you last called it, or the empty string is nothing was pressed. This function is where everyone's M5ez programs will spends most of their time: waiting for the user to make things continue. 
+This hides the buttons, growing the canvas to cover the area where the buttons were printed. If you set `wipe` to false, it will not draw background pixels there. (This may help prevent flicker or add a bit of performance if you're about to clear the canvas anyway.)
 
-**`ez.yield()`**
+`String ez.buttons.poll()`
 
-Internally `ez.getButtons()` calls `ez.yield()`, which does the button update as well
-the wifi signal strength indication and autoconnection if that is enabled. You would not need to call this from your code, unless you want the signal bars and autoconnect to work  while in a loop that is going to be running for extended periods of time and that does not involve (also) waiting for buttons.
+If you call `ez.buttons.poll`, it will return the name of the key pressed since you last called it, or the empty string is nothing was pressed. This function is where everyone's M5ez programs will spends most of their time: waiting for the user to make things continue. If your code is waiting in a loop that inlcudes `ez.buttons.poll`, clock and WiFi signal updating, as well as execution of user-registered functions (see below) will continue.
 
-**`String ez.waitForButtons()`**
+`String ez.buttons.wait()`
 
- `ez.waitforButtons` does the same thing as `ez.getButtons()` except it does not return if nothing is pressed. If you call it with no arguments, it assumes the buttons have already been drawn with `ez.drawButtons`. (And if not your program is stuck.) 
+ `ez.buttons.wait` does the same thing as `ez.buttons.poll()` except it does not return if nothing is pressed. If you call it with no arguments, it assumes the buttons have already been drawn with `ez.drawButtons`. (And if not your program is stuck.) 
  
-**`String ez.waitForButtons(String buttons)`**
+`String ez.buttons.wait(String buttons)`
   
-You can specify the keys to be drawn straight into `ez.waitForButtons` for simple usages. For instance `ez.waitForButtons("OK")` will display a single "OK" on the center button and return "OK" when it is pressed. (But given that you are not interested in the return value in this case, you can just specify that as a statement.)
+You can specify the keys to be drawn straight into `ez.buttons.wait` for simple usages. For instance `ez.buttons.wait("OK")` will display a single "OK" on the center button and return "OK" when it is pressed. (But given that you are not interested in the return value in this case, you can just specify that as a statement.)
+
+## Scheduling tasks within M5ez
+
+Now that we're dealing with waiting for keypresses, this is a good moment to talk about scheduling, yielding and such. As discussed above, a typical program written with M5ez will spend most of its time waiting for keys to be pressed. But some things need to continue to happen while that happening: the clock and the wifi signal indicator need to update, for instance.
+
+### Yield
+
+`void ez.yield()`
+
+It could be that your code needs to do things that take a little while. If something takes many seconds, consider putting in an "abort" key. But suppose your code is busy and is not using `ez.buttons.poll` or `ez.buttons.wait` to check for keys. In that case use `ez.yield()` in your loop to make sure the clock and WiFi updating (as well as user defined tasks) get executed. `ez.yield` calls the Arduino `yield` function, so you do not need to call that separately.
+
+### Your own events
+
+`void ez.addEvent(uint16_t (*function)(), uint32_t when = 1)`
+
+`void ez.removeEvent(uint16_t (*function)())`
+
+With `addevent` you can register a function of your own to be executed periodically as part of M5ez's own loop when it is waiting for buttons. This function has to be a function that takes no arguments and returns a 16-bit unsigned integer. Make sure you just specify the name of this function without any brackets. You can optionally specify when to run this function by adding a time in `millis()`. By default, the function you specify will run immediately.
+
+The value returned by your function is the number of milliseconds to wait before calling the function again. So a function that only needs to run once every second would simply return 1000.
+
+`ez.removeEvent` &mdash; as the name implies &mdash; removes your function from the loop.
+
+&nbsp;
 
 ## Showing messages with msgBox
 
@@ -153,7 +355,7 @@ String ez.msgBox(String header,
 
 ![](images/msgBox2.png)
 
-By default, msgBox then waits for the user to press any of the keys specified and returns the name of that key. If you want to scan for the keys yourself with `ez.getButtons()` (for instance because there are other things your code need to wait for or check) then you can specify `false` with blocking, msgBox will then show the message, header and buttons and exit.
+By default, msgBox then waits for the user to press any of the keys specified and returns the name of that key. If you want to scan for the keys yourself with `ez.buttons.poll()` (for instance because there are other things your code need to wait for or check) then you can specify `false` with blocking, msgBox will then show the message, header and buttons and exit.
 
 The font and color options allow you to use something other than the default (theme determined) defaults for the message printed by msgBox. They act as you would expect, see the section on fonts and colors for details.
 
@@ -169,7 +371,7 @@ If you want to show progress on a download or something else, use the `ezProgres
 	ezProgressBar pb ("This is a header", "Message, just like with msgBox", "Abort");
 ```
 
-This will draw header, message, an empty (0 %) progress bar and the specified single "Abort" button. Unlike msgBox this will not block by default. In code that executes after this, one would presumably check for the "Abort" button with `ez.getButtons()`. To advance the bar, the code would simply call:
+This will draw header, message, an empty (0 %) progress bar and the specified single "Abort" button. Unlike msgBox this will not block by default. In code that executes after this, one would presumably check for the "Abort" button with `ez.buttons.poll()`. To advance the bar, the code would simply call:
 
 ```
 	pb.value(float val)
@@ -189,11 +391,13 @@ This function will provide a text-entry field, pre-filled with `defaulttext` if 
 
 ## FACES keyboard support
 
-**`String getFACES()`**
-
 ![](images/FACES.png)
 
-M5ez supports the M5 FACES keyboard. Until I figure out how to properly detect that it is present, compile with `#define M5EZ_WITH_FACES` in the library's .h file. When you do, you will be able to use the `getFACES` function to get the last key pressed on the keyboard. The `textInput` function then also looks for keys from that keyboard, and starts with different key definitions for the M5Stack's own buttons.
+`String poll()`
+
+`bool on();
+
+M5ez supports the M5 FACES keyboard: simply set the keyboard to "attached" in the M5ez settings menu. When you do, you will be able to use the `ez.faces.poll` function to get the last key pressed on the keyboard. The `textInput` and `textBox` functions will then also look for keys from that keyboard, and start with different key definitions for the M5Stack's own buttons. `ez.faces.on()` can be used to see if the keyboard is set to "attached" in the menu.
 
 ## Composing or viewing longer texts: textBox
 
@@ -207,43 +411,6 @@ String ez.textBox(String header = "",
 This will word-wrap and display the string in `text` (up to 32 kB), allowing the user to page through it. Ideal for LoRa or SMS messages, short mails or whatever else. If a FACES keyboard is attached and `readonly` is false, the user can edit the text: a cursor appears, which can be moved with the arrow keys on the FACES keyboard. `TB_FONT` and `TB_COLOR` are the defaults from the theme, but they can be overridden by supplying a font and/or a color directly. 
 
 ![](images/textBox.png)
-
-
-## Printing text
-
-```
-void ez.print(String text,
-	int16_t x = -1,
-	int16_t y = -1,
-	const GFXfont* font = NULL,
-	uint16_t color = PRINT_DEFAULT_COL)
-```
-
-```
-void ez.println(String text,
-	int16_t x = -1,
-	int16_t y = -1,
-	const GFXfont* font = NULL,
-	uint16_t color = PRINT_DEFAULT_COL)
-```
-
-The `ez.print` and `ez.println` functions behave much like the `m5.lcd.print` and `m5.lcd.println` functions from the M5Stack library: they print text at the current text position, in the case of `println` followed by a newline. But there are a few differences. `ez.print` and `ez.println` have their own text location that is only used and updated by these two functions. This means you can print a few lines and then change the header text with `ez.drawHeader`, set new buttons with `ez.drawButtons` and then print the next line and it still ends up right underneath. You can specify an x and y position, which sets the new position for text to start from. If you specify a color and/or a font, they will only apply to this iteration of print. Any future iterations will still print in the default color and font.
-
-If you pass -1 as x or y parameter (or don't supply them), print and println will start at the current position. That means you can only specify x if you want to 'tab' ahead without affecting the vertical position, or supply -1 as x and then supply an explicit y value for the same in the vertical direction.
-
-**`void ez.printFont(const GFXfont* font)`**
-
-**`void ez.printColor(uint16_t color)`**
-
-These two set the default print font and color respectively. Work as you would expect.
-
-**`void ez.printLmargin(int16_t lmargin)`**
-
-Sets a left margin (in pixels) for print to return to if a newline is printed. If you set it to something to the right of the current text position, the position moves to the new margin.
-
-**`void ez.printWrap(bool state)`**
-
-Determines whether or not whether text printed by `ez.print` and `ez.println` wraps to the next line if it doesn't fit. By default it does.
 
 ## Fonts
 
@@ -545,6 +712,8 @@ The string named `nameAndCaption` can (as the name implies) hold both a name and
 
 The name is what is returned when you call `yourMenu.pickName()` after the menu has ran, and you can also supply it as an argument to `deleteItem()` (see below). The caption is what is printed, either in the item's line in the menu or as a caption with the image in an image menu. The caption is also returned by `yourMenu.pickCaption()`.   
 
+If you put a tab character (Represented by `\t`) in the caption of a menu item, the text to the left of the tab will be left-aligned to the left of the menu item, and the text to the right of it will be right-aligned to the right of the item. You can see this feature in use in M5ez's settings menu where the part on the right generally represents the actual state of a setting.
+
 If an item is named "Back", "Exit" or "Done" (either with first letter capitalised all all lower case), the menu will exit is this item is picked, unless an advancedFunction is supplied (see below). Note that while it has to be *named* one of these three things, it can be *captioned* something completely different.
 
 If you want your code to have more access to what just happened in the menu, you can supply an advancedFunction pointer. This way you can have a function that has access to all the member functions of the menu that called it, and it can determine whether the menu exits or not by returning `true` (keep running) or `false` (exit). 
@@ -676,41 +845,53 @@ In other words: all it does is just call `.runOnce()` on your menu until it exit
 
 These functions will show the position, name and caption of the picked item. They are useful after your menu has been ran once with `.runOnce` or in an advancedFunction (see under `addItem` above).
 
-## Wifi
+## Settings
 
-**`ezWifiMenu()`**
+M5ez comes with a number of built-in settings menus. The settings are saved to flash in the `M5ez` section of the ESP32 NVS facility (using the Arduino `Preferences` library). All you need to do is create one menu item that points to `ez.settings.menu` and all settings will be available. By commenting out certain compiler defines, menu items (and all code associated with them) can be disabled. The various menus can also be accessed directly. Here's a quick table of the menus, their `#define` keyword, and their direct access function.
 
-This may very well be the only function you'll need. Simply make it the function some menu item of yours points to and the user will have access to a menu that lets her connect to wifi, manage which networks are automatically connected to at boot and whenever the wifi connecttion disappears. Note that it does not have a dot between the ez and WifiMenu: it is one word. 
+| Menu | `#define` | function |
+|:-----|:----------|:---------|
+| Wifi menu | `M5EZ_WIFI` | `ez.wifi.menu` |
+| Clock menu | `M5EZ_CLOCK` | `ez.clock.menu` |
+| Backlight brightness | `M5EZ_BACKLIGHT` | `ez.backlight.menu` |
+| FACES keyboard | `M5EZ_FACES` | `ez.faces.menu` |
+| Theme chooser | n/a | `ez.theme.menu` |
+
+### Wifi
+
+The wifi menu allows the user to connect to an Access Point. The user can also turn on and off the "autoconnect" feature. With this feature on, M5EZ will behave like most smartphones and automatically connect to any Access Point which has been added to the autoconnect list when it was joined. 
 
 Note that this doesn't use the `WiFi.setAutoConnect` and `WiFi.setAutoReconnect` fucntions of the ESP32 WiFi library: they can only connect to one access point. Instead  M5ez has it's own logic for connecting, saving the ssid and password of networks you want to automatically connect to in flash.
 
-The functions below give access to these stored networks as well as the stored "on/off" toggle for the autoconnect feature. You probably won't need them as `ezWifiMenu` lets the user manage all of this. Note that you have to call `ez.wifiWriteFlash()` when you are done making any changes.
+Below you can see how to access the stored networks as well as the stored "on/off" toggle for the autoconnect feature from code. You probably won't need this as `ez.wifi.menu` lets the user manage all of this. Note that if you do make any changes, you have to call `ez.wifi.writeFlash()` when you are done to save them to flash.
 
-**`void ez.wifiAddNetwork(String SSID, String key)`**
+`std::vector<WifiNetwork_t> networks`
 
-**`bool ez.wifiDeleteNetwork(int8_t index)`**
+`ez.wifi.networks` is a vector (think of it as an array), that holds all the stored networks after M5ez boots (or `ez.wifi.readFlash()` is executed). Here's a code example to print all the SSIDs and their passwords to the M5ez canvas.
 
-**`bool ez.wifiDeleteNetwork(String ssid)`**
+```
+for (int8_t n = 0; n < ez.wifi.networks.size(); n++) {
+	ez.canvas.print(ez.wifi.networks[n].SSID);
+	ez.canvas.print(": ");
+	ez.canvas.println(ez.wifi.networks[n].key);
+}
+```
 
-**`int8_t ez.getIndexForSSID(String ssid)`**
+`void ez.wifi.add(String ssid, String key)`
 
-**`uint8_t ez.wifiNumNetworks()`**
+`bool ez.wifi.remove(int8_t index)`
 
-**`String ez.wifiSSID(uint8_t index)`**
+`bool ez.wifi.remove(String ssid)`
 
-**`String ez.wifiKey(uint8_t index)`**
+Adds or removes a network. the index is the index in te networks array above. 
 
-**`bool ez.wifiAutoconnectOn()`**
+`int8_t indexForSSID(String ssid)`
 
-**`void ez.wifiAutoconnectOn(bool new_state)`**
+Can be used to find the index for a named SSID. -1 is returned if the name is not found.
 
-**`void ez.wifiReadFlash()`**
+#### The weird Wifi ghost button problem
 
-**`void ez.wifiWriteFlash()`**
-
-### The weird Wifi ghost button problem
-
-When you connect to Wifi, you may notice a strange quirk of the M5Stack hardware, or possibly of the ESP32 chip. When you are connected, the left button is getting ghost clicks. If this happens to you when you are on Wifi, you will need to do the following to fix it.
+when you connect to Wifi, ons ome M5Stack devices, you may notice a strange quirk of the M5Stack hardware, or possibly of the ESP32 chip. When you are connected, the left button is getting ghost clicks. If this happens to you when you are on Wifi, you will need to do the following to fix it.
 
 Navigate to the Arduino libraries directory, and then from there to `M5Stack/src/utility/Button.cpp`. In that file (around line 60) find 
 
@@ -731,19 +912,15 @@ and replace that line with:
     pinVal = analogRead(_pin);
 ```
 
-Now recompile and the problem is gone. It does mean that you cannot use the speaker while  `ez.getButtons()` is checking for button presses.
+Now recompile and the problem is gone. It does mean that you cannot use the speaker while  `ez.buttons.poll()` is checking for button presses.
 
-## Themes
-
-If you look at the library file structure you will notice a directory called 'themes'. The file 'default.h' contains all sorts of interface defaults you can tinker with. You can include another theme file from that directory from M5ez.h, by uncommenting the theme include near the top. You can also create a new theme file in that directory, change the values you want and include it in the same way. There will be more themes in the library's themes directory to choose from soon. If you make a pretty theme, please send it along so I can include it in there for others to play with.
-
-## Over-The-Air (OTA) updates via https
+#### Over-The-Air (OTA) updates via https
 
 You might deploy hardware that needs updates but that you don't wnat to hook up via USB every time. But you will want this upload mechanism to offer some security against attackers that culd otherwise compromise large numbers of internet-connected IoT devices. M5ez allows you to boot from a compiled binary file that is downloaded from the internet over https.
 
-**`bool ez.update(String url, const char* root_cert, ezProgressBar* pb = NULL)`**
+`bool ez.wifi.update(String url, const char* root_cert, ezProgressBar* pb = NULL)`
 
-**`String ez.updateError()`**
+`String ez.wifi.updateError()`
 
 Takes a URL and a root certificate. A shell script called `get_cert` is provided in the `/tools` directory of this repository to get the right (non-forwarded) URL and create an include file to provide the correct certificate. The optional third argument is a pointer to the `ezProgressBar` instance that will show the progress of the firmware download. It must be provided with a leading ampersand. 
 
@@ -751,8 +928,84 @@ Takes a URL and a root certificate. A shell script called `get_cert` is provided
 
 The [README.rd file of the OTA_https sample sketch](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) provides a step-by-step recipe that describes how to determine the URL and get the certficate using `get_cert`.
 
-## Dual-use sketches
+&nbsp;
 
-With a simple trick, you can make code that does something pretty on its own, but that can also be included to provide a submenu in a bigger program. If you look at the M5ez-demo program, you will see that its directory includes another sketch named sysinfo.ino. This is the same sysinfo.ino that can be compiled on its own. (It is in the Examples directory.) But if it is included with another program, the compiler will see that this other "master" program has specified `#define MAIN_DECLARED`. Since the sub program has `#ifndef MAIN_DECLARED` and `#endif` around its declaration of `setup()` and `loop()`, it no longer conflicts, and the "master" program can call functions from it. As you can see sysinfo.ino also uses whether or not `MAIN_DECLARED` is defined to determine whether to provide an "Exit" button. After all: if it is running stand-alone there is nothing to exit to. 
+### Clock
+
+If M5ez is compiled with M5EZ_CLOCK (which it is by default), it will be set up to display a clock in the header bar at the top of the screen. By default this clock displays time in a 24 hour format, but this can be changed in the clock menu, which is also accessible directly via `ez.clock.menu`.
+
+The first time M5ez goes online, it will try to look up the timezone using the GeoIP country of the IP address you are connecting to the timezone server from. If this lookup fails or if you are in a country that spans multiple timezones this lookup will fail and an offiecial timezone name will have to be set manually in the menu. (Timezone names are of the from `Continent/Some_City`, see [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of timezone names. Note that the name of the timezone has to be entered in the correct case.
+
+If you use M5ez with on-screen clock, your code can also use all the other features of [ezTime](https:://github.com.ropg/ezTime), my full-featured general purpose Arduino time library.
+
+&nbsp;
+
+### Backlight
+
+You can set the brightness of the LCD backlight LEDs here. The menu is also directly accessible via `ez.backlight.menu`.
+
+&nbsp;
+
+### FACES keyboard
+
+Here you can set whether or not you have a FACES keyboard attached. I would have preferred to detect the keyboard automatically, but that's not easy, so it's solved with a settings menu.
+
+&nbsp;
+
+### Factory defaults
+
+This will erase M5ez's NVS flash section and boot, setting all M5ez settings back to their defaults.
+
+&nbsp;
+
+### Adding your own settings
+
+You can add your own settings menu. The settings menu object `ez.settings.menuObj` is a regular M5ez menu, and so your own code can, at startup, add its own submenus. To show how, let's see a snippet of M5ez's own code
+
+```
+ez.settings.menuObj.addItem("Backlight brightness", ez.backlight.menu);
+```
+
+That's how the backlight menu item is added to the menu.
+
+&nbsp;
+
+## Themes
+
+### Including themes
+
+In the `setup()` part of your code, you can include themes from the themes directory. If you include multiple themes, the settings menu will show a theme chooser where the user can choose their theme. For instance, the M5ez demo program offers both the 'default' and the 'dark' theme as follows:
+
+```
+void setup() {
+  #include <themes/default.h>
+  #include <themes/dark.h>
+  ez.begin();
+}
+```
+
+And thus the settings menu offers a "Theme Chooser" option for these two themes:
+
+![](images/theme-default.jpg) &nbsp;&nbsp;&nbsp; ![](images/theme-dark.jpg)
+
+If you include no themes, the default theme is loaded as the only theme.
+
+### Making your own
+
+To make your own theme, copy the default theme from the src/themes directory to your sketch directory, rename it and change the values you want to change. The dark theme should give you an idea how to uncomment and change some of the values. Make sure you at least change the 'name' property as that will be displayed in the theme chooser. Now include this file in the `setup()` section of your sketch. Since you're including from the sketch directory and not from a library use quotes and not pointy brackets, like `#include "myTheme.h"`. If you spend some time to create a cool looking theme, please send it along so it can be included for everyone else to use.
+
+&nbsp;
+
+## z-sketches
+
+With a simple trick, you can make code that does something pretty on its own, but that can also be included to provide a submenu in a bigger program. If you look at the M5ez-demo program, you will see that its directory includes another sketch named z-sysinfo.ino. This is the same z-sysinfo.ino that can be compiled on its own. (It is in the examples directory.) 
+
+Normally putting two .ino files in the same directory is a bad idea as the compiler then finds two programs that each have a `setup()` and a `loop()`. But if one of the programs (the "master" program) specifies `#define MAIN_DECLARED` and the slave program has `#ifndef MAIN_DECLARED` and `#endif` around its declaration of `setup()` and `loop()`, it no longer conflicts. This means the master program can call functions from it. As you can see z-sysinfo.ino also uses whether or not `MAIN_DECLARED` is defined to determine whether to provide an "Exit" button. After all: if it is running stand-alone there is nothing to exit to. 
 
 Also note that you do not need to `#include` any sketches placed in the same directory as your master program: the compiler combines them automatically. That also means you must ensure that no names are declared twice, or otherwise the compiler will complain.
+
+> *It's called a z-sketch and starts with a z because that way the Arduino program that turns the .ino files into .cpp files for the compiler looks at it last, which is important. Silly hack, but it is nice to able to write smaller bits of functionality that can be shown and tested individually.*
+
+&nbsp;
+
+## Table of Contents

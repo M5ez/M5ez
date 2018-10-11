@@ -13,22 +13,22 @@
 #include "images.h"
 
 void setup() {
-
-  m5.begin();
-  SPIFFS.begin();
-
+	#include <themes/dark.h>
+	#include <themes/default.h>
+	ez.begin();
+	SPIFFS.begin();
 }
 
 void loop() {
-  ezMenu images;
-  images.imgBackground(TFT_BLACK);
-  images.imgFromTop(40);
-  images.imgCaptionFont(&FreeSansBold12pt7b);
-  images.imgCaptionLocation(TC_DATUM);
-  images.imgCaptionColor(TFT_WHITE);
-  images.imgCaptionMargins(10,10);
-  images.addItem(wifi_jpg, "WiFi Settings", ezWifiMenu);
-  images.addItem(SPIFFS, "/rose.jpg", "Rose");
-  images.addItem(SPIFFS, "/galaxy.jpg", "Galaxy");
-  images.run();
+	ezMenu images;
+	images.imgBackground(TFT_BLACK);
+	images.imgFromTop(40);
+	images.imgCaptionFont(&FreeSansBold12pt7b);
+	images.imgCaptionLocation(TC_DATUM);
+	images.imgCaptionColor(TFT_WHITE);
+	images.imgCaptionMargins(10,10);
+	images.addItem(system_jpg, "Settings", ez.settings.menu);		// This image comes from images.h file
+	images.addItem(SPIFFS, "/rose.jpg", "Rose");					// This and image below come from SPIFFS
+	images.addItem(SPIFFS, "/galaxy.jpg", "Galaxy");
+	images.run();
 }

@@ -1,33 +1,37 @@
-#include <M5Stack.h>
 #include <M5ez.h>
+
+#include <ezTime.h>
 
 #include "images.h"
 
 #define MAIN_DECLARED
 
 void setup() {
-
-  m5.begin();
-
+  #include <themes/default.h>
+  #include <themes/dark.h>
+  ezt::setDebug(INFO);
+  ez.begin();
 }
 
 void loop() {
   ezMenu mainmenu("Welcome to M5ez");
+  mainmenu.txtSmall();
   mainmenu.addItem("Flexible text menus", mainmenu_menus);
   mainmenu.addItem("Image menus", mainmenu_image);
   mainmenu.addItem("Neat messages", mainmenu_msgs);
   mainmenu.addItem("Multi-function buttons", mainmenu_buttons);
   mainmenu.addItem("3-button text entry", mainmenu_entry);
-  mainmenu.addItem("Built-in WiFi support", ezWifiMenu);
+  mainmenu.addItem("Built-in wifi & other settings", ez.settings.menu);
   mainmenu.addItem("Updates via https", mainmenu_ota);
   mainmenu.upOnFirst("last|up");
   mainmenu.downOnLast("first|down");
-  mainmenu.run(); 
+  mainmenu.run();
 }
 
 void mainmenu_menus() { 
   ezMenu submenu("This is a sub menu");
   submenu.txtSmall();
+  submenu.buttons("up#Back#select##down#");
   submenu.addItem("You can make small menus");
   submenu.addItem("Or big ones");
   submenu.addItem("(Like the Main menu)");
@@ -46,26 +50,26 @@ void mainmenu_menus() {
 }
 
 void submenu_more() {
-  ez.drawHeader("A simple menu in code...");
-  ez.printLmargin(10);
-  ez.println("");
-  ez.println("ezMenu menu(\"Main menu\");");
-  ez.println("menu.addItem(\"Option 1\");");
-  ez.println("menu.addItem(\"Option 2\");");
-  ez.println("menu.addItem(\"Option 3\");");
-  ez.println("while ( menu.run() ) {");
-  ez.println("  if (menu.pick == 1) {");
-  ez.println("    ez.msgBox (\"One!\");");
-  ez.println("  }");
-  ez.println("}");
-  ez.waitForButtons("OK");
-
+  ez.header.show("A simple menu in code...");
+  ez.canvas.lmargin(10);
+  ez.canvas.println("");
+  ez.canvas.println("ezMenu menu(\"Main menu\");");
+  ez.canvas.println("menu.addItem(\"Option 1\");");
+  ez.canvas.println("menu.addItem(\"Option 2\");");
+  ez.canvas.println("menu.addItem(\"Option 3\");");
+  ez.canvas.println("while ( menu.run() ) {");
+  ez.canvas.println("  if (menu.pick == 1) {");
+  ez.canvas.println("    ez.msgBox (\"One!\");");
+  ez.canvas.println("  }");
+  ez.canvas.println("}");
+  ez.buttons.wait("OK");
+  
   ezMenu fontmenu("Menus can change looks");
   fontmenu.txtFont(&Satisfy_24);
   fontmenu.addItem("Menus can use");
   fontmenu.addItem("Various Fonts");
   fontmenu.runOnce();
-
+  
   ezMenu delmenu("Menus are dynamic");
   delmenu.txtSmall();
   delmenu.addItem("You can delete items");
@@ -76,7 +80,7 @@ void submenu_more() {
   delmenu.addItem("Exit | Go back" );
   while (delmenu.runOnce()) {
     if (delmenu.pickName() == "Delete me!") {
-        delmenu.deleteItem(delmenu.pick());
+      delmenu.deleteItem(delmenu.pick());
     }
   }
 }
@@ -85,12 +89,9 @@ void mainmenu_image() {
   ezMenu images;
   images.imgBackground(TFT_BLACK);
   images.imgFromTop(40);
-  images.imgCaptionFont(&FreeSansBold12pt7b);
-  images.imgCaptionLocation(TC_DATUM);
   images.imgCaptionColor(TFT_WHITE);
-  images.imgCaptionMargins(10,10);
   images.addItem(sysinfo_jpg, "System Information", sysInfo);
-  images.addItem(wifi_jpg, "WiFi Settings", ezWifiMenu);
+  images.addItem(wifi_jpg, "WiFi Settings", ez.wifi.menu);
   images.addItem(about_jpg, "About M5ez", aboutM5ez);
   images.addItem(sleep_jpg, "Power Off", powerOff);
   images.addItem(return_jpg, "Back");
@@ -107,45 +108,47 @@ void mainmenu_msgs() {
 }
     
 void mainmenu_buttons() {
-  ez.drawHeader("Simple buttons...");
-  ez.printFont(&FreeSans12pt7b);
-  ez.printLmargin(20);
-  ez.println("");      
-  ez.println("You can have three buttons");
-  ez.println("with defined funtions.");
-  ez.drawButtons("One # Two # Done");
+  ez.header.show("Simple buttons...");
+  ez.canvas.font(&FreeSans12pt7b);
+  ez.canvas.lmargin(20);
+  ez.canvas.println("");      
+  ez.canvas.println("You can have three buttons");
+  ez.canvas.println("with defined funtions.");
+  ez.buttons.show("One # Two # Done");
   printButton();
-  ez.clearScreen();
-  ez.drawHeader("More functions...");
-  ez.printFont(&FreeSans12pt7b);
-  ez.printLmargin(20);
-  ez.println("");      
-  ez.println("But why stop there?");
-  ez.println("If you press a little longer");
-  ez.println("You access the functions");
-  ez.println("printed in cyan.");
-  ez.drawButtons("One # Two # Three # Four # Done #");
+  ez.canvas.clear();
+  ez.header.show("More functions...");
+  ez.canvas.println("");      
+  ez.canvas.println("But why stop there?");
+  ez.canvas.println("If you press a little longer");
+  ez.canvas.println("You access the functions");
+  ez.canvas.println("printed in cyan.");
+  ez.buttons.show("One # Two # Three # Four # Done #");
   printButton();
-  ez.clearScreen();
-  ez.drawHeader("Two keys ...");
-  ez.printFont(&FreeSans12pt7b);
-  ez.printLmargin(20);     
-  ez.println("It gets even better...", 20, ez.canvasTop() + 10);
-  ez.println("The purple bar shows the");
-  ez.println("functions for key combis.");
-  ez.println("See if you can work it out...");
-  ez.drawButtons("One # Two # Three # Four # Five # Six # Seven # Eight # Done");
+  ez.canvas.clear();
+  ez.header.show("Two keys ...");
+  ez.canvas.y(ez.canvas.top() + 10);
+  ez.canvas.println("It gets even better...");
+  ez.canvas.println("The purple bar shows the");
+  ez.canvas.println("functions for key combis.");
+  ez.canvas.println("See if you can work it out...");
+  ez.buttons.show("One # Two # Three # Four # Five # Six # Seven # Eight # Done");
   printButton();
 }
 
 void printButton(){
   while (true) {
-    String btnpressed = ez.getButtons();
-    if (btnpressed == "Done") break;
-    if (btnpressed != "") {
-        m5.lcd.fillRect (0, ez.canvasBottom() - 45, TFT_W, 40, SCREEN_BGCOLOR); 
-        ez.print(btnpressed, 20, ez.canvasBottom() - 45, &FreeSansBold18pt7b, TFT_RED);
-    }
+  String btnpressed = ez.buttons.poll();
+  if (btnpressed == "Done") break;
+  if (btnpressed != "") {
+    m5.lcd.fillRect (0, ez.canvas.bottom() - 45, TFT_W, 40, ez.theme->background); 
+    ez.canvas.pos(20, ez.canvas.bottom() - 45);
+    ez.canvas.color(TFT_RED);
+    ez.canvas.font(&FreeSansBold18pt7b);
+    ez.canvas.print(btnpressed);
+    ez.canvas.font(&FreeSans12pt7b);
+    ez.canvas.color(TFT_BLACK);
+  }
   }
 }
 
@@ -161,11 +164,11 @@ void mainmenu_ota() {
   if (ez.msgBox("Get OTA_https demo", "This will replace the demo with a program that can then load the demo program again.", "Cancel#OK#") == "OK") {
     ezProgressBar progress_bar("OTA update in progress", "Downloading ...", "Abort");
     #include "raw_githubusercontent_com.h" // the root certificate is now in const char * root_cert
-    if (ez.update("https://raw.githubusercontent.com/ropg/M5ez/master/compiled_binaries/OTA_https.bin", root_cert, &progress_bar)) {
+    if (ez.wifi.update("https://raw.githubusercontent.com/ropg/M5ez/master/compiled_binaries/OTA_https.bin", root_cert, &progress_bar)) {
       ez.msgBox("Over The Air updater", "OTA download successful. Reboot to new firmware", "Reboot");
       ESP.restart();
     } else {
-      ez.msgBox("OTA error", ez.updateError(), "OK");
+      ez.msgBox("OTA error", ez.wifi.updateError(), "OK");
     }
   }
 }
@@ -175,4 +178,3 @@ void powerOff() { m5.powerOFF(); }
 void aboutM5ez() {
   ez.msgBox("About M5ez", "M5ez was written by | Rop Gonggrijp | | https://github.com/ropg/M5ez");
 }
-
