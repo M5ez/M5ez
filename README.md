@@ -66,7 +66,7 @@ Alternatively, if you do not plan to use WPS, you can also comment out `#define 
 * Many bugs got fixed
 * Code is a lot cleaner now, easier to add things without the sometimes ad-hoc and organically grown constructs of M5ez 1.x
 
-However, all of this comes with some changes to the names of common fucntions in M%ez. Generally things are more consistent now, but that does mean they are different: your M5ez 1.x code will not run without modifications. I am not planning an M5ez 3.0, so expect no further modifications to be needed to existing code for a while.
+However, all of this comes with some changes to the names of common functions in M5ez. Generally things are more consistent now, but that does mean they are different: your M5ez 1.x code will not run without modifications. I am not planning an M5ez 3.0, so expect no further modifications to be needed to existing code for a while.
 
 ### Converting code from M5ez 1.x to 2.x
 
