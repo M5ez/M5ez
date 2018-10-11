@@ -66,7 +66,7 @@ Alternatively, if you do not plan to use WPS, you can also comment out `#define 
 * Many bugs got fixed
 * Code is a lot cleaner now, easier to add things without the sometimes ad-hoc and organically grown constructs of M5ez 1.x
 
-However, all of this comes with some changes to the names of common functions in M5ez. Generally things are more consistent now, but that does mean they are different: your M5ez 1.x code will not run without modifications. I am not planning an M5ez 3.0, so expect no further modifications to be needed to existing code for a while.
+However, all of this comes with some changes to the names of common functions in M5ez. Generally things are more consistent now, but that does mean they are different: your M5ez 1.x code will not run without modifications. I am not planning an M5ez 3.0 at this time, so expect no further modifications to be needed to existing code for a while.
 
 ### Converting code from M5ez 1.x to 2.x
 
@@ -93,7 +93,7 @@ To convert code form 1.x to 2.x, it is recommended you start by replacing the fo
 
 Then, check all your print functions: they no longer support the setting of font, location or color in the statement itself: these need to be done with `ez.canvas.font`, `ez.canvas.color` etc. (Print is much nicer now because the canvas object inherited from the Print class, and because the canvas can scroll now.)
 
-Then simply fix any remaining problems by first fixing any compiler complaints with this document in hand, and then walk through all of your program's functioniality to see if everything works as expected.
+Then simply fix any remaining problems by first fixing any compiler complaints with this document in hand, and then walk through all of your program's functionality to see if everything works as expected.
 
 &nbsp;
 
