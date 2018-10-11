@@ -91,7 +91,7 @@ To convert code form 1.x to 2.x, it is recommended you start by replacing the fo
 | `ez.getButtons(` | **&mdash;>** | `ez.buttons.poll(`
 | `ez.waitForButtons(` | **&mdash;>** | `ez.buttons.wait(`
 
-Then, check all your print functions: they no longer support the setting of font, location or color in the statement itself: these need to be done with `ez.canvas.font`, `ez.canvas.color` etc. Print is much nicer now because the canvas object inherited from the Print class, and because the cavas can scroll now.
+Then, check all your print functions: they no longer support the setting of font, location or color in the statement itself: these need to be done with `ez.canvas.font`, `ez.canvas.color` etc. (Print is much nicer now because the canvas object inherited from the Print class, and because the canvas can scroll now.)
 
 Then simply fix any remaining problems by first fixing any compiler complaints with this document in hand, and then walk through all of your program's functioniality to see if everything works as expected.
 
