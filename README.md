@@ -526,7 +526,7 @@ To create a menu we create an instance of the `ezMenu` object. By having each me
 #include <M5ez.h>
 
 void setup() {
-  m5.begin();
+  ez.begin();
 }
 
 void loop() {
@@ -557,7 +557,7 @@ Let's see our sketch again, this time with a submenu added:
 #include <M5ez.h>
 
 void setup() {
-  m5.begin(); 
+  ez.begin(); 
 }
 
 void loop() {
@@ -599,7 +599,7 @@ Until now we have considered menus that run all by themselves, unless they exit 
 #include <M5ez.h>
 
 void setup() {
-  m5.begin(); 
+  ez.begin(); 
 }
 
 void loop() {
@@ -624,7 +624,7 @@ This does exactly the same as the first example we started with. Note that `.run
 #include <M5ez.h>
 
 void setup() {
-  m5.begin(); 
+  ez.begin(); 
 }
 
 void loop() {
