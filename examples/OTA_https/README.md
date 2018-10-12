@@ -1,6 +1,6 @@
 ## Over The Air (OTA) firmware updates via https
 
-OTA stands for Over The Air, and in the context of the M5Stack usually means we're upgrading compiled firmware via the WiFi network, without hooking the USB port to a computer and running the Arduino IDE. The ez.update routine that we will be using to update the firmware uses https to transport the firmware, because code that is going to be running on all sorts of devices should be encrypted.
+OTA stands for Over The Air, and in the context of the M5Stack usually means we're upgrading compiled firmware via the WiFi network, without hooking the USB port to a computer and running the Arduino IDE. The ez.wifi.update routine that we will be using to update the firmware uses https to transport the firmware, because code that is going to be running on all sorts of devices should be encrypted.
 
 ![](../../images/ezProgressBar.png)
 
@@ -10,7 +10,7 @@ Load this program in your Arduino IDE and load it to your M5Stack. The menu will
 
 (As it happens the M5ez-demo program allows you to load a compiled version of this demo program again, so you can Over-The-Air update back and forth. Not because that's a useful things to do, but it does serve to demonstrate the mechanism.)
 
-### Using `ez.update` in your own code
+### Using `ez.wifi.update` in your own code
 
 The steps below may seem a bit complicated. Most of that is due to the need to include a root certyificate for the server we will be connecting to. This is to prevent evildoers on the internet from swapping their malicious firmware for yours, somewhere along the way. And that was the whole point of using https over some unencrypted method in the first place. 
 
@@ -41,7 +41,7 @@ The root certificate include file is saved as:
 
 * As you can see the script tells you two things. First it will tell you what the "real" URL is. That is: what site and path does the first URL evetually redirect to. That is the URL you will want to use in your code, and that is the domain you want the root certificate for.
 
-* It will also have saved a `.h` include file named after the domain (with dots replaced by underscores) that holds the root certificate in a format ready to be used by our code. Including that anywhere in your code will be replaced by a definition of a `const char *` variable called `root_cert` that can be passed to `ez.update`. Here's what that file looks like:
+* It will also have saved a `.h` include file named after the domain (with dots replaced by underscores) that holds the root certificate in a format ready to be used by our code. Including that anywhere in your code will be replaced by a definition of a `const char *` variable called `root_cert` that can be passed to `ez.wifi.update`. Here's what that file looks like:
 
 ```
 your_prompt$ cat raw_githubusercontent_com.h 
@@ -91,11 +91,11 @@ const char* root_cert = \
 ezProgressBar pb("OTA update in progress", "Downloading ...", "Abort");
 String url = "https://raw.githubusercontent.com/ropg/M5ez/master/compiled_binaries/M5ez-demo.bin";
 #include "raw_githubusercontent_com.h"
-if (ez.update(url, root_cert, &pb)) {
+if (ez.wifi.update(url, root_cert, &pb)) {
     ez.msgBox("Over The Air updater", "OTA download successful. Reboot to new firmware", "Reboot");
     ESP.restart();
 } else {
-    ez.msgBox("OTA error", ez.updateError(), "OK");
+    ez.msgBox("OTA error", ez.wifi.updateError(), "OK");
 }
 ```
 
@@ -107,15 +107,15 @@ if (ez.update(url, root_cert, &pb)) {
 
 * Over the Air updates only work if your partition table allows for two concurrent firmwares to be present. This means that if you do not plan to use OTA, you can have twice as much space for your programs. (Tools / Partition Scheme / No OTA in the Arduino IDE.)
 
-* As you can see, the `ez.update` function takes three arguments: the first one is the https url for the firmware, the second one is the root certificate and the (optional) third one is a pointer to the ezProgressBar instance that will show progress for this download. (Don't forget the ampersand - `&` - in front.)
+* As you can see, the `ez.wifi.update` function takes three arguments: the first one is the https url for the firmware, the second one is the root certificate and the (optional) third one is a pointer to the ezProgressBar instance that will show progress for this download. (Don't forget the ampersand - `&` - in front.)
 
-* Should `ez.update` return `false`: the human-readable error is provided when you call `ez.updateError()`.
+* Should `ez.wifi.update` return `false`: the human-readable error is provided when you call `ez.wifi.updateError()`.
  
 * If your download is much more sneaky and silent, you can also just do something like:
 
 ```
 #include "updates_com.h"
-if (ez.updates("https://updates.com/path/firmware.bin", root_cert)) {
+if (ez.wifi.update("https://updates.com/path/firmware.bin", root_cert)) {
   ESP.restart;
 }
 ```
@@ -124,6 +124,6 @@ if (ez.updates("https://updates.com/path/firmware.bin", root_cert)) {
 
 * If the certificate on the server is signed by a different root certificate - which may happen before the cert expiration date - updates will not work anymore. If you plan to deploy lots of IoT appliances using this update method it is probably best to control your own server and have a root certificate on it that expires sometime well after you will have sold your startup.
 
-* `ez.update` cannot be used to pass basic auth credentials with the user:pass@host notation.
+* `ez.wifi.update` cannot be used to pass basic auth credentials with the user:pass@host notation.
 
 * Various other limitations of the WifiClientSecure class apply: this is IoT land...
