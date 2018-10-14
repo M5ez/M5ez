@@ -237,7 +237,9 @@ size_t ez.canvas.println(void);
 
 `void ez.canvas.scroll(bool s)`
 
-M5ez stores what has been printed to the screen, so the contents of the screen can scroll. Note that when the canvas starts scrolling, only the contents places there with the print functions from above will scroll, everything else will be wiped. So if, for example, you have drawn something with `m5.lcs.fillRect`, it will be gone once you print beyond the last line. You can turn this off with `ez.canvas.scroll(false)`, and you can ask what the present scroll status is with `ez.canvas.scroll()`.
+M5ez stores what has been printed to the screen, so the contents of the screen can scroll. Note that when the canvas starts scrolling, only the contents placed there with the print functions from above will scroll, everything else will be wiped. So if, for example, you have drawn something with `m5.lcs.fillRect`, it will be gone once you print beyond the last line. 
+
+You can turn scrolling off with `ez.canvas.scroll(false)`, and you can ask what the present scroll status is with `ez.canvas.scroll()`.
 
 `bool ez.canvas.wrap()`
 
@@ -315,6 +317,8 @@ If you call `ez.buttons.poll`, it will return the name of the key pressed since 
   
 You can specify the keys to be drawn straight into `ez.buttons.wait` for simple usages. For instance `ez.buttons.wait("OK")` will display a single "OK" on the center button and return "OK" when it is pressed. (But given that you are not interested in the return value in this case, you can just specify that as a statement.)
 
+&nbsp;
+
 ## Scheduling tasks within M5ez
 
 Now that we're dealing with waiting for keypresses, this is a good moment to talk about scheduling, yielding and such. As discussed above, a typical program written with M5ez will spend most of its time waiting for keys to be pressed. But some things need to continue to happen while that happening: the clock and the wifi signal indicator need to update, for instance.
@@ -359,6 +363,8 @@ By default, msgBox then waits for the user to press any of the keys specified an
 
 The font and color options allow you to use something other than the default (theme determined) defaults for the message printed by msgBox. They act as you would expect, see the section on fonts and colors for details.
 
+&nbsp;
+
 ## ezProgressBar
 
 **`class ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR)`**
@@ -379,6 +385,8 @@ This will draw header, message, an empty (0 %) progress bar and the specified si
 
 where `val` is a floating point value between 0 and 100. Check out the [Over-The-Air https update example](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) to see how the ezProgressBar object is used there. (You'll see that the `ez.wifi.update()` software update function accepts a pointer to an ezProgressBar instance to show its progress.) 
 
+&nbsp;
+
 ## 3-button text input
 
 **`String ez.textInput(String header = "", String defaultText = "")`**
@@ -389,6 +397,8 @@ This function will provide a text-entry field, pre-filled with `defaulttext` if 
 
 >Advanced users can make their own keyboard definitions by looking at the `_keydefs` keyboard definition that is part of the default theme. As you can see there are multiple lines, each holding a key definition string like we have gotten to know them by now. Any key whose name is "KB" followed by a number causes nothing to be added to the input but the buttons in that line of the definitions to be printed instead. A key whose name is LCK: optionally followed by a string means that if it is pressed the current keyboard is what the user comes back to after a line is entered. Pressing a key whose name is "Back" returns to that keyboard as well. The string is used to denote the name of that keyboard in the on-screen capslock/numlock message.
 
+&nbsp;
+
 ## FACES keyboard support
 
 ![](images/FACES.png)
@@ -398,6 +408,8 @@ This function will provide a text-entry field, pre-filled with `defaulttext` if 
 `bool on();
 
 M5ez supports the M5 FACES keyboard: simply set the keyboard to "attached" in the M5ez settings menu. When you do, you will be able to use the `ez.faces.poll` function to get the last key pressed on the keyboard. The `textInput` and `textBox` functions will then also look for keys from that keyboard, and start with different key definitions for the M5Stack's own buttons. `ez.faces.on()` can be used to see if the keyboard is set to "attached" in the menu.
+
+&nbsp;
 
 ## Composing or viewing longer texts: textBox
 
@@ -411,6 +423,8 @@ String ez.textBox(String header = "",
 This will word-wrap and display the string in `text` (up to 32 kB), allowing the user to page through it. Ideal for LoRa or SMS messages, short mails or whatever else. If a FACES keyboard is attached and `readonly` is false, the user can edit the text: a cursor appears, which can be moved with the arrow keys on the FACES keyboard. `TB_FONT` and `TB_COLOR` are the defaults from the theme, but they can be overridden by supplying a font and/or a color directly. 
 
 ![](images/textBox.png)
+
+&nbsp;
 
 ## Fonts
 
@@ -507,6 +521,8 @@ What that all means is that without adding any fonts of your own, you can specif
 ```
 
 Note that these fonts need to be specified without the `&` in front, and that the second batch consists of scaled up versions of the first batch, but they're nice and big and they still might be quite useful.
+
+&nbsp;
 
 ## Menus
 
@@ -844,6 +860,8 @@ In other words: all it does is just call `.runOnce()` on your menu until it exit
 
 
 These functions will show the position, name and caption of the picked item. They are useful after your menu has been ran once with `.runOnce` or in an advancedFunction (see under `addItem` above).
+
+&nbsp;
 
 ## Settings
 
