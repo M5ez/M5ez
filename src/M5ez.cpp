@@ -2479,7 +2479,7 @@ void ezMenu::_drawItems() {
 		}
 	}
 	_Arrows();
-	_redraw = false;	
+	_redraw = false;
 }
 
 void ezMenu::_drawItem(int16_t n, String text, bool selected) {
@@ -2537,7 +2537,7 @@ int16_t ezMenu::_runImagesOnce() {
 	ez.screen.clear(_img_background);
 	if (_header != "") ez.header.show(_header);
 	_drawImage(_items[_selected]);
-	_drawCaption();
+	_drawCaption();	
 	while (true) {
 		int16_t old_selected = _selected;
 		tmp_buttons = _buttons;
@@ -2548,7 +2548,6 @@ int16_t ezMenu::_runImagesOnce() {
 		String pressed;
 		while (true) {
 			pressed = ez.buttons.poll();
-			if (_redraw) _drawItems();
 			if (pressed != "") break;
 		}
 		if (pressed == "left") {
