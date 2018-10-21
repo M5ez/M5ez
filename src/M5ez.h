@@ -1,13 +1,13 @@
 #ifndef _M5EZ_H_
 #define _M5EZ_H_
 
-#define M5EZ_VERSION		"2.0"
+#define M5EZ_VERSION		"2.0.1"
 
 
 // Comment out the line below to disable WPS.
 #define M5EZ_WPS
 
-// Turn this off to compile without WiFi, without OTA updates
+// Turn this off to compile without WiFi (no) OTA updates, no clock)
 #define M5EZ_WIFI
 
 // Have the autoconnect logic print debug messages on the serial port

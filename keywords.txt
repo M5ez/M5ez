@@ -1,112 +1,118 @@
-ez					KEYWORD3
+ez	KEYWORD3
+begin	KEYWORD2
 
-yield				KEYWORD2
+screen	KEYWORD3
+clear	KEYWORD2
+background	KEYWORD2
 
-# Screen, canvas, etc...
-clearScreen			KEYWORD2
-background			KEYWORD2
-clearCanvas			KEYWORD2
-canvasTop			KEYWORD2
-canvasBottom		KEYWORD2
-canvasLeft			KEYWORD2
-canvasRight			KEYWORD2
-canvasWidth			KEYWORD2
-canvasHeight		KEYWORD2
-		
-# Header
-drawHeader			KEYWORD2
-removeHeader		KEYWORD2
+header	KEYWORD3
+show	KEYWORD2
+shown	KEYWORD2
+title	KEYWORD2
+insert	KEYWORD2
+remove	KEYWORD2
+position	KEYWORD2
+draw	KEYWORD2
 
-# Buttons
-drawButtons			KEYWORD2
-getButtons			KEYWORD2
-waitForButtons		KEYWORD2
+canvas	KEYWORD3
+reset	KEYWORD2
+top	KEYWORD2
+bottom	KEYWORD2
+left	KEYWORD2
+right	KEYWORD2
+height	KEYWORD2
+width	KEYWORD2
+print	KEYWORD2
+println	KEYWORD2
+printf	KEYWORD2
+scroll	KEYWORD2
+wrap	KEYWORD2
+lmargin	KEYWORD2
+font	KEYWORD2
+color	KEYWORD2
+x	KEYWORD2
+y	KEYWORD2
+pos	KEYWORD2
 
-# ez.msgBox
-msgBox				KEYWORD2
+buttons	KEYWORD3
+poll	KEYWORD2
+wait	KEYWORD2
 
-# ez.textInput
-textInput			KEYWORD2
+yield	KEYWORD2
 
-# ez.textBox
-textBox				KEYWORD2
+addEvent	KEYWORD2
+removeEvent	KEYWORD2
 
-# FACES support
-getFACES			KEYWORD2
-	
-# ez.print
-print				KEYWORD2
-println				KEYWORD2
-printFont			KEYWORD2
-printColor			KEYWORD2	
-printLmargin		KEYWORD2
-printWrap			KEYWORD2
-		
-# ez.wifiMenu
-wifiStatus			KEYWORD2
-wifiJoin			KEYWORD2
 
-# Generic String object helper functions
-rightOf				KEYWORD2
-leftOf				KEYWORD2
-chopString			KEYWORD2
-charsFit			KEYWORD2
-clipString			KEYWORD2
-isBackExitOrDone	KEYWORD2
+msgBox	KEYWORD2
 
-# ezWifiMenu
-ezWifiMenu			KEYWORD2
-wifiAddNetwork		KEYWORD2
-wifiDeleteNetwork	KEYWORD2
-getIndexForSSID		KEYWORD2
-wifiNumNetworks		KEYWORD2
-wifiSSID			KEYWORD2
-wifiKey				KEYWORD2
-wifiAutoconnectOn	KEYWORD2
-wifiAutoconnectOn	KEYWORD2
-wifiStatus			KEYWORD2
-wifiReadFlash		KEYWORD2
-wifiWriteFlash		KEYWORD2
+textInput	KEYWORD2
+
+textBox	KEYWORD2
+
+faces	KEYWORD3
+on	KEYWORD2
 
 # m5.lcd wrappers that make fonts easier
-setFont				KEYWORD2
-fontHeight			KEYWORD2
+setFont	KEYWORD2
+fontHeight	KEYWORD2
+	
+settings	KEYWORD3
+menu	KEYWORD2
+add	KEYWORD2
+remove	KEYWORD2
+ReadFlash	KEYWORD2
+WriteFlash	KEYWORD2
+indexForSSID	KEYWORD2
+update	KEYWORD2
+updateError	KEYWORD2
+
+clock	KEYWORD3
+
+backlight	KEYWORD3
+
+menuObj	KEYWORD2
+
+
+# Generic String object helper functions
+rightOf	KEYWORD2
+leftOf	KEYWORD2
+chopString	KEYWORD2
+charsFit	KEYWORD2
+clipString	KEYWORD2
+isBackExitOrDone	KEYWORD2
+
 
 # ezProgressBar
-ezProgressBar		KEYWORD3
-value				KEYWORD2		
-		
+ezProgressBar	KEYWORD3
+value	KEYWORD2	
+	
 # ezMenu
-ezMenu				KEYWORD3
-addItem				KEYWORD2
-deleteItem			KEYWORD2
-setCaption			KEYWORD2
-getItemNum			KEYWORD2
-buttons				KEYWORD2
-upOnFirst			KEYWORD2
-leftOnFirst			KEYWORD2
-downOnLast			KEYWORD2
-rightOnLast			KEYWORD2
-pick				KEYWORD2
-pickName			KEYWORD2
-pickCaption			KEYWORD2
-run					KEYWORD2
-runOnce				KEYWORD2
-txtBig				KEYWORD2
-txtSmall			KEYWORD2
-txtFont				KEYWORD2
-imgBackground		KEYWORD2
-imgFromTop			KEYWORD2
-imgCaptionFont		KEYWORD2	
+ezMenu	KEYWORD3
+addItem	KEYWORD2
+deleteItem	KEYWORD2
+setCaption	KEYWORD2
+getItemNum	KEYWORD2
+buttons	KEYWORD2
+upOnFirst	KEYWORD2
+leftOnFirst	KEYWORD2
+downOnLast	KEYWORD2
+rightOnLast	KEYWORD2
+pick	KEYWORD2
+pickName	KEYWORD2
+pickCaption	KEYWORD2
+run	KEYWORD2
+runOnce	KEYWORD2
+txtBig	KEYWORD2
+txtSmall	KEYWORD2
+txtFont	KEYWORD2
+imgBackground	KEYWORD2
+imgFromTop	KEYWORD2
+imgCaptionFont	KEYWORD2	
 imgCaptionLocation	KEYWORD2
-imgCaptionColor		KEYWORD2
+imgCaptionColor	KEYWORD2
 imgCaptionMargins	KEYWORD2
-
-
-# ez.update
-update				KEYWORD2
-updateError			KEYWORD2
 
 # because it was forgotten in the M5Stack keywords.txt
 # (They only have it as "Lcd", but they made the "lcd" alias.)
-lcd					KEYWORD2
+lcd	KEYWORD2

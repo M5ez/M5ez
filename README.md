@@ -409,9 +409,9 @@ This function will provide a text-entry field, pre-filled with `defaulttext` if 
 
 ![](images/FACES.png)
 
-`String poll()`
+`String ez.faces.poll()`
 
-`bool on();
+`bool ez.faces.on()`
 
 M5ez supports the M5 FACES keyboard: simply set the keyboard to "attached" in the M5ez settings menu. When you do, you will be able to use the `ez.faces.poll` function to get the last key pressed on the keyboard. The `textInput` and `textBox` functions will then also look for keys from that keyboard, and start with different key definitions for the M5Stack's own buttons. `ez.faces.on()` can be used to see if the keyboard is set to "attached" in the menu.
 
