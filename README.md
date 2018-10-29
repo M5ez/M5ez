@@ -61,6 +61,8 @@ error: 'struct esp_wps_config_t' has no member named 'factory_info'
 
 ## M5ez 2.0 
 
+> *You can skip this section if you have never worked with M5ez 1.x*
+
 ### What's new in M5ez 2.x ?
 
 * Many user-selectable settings, including backlight, clock/timezone, FACES keyboard, etc.

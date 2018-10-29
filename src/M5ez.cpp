@@ -132,7 +132,7 @@ void ezHeader::_recalculate() {
 	}
 	if (we_have_leftover) {										// Then start from right setting x values
 		x = TFT_W;
-		for (uint8_t n = _widgets.size() - 1; n >= 0 ; n--) {
+		for (int8_t n = _widgets.size() - 1; n >= 0 ; n--) {
 			if (_widgets[n].leftover) {							// and set width of leftover widget to remainder
 				_widgets[n].w = x - _widgets[n].x;
 				break;
@@ -326,11 +326,13 @@ void ezCanvas::bottom(uint8_t newbottom) {
 size_t ezCanvas::write(uint8_t c) {
 	String tmp = String((char)c);
 	_print(tmp);
+	return 1;
 }
 
 size_t ezCanvas::write(const char *str) {
 	String tmp = String(str);
 	_print(tmp);
+	return sizeof(str);
 }
 
 size_t ezCanvas::write(const uint8_t *buffer, size_t size) {
@@ -338,6 +340,7 @@ size_t ezCanvas::write(const uint8_t *buffer, size_t size) {
 	tmp.reserve(size);
 	for (uint16_t n = 0; n < size ; n++) tmp += (char)*(buffer + n);
 	_print(tmp);
+	return size;
 }
 
 uint16_t ezCanvas::loop() {
@@ -564,8 +567,7 @@ void ezButtons::_drawButton(int16_t row, String text_s, String text_l, int16_t x
 	if (row == 1) {
 		y = TFT_H - ez.theme->button_height;
 		bg_color = ez.theme->button_bgcolor_b;
-	}
-	if (row == 2){
+	} else {
 		y = TFT_H - 2 * ez.theme->button_height - ez.theme->button_gap;
 		bg_color = ez.theme->button_bgcolor_t;
 	}
@@ -1105,13 +1107,12 @@ void ezSettings::defaults() {
 		uint8_t max_bars = sizeof(cutoffs);
 		uint8_t bars;
 		uint16_t left_offset = x + ez.theme->header_hmargin;
+		bars = 0;
 		if (WiFi.isConnected()) {
 			uint8_t signal = map(100 + WiFi.RSSI(), 5, 90, 0, 100);
 			for (uint8_t n = 0; n < sizeof(cutoffs); n++) {				// Determine how many bars signal is.
 				if (signal >= cutoffs[n]) bars = n + 1;
 			}
-		} else {
-			bars = 0;
 		}
 		uint8_t top = ez.theme->header_height / 10;
 		uint8_t max_len = ez.theme->header_height * 0.8;
@@ -1245,6 +1246,7 @@ void ezSettings::defaults() {
 				ez.wifi.writeFlash();
 			}
 		}
+		return false;
 	}
 	
 	bool ezWifi::_connection(ezMenu* callingMenu) {
@@ -1396,6 +1398,8 @@ void ezSettings::defaults() {
 								case SYSTEM_EVENT_STA_WPS_ER_PIN:
 									ez.msgBox("WPS setup", "WPS PIN: " + _WPS_pin, "Abort", false);
 									break;
+								default:
+									break;
 							}
 							_WPS_new_event = false;
 						}
@@ -1511,7 +1515,9 @@ void ezSettings::defaults() {
 					_state = EZWIFI_SCANNING;
 				}
 			case EZWIFI_AUTOCONNECT_DISABLED:
-				return 250;		
+				return 250;
+			default:
+				break;
 		}
 		return 250;
 	}
@@ -1802,7 +1808,6 @@ String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, cons
 	m5.lcd.setTextDatum(CC_DATUM);
 	m5.lcd.setTextColor(color);
 	ez.setFont(font);
-	uint8_t	prev_num_lines = 100;
 	_fitLines(msg, ez.canvas.width() - 2 * ez.theme->msg_hmargin, ez.canvas.width() / 3, lines);
 	int16_t font_h = ez.fontHeight();
 	for (int8_t n = 0; n < lines.size(); n++) {
@@ -1969,7 +1974,8 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 	ez.setFont(font);
 	uint8_t cursor_width = m5.lcd.textWidth("|");
 	uint8_t cursor_height = per_line_h * 0.8;
-	int16_t cursor_x, cursor_y;
+	int16_t cursor_x = 0;
+	int16_t cursor_y = 0;
 	while (true) {
 		if (redraw) {
 			if (!readonly && cursor_x && cursor_y) m5.lcd.fillRect(cursor_x, cursor_y, cursor_width, cursor_height, ez.screen.background());		//Remove current cursor
@@ -1987,7 +1993,7 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 			m5.lcd.setTextColor(color, ez.screen.background());
 			m5.lcd.setTextDatum(TL_DATUM);
 			uint16_t x, y;
-			uint16_t sol, eol;
+			int16_t sol, eol;
 			String this_line;
 			if (lines.size() > 0) {
 				for (int8_t n = offset; n < offset + lines_per_screen; n++) {
@@ -2310,7 +2316,7 @@ void ezMenu::txtSmall() { _font = ez.theme->menu_small_font; }
 void ezMenu::txtFont(const GFXfont* font) { _font = font; }
 
 bool ezMenu::addItem(String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */) {
-	addItem(NULL, nameAndCaption, simpleFunction, advancedFunction);
+	return addItem(NULL, nameAndCaption, simpleFunction, advancedFunction);
 }
 
 bool ezMenu::addItem(const char *image, String nameAndCaption , void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */) {
@@ -2359,6 +2365,7 @@ bool ezMenu::setCaption(int16_t index, String caption) {
 	String currentCaption = ez.rightOf(_items[index].nameAndCaption, "|");
 	_items[index].nameAndCaption = currentName + "|" + caption;
 	_redraw = true;
+	return true;
 }
 
 bool ezMenu::setCaption(String name, String caption) { return setCaption(getItemNum(name), caption); }
@@ -2485,7 +2492,6 @@ void ezMenu::_drawItems() {
 void ezMenu::_drawItem(int16_t n, String text, bool selected) {
 	uint16_t fill_color;
 	ez.setFont(_font);
-	int16_t font_h = ez.fontHeight();
 	int16_t top_item_h = ez.canvas.top() + (ez.canvas.height() % _per_item_h) / 2;   // remainder of screen left over by last item not fitting split to center menu
 	m5.lcd.setTextDatum(CL_DATUM);
 	if (selected) {
@@ -2539,7 +2545,6 @@ int16_t ezMenu::_runImagesOnce() {
 	_drawImage(_items[_selected]);
 	_drawCaption();	
 	while (true) {
-		int16_t old_selected = _selected;
 		tmp_buttons = _buttons;
 		if (_selected <= 0) tmp_buttons.replace("left", ""); 
 		if (_selected >= _items.size() - 1) tmp_buttons.replace("right", ""); 
@@ -2617,11 +2622,11 @@ void ezMenu::_drawCaption() {
 		case TR_DATUM:
 		case MR_DATUM:
 		case BR_DATUM:
+		default:
 			x = ez.canvas.right() - _img_caption_hmargin;
 			break;
-		default:
-			// unsupported datum
 			return;
+		//
 	}
 	switch(_img_caption_location) {
 		case TL_DATUM:
@@ -2637,8 +2642,10 @@ void ezMenu::_drawCaption() {
 		case BL_DATUM:
 		case BC_DATUM:
 		case BR_DATUM:
+		default:
 			y = ez.canvas.bottom() - _img_caption_vmargin;
 			break;
+		//
 	}
 	m5.lcd.drawString(caption, x, y);
 }
@@ -2712,7 +2719,6 @@ ezProgressBar::ezProgressBar(String header /* = "" */, String msg /* = "" */, St
 	m5.lcd.setTextDatum(CC_DATUM);
 	m5.lcd.setTextColor(color);
 	ez.setFont(font);
-	uint8_t	prev_num_lines = 100;
 	ez._fitLines(msg, ez.canvas.width() - 2 * ez.theme->msg_hmargin, ez.canvas.width() / 3, lines);
 	uint8_t font_h = ez.fontHeight();
 	uint8_t num_lines = lines.size() + 2;
