@@ -510,7 +510,7 @@ What that all means is that without adding any fonts of your own, you can specif
 	&Yellowtail_32
 ```
 
-### older fonts available only through M5ez
+### Older fonts available only through M5ez
 
 ```
 	mono6x8
@@ -1070,7 +1070,8 @@ Also note that you do not need to `#include` any sketches placed in the same dir
       * [Fonts](#fonts)
          * [FreeFonts from the Adafruit library](#freefonts-from-the-adafruit-library)
          * [FreeFonts included by the M5Stack driver](#freefonts-included-by-the-m5stack-driver)
-         * [older fonts available only through M5ez](#older-fonts-available-only-through-m5ez)
+         * [Older fonts available only through M5ez](#older-fonts-available-only-through-m5ez)
+         * [Using your own fonts](#using-your-own-fonts)
       * [Menus](#menus)
          * [Let's start with text menus](#lets-start-with-text-menus)
          * [.runOnce()](#runonce)
