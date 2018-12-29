@@ -530,6 +530,12 @@ What that all means is that without adding any fonts of your own, you can specif
 
 Note that these fonts need to be specified without the `&` in front, and that the second batch consists of scaled up versions of the first batch, but they're nice and big and they still might be quite useful.
 
+### Using your own fonts
+
+You can convert your own TrueType fonts to font files that can be included in your project and used on the M5Stack. As a separate project, I wrote a graphical converter where you can test the fonts on a virtual M5Stack display before converting. It's an online tool, so all of the action takes place online and in your webbrowser. Click [here](https://rop.nl/truetype2gfx/) (or on the image below) to use it. Everything you need to know to use it is on that page also.
+
+[![](images/truetype2gfx-screenshot.png)](https://rop.nl/truetype2gfx/)
+
 &nbsp;
 
 ## Menus
