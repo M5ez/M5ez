@@ -72,6 +72,10 @@ class ezTheme {
 
 		String name = "Default";								// Change this when making theme
 		uint16_t background = 0xEF7D;
+
+		//This can be a filename that can start with either /spiffs/  or /sd
+		//If left blank or the file doesn't exist, the usual solid color background is used instead.
+		String background_img = "";
 		uint16_t foreground = TFT_BLACK;
 		uint8_t header_height = 23;
 		const GFXfont* header_font = &FreeSansBold9pt7b;
@@ -150,9 +154,13 @@ class ezScreen {
 		static void begin();
 		static void clear();
 		static void clear(uint16_t color);
+		static void clear(String image);
+		static void clear(String image,uint16_t color);
 		static uint16_t background();
+		static String * background_img();
 	private:
 		static uint16_t _background;
+		static String _background_img;
 	//
 };
 
