@@ -2137,7 +2137,17 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 			}
 			ez.buttons.show(tmp_buttons);
 			ez.setFont(font);
-			m5.lcd.setTextColor(color, ez.screen.background());
+
+			//I don't think I can draw without a highlight for editable text.
+			//But I can for
+			if(readonly)
+			{
+				m5.lcd.setTextColor(color);
+			}
+			else
+			{
+				m5.lcd.setTextColor(color, ez.screen.background());
+			}
 			m5.lcd.setTextDatum(TL_DATUM);
 			uint16_t x, y;
 			int16_t sol, eol;
