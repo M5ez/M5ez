@@ -251,7 +251,7 @@ void ezCanvas::begin() {
 
 void ezCanvas::reset() {
 	_wrap = true;
-	_scroll = true;
+	_scroll = false;
 	_font = ez.theme->print_font;
 	_color = ez.theme->print_color;
 	_lmargin = 0;
@@ -421,13 +421,15 @@ void ezCanvas::_print(String text) {
 void ezCanvas::_putString(String text) {
 	ez.setFont(_font);
 	uint8_t h = ez.fontHeight();
-	print_t p;
-	p.font = _font;
-	p.color = _color;
-	p.x = _x;
-	p.y = _y;
-	p.text = text;
-	_printed.push_back(p);
+	if (_scroll) {
+		print_t p;
+		p.font = _font;
+		p.color = _color;
+		p.x = _x;
+		p.y = _y;
+		p.text = text;
+		_printed.push_back(p);
+	}
 	if (_y + h > _bottom) {
 		_x += m5.lcd.textWidth(text);
 	} else{

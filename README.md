@@ -69,7 +69,7 @@ error: 'struct esp_wps_config_t' has no member named 'factory_info'
 * Theme values can be changed at runtime, multiple thmes can be loaded; a theme chooser then shows up in the settings
 * Header can have user-defined widgets (internally used for clock and wifi signal display)
 * The canvas now inherits from the Print class, so everything print and println could do, you can now also do on the canvas.
-* The canvas scrolls (unless you don't want it to)
+* The canvas scrolls (if you want it to)
 * you can create your own events that get ran in the M5ez button wait loops
 * Many bugs got fixed
 * Code is a lot cleaner now, easier to add things without the sometimes ad-hoc and organically grown constructs of M5ez 1.x
@@ -189,7 +189,7 @@ Clears the canvas area to the current background color &mdash; either the defaul
 
 `void ez.canvas.reset()`
 
-Reset does everything `ez.canvas.clear()` does, but also turns on text wrap and scrolling, sets the print font and color back to the defaults from the theme and sets the left margin to 0.
+Reset does everything `ez.canvas.clear()` does, but also turns on text wrap, turns off scrolling, sets the print font and color back to the defaults from the theme and sets the left margin to 0.
 
 ### Canvas dimensions
 
@@ -245,9 +245,11 @@ size_t ez.canvas.println(void);
 
 `void ez.canvas.scroll(bool s)`
 
-M5ez stores what has been printed to the screen, so the contents of the screen can scroll. Note that when the canvas starts scrolling, only the contents placed there with the print functions from above will scroll, everything else will be wiped. So if, for example, you have drawn something with `m5.lcs.fillRect`, it will be gone once you print beyond the last line. 
+If you turn on scrolling with `ez.canvas.scroll(true)`, M5ez will store what has been printed to the screen, so the contents of the screen can scroll. Note that when the canvas starts scrolling, only the contents placed there with the print functions from above will scroll, everything else will be wiped. So if, for example, you have drawn something with `m5.lcs.fillRect`, it will be gone once you print beyond the last line. 
 
 You can turn scrolling off with `ez.canvas.scroll(false)`, and you can ask what the present scroll status is with `ez.canvas.scroll()`.
+
+>Note on scrolling: for scrolling to work, everything that is printed to the screen is kept in memory. It is only forgotten if it scrolls off the screen or if you clear the canvas or screen. What that means is that if you turn scrolling on and then print and overwrite something lots of times, evetually the memory will fill up and your application will crash. 
 
 `bool ez.canvas.wrap()`
 

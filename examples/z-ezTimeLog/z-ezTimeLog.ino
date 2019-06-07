@@ -4,7 +4,7 @@
  * See the M5ez user manual under z-sketches at https://github.com/ropg/M5ez
  * 
  * This program sets the ezTime NTP interval to 20 seconds (way too often, use only for demonstration purposes) and
- * then show the debug log of ezTime so you can see it update its clock. The output will scroll when it reached the
+ * then show the debug log of ezTime so you can see it update its clock. The output will scroll when it reaches the
  * bottom of the screen.
  * 
  */
@@ -35,7 +35,8 @@ void loop() {
 
 void ezTimeLog() {
 
-  ez.header.show("ezTime log");  
+  ez.header.show("ezTime log");
+  ez.canvas.scroll(true);
   ezt::setDebug(INFO, ez.canvas);
   ezt::setInterval(20);
 
