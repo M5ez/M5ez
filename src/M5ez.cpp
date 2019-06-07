@@ -986,6 +986,18 @@ void ezSettings::defaults() {
 		prefs.putBool("ampm", _am_pm);
 		prefs.end();
 	}
+	
+	bool ezClock::waitForSync(const uint16_t timeout /* = 0 */) {
+
+		unsigned long start = millis();
+		ez.msgBox("Clock sync", "Waiting for clock synchronisation", "", false);	
+		while (ezt::timeStatus() != timeSet) {
+			if ( timeout && (millis() - start) / 1000 > timeout ) return false;
+			delay(25);
+			ez.yield();
+		}
+		return true;
+	}
 			
 #endif
 
