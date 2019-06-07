@@ -1145,7 +1145,7 @@ void ezSettings::defaults() {
 	}
 
 	bool ezWifi::remove(int8_t index) {
-		if (index < 0 || index > networks.size()) return false;
+		if (index < 0 || index >= networks.size()) return false;
 		networks.erase(networks.begin() + index);
 		return true;
 	}
@@ -1255,7 +1255,7 @@ void ezSettings::defaults() {
 	bool ezWifi::_autoconnectSelected(ezMenu* callingMenu) {
 		if (callingMenu->pickButton() == "Forget") {
 			if (ez.msgBox("Forgetting wifi network", "Are you sure you want | to forget wifi network | " + callingMenu->pickName() + " ?", "Yes##No") == "Yes") {
-				ez.wifi.remove(callingMenu->pick());
+				ez.wifi.remove(callingMenu->pick() - 1);
 				callingMenu->deleteItem(callingMenu->pick());
 				ez.wifi.writeFlash();
 			}
