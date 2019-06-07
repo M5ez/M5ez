@@ -1014,12 +1014,12 @@ void ezSettings::defaults() {
 	bool ezFACES::_on;
 
 	void ezFACES::begin() {
-		Wire.begin();
 		Preferences prefs;
 		prefs.begin("M5ez", true);	// read-only
 		_on = prefs.getBool("faces_on", false);
 		prefs.end();
 		if (_on) {
+			Wire.begin();
 			pinMode(5, INPUT);
 			digitalWrite(5,HIGH);
 			Wire.flush();
