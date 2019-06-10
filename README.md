@@ -347,9 +347,9 @@ It could be that your code needs to do things that take a little while. If somet
 
 With `addevent` you can register a function of your own to be executed periodically as part of M5ez's own loop when it is waiting for buttons. This function has to be a function that takes no arguments and returns a 16-bit unsigned integer. Make sure you just specify the name of this function without any brackets. You can optionally specify when to run this function by adding a time in `millis()`. By default, the function you specify will run immediately.
 
-The value returned by your function is the number of milliseconds to wait before calling the function again. So a function that only needs to run once every second would simply return 1000.
+The value returned by your function is the number of milliseconds to wait before calling the function again. So a function that only needs to run once every second would simply return 1000. If your function returns 0, the event is deleted and not executed any further.
 
-`ez.removeEvent` &mdash; as the name implies &mdash; removes your function from the loop.
+`ez.removeEvent` &mdash; as the name implies &mdash; also removes your function from the loop.
 
 &nbsp;
 
