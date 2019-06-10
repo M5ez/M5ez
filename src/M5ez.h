@@ -1,7 +1,7 @@
 #ifndef _M5EZ_H_
 #define _M5EZ_H_
 
-#define M5EZ_VERSION		"2.1.0"
+#define M5EZ_VERSION		"2.1.1"
 
 
 // Comment out the line below to disable WPS.
