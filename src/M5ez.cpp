@@ -1782,6 +1782,10 @@ void M5ez::removeEvent(uint16_t (*function)()) {
 	}
 }
 
+bool M5ez::_redraw;
+
+void M5ez::redraw() { _redraw = true; }
+
 static const char * _keydefs[] PROGMEM = {
 	"KB3|qrstu.#SP#KB4|vwxyz,#Del#KB5|More#LCK:|Lock#KB1|abcdefgh#KB2|ijklmnop#Done",	//KB0
 	"c#d#e#f#g#h#a#b#Back",																//KB1
@@ -2342,7 +2346,7 @@ bool ezMenu::addItem(const char *image, String nameAndCaption , void (*simpleFun
 	new_item.advancedFunction = advancedFunction;
 	if (_selected == -1) _selected = _items.size();
 	_items.push_back(new_item);
-	_redraw = true;
+	M5ez::_redraw = true;
 	return true;
 }
 
@@ -2356,7 +2360,7 @@ bool ezMenu::addItem(fs::FS &fs, String path, String nameAndCaption, void (*simp
 	new_item.advancedFunction = advancedFunction;
 	if (_selected == -1) _selected = _items.size();
 	_items.push_back(new_item);
-	_redraw = true;
+	M5ez::_redraw = true;
 	return true;
 }
 
@@ -2366,7 +2370,7 @@ bool ezMenu::deleteItem(int16_t index) {
 	_items.erase(_items.begin() + index);
 	if (_selected >= _items.size()) _selected = _items.size() - 1;
 	_fixOffset();
-	_redraw = true;
+	M5ez::_redraw = true;
 	return true;
 }
 
@@ -2378,7 +2382,7 @@ bool ezMenu::setCaption(int16_t index, String caption) {
 	String currentName = ez.leftOf(_items[index].nameAndCaption, "|");
 	String currentCaption = ez.rightOf(_items[index].nameAndCaption, "|");
 	_items[index].nameAndCaption = currentName + "|" + caption;
-	_redraw = true;
+	M5ez::_redraw = true;
 	return true;
 }
 
@@ -2447,7 +2451,7 @@ int16_t ezMenu::_runTextOnce() {
 		String pressed;
 		while (true) {
 			pressed = ez.buttons.poll();
-			if (_redraw) _drawItems();
+			if (M5ez::_redraw) _drawItems();
 			if (pressed != "") break;
 		}
 		if (pressed == "up") {
@@ -2500,7 +2504,7 @@ void ezMenu::_drawItems() {
 		}
 	}
 	_Arrows();
-	_redraw = false;
+	M5ez::_redraw = false;
 }
 
 void ezMenu::_drawItem(int16_t n, String text, bool selected) {

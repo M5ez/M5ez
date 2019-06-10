@@ -349,7 +349,15 @@ With `addevent` you can register a function of your own to be executed periodica
 
 The value returned by your function is the number of milliseconds to wait before calling the function again. So a function that only needs to run once every second would simply return 1000. If your function returns 0, the event is deleted and not executed any further.
 
-`ez.removeEvent` &mdash; as the name implies &mdash; also removes your function from the loop.
+As the name implies, `ez.removeEvent` also removes your function from the loop.
+
+#### Redrawing after an event
+
+`void ez.redraw()`
+
+Sometimes code executed in an event will have changed the contents of the screen. The running menu knows nothing about this, and so when your event ends, it will not refresh the screen. To fix this, you can execute `ez.redraw()` whenever your event routine has done something on the screen. The menu code will then redraw the screen accordingly.
+
+> At present, only ezMenu knows about this redraw, so if the use was doing something else (like editing a text field or looking at a msgBox, the screen will not redraw. This is on the todo list. 
 
 &nbsp;
 

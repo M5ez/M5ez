@@ -553,6 +553,7 @@ class M5ez {
 
 	friend class ezProgressBar;
 	friend class ezHeader;		// TMP?
+	friend class ezMenu;		// For _redraw
 
 	public:
 		static std::vector<ezTheme> themes;
@@ -586,6 +587,7 @@ class M5ez {
 		
 		static void addEvent(uint16_t (*function)(), uint32_t when = 1);
 		static void removeEvent(uint16_t (*function)());
+		static void redraw();
 
 		// ez.msgBox
 		static String msgBox(String header, String msg, String buttons = "OK", const bool blocking = true, const GFXfont* font = NULL, uint16_t color = NO_COLOR);
@@ -613,6 +615,8 @@ class M5ez {
 
 	private:
 		static std::vector<event_t> _events;
+		static bool _redraw;
+
 
 		// ez.textInput
 		static int16_t _text_cursor_x, _text_cursor_y, _text_cursor_h, _text_cursor_w;
