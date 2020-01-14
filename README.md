@@ -357,8 +357,6 @@ As the name implies, `ez.removeEvent` also removes your function from the loop.
 
 Sometimes code executed in an event will have changed the contents of the screen. The running menu knows nothing about this, and so when your event ends, it will not refresh the screen. To fix this, you can execute `ez.redraw()` whenever your event routine has done something on the screen. The menu code will then redraw the screen accordingly.
 
-> At present, only ezMenu knows about this redraw, so if the use was doing something else (like editing a text field or looking at a msgBox, the screen will not redraw. This is on the todo list. 
-
 &nbsp;
 
 ## Showing messages with msgBox
