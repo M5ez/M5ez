@@ -690,6 +690,9 @@ void ezSettings::begin() {
 	#ifdef M5EZ_WIFI
 		ez.wifi.begin();
 	#endif
+	#ifdef M5EZ_BATTERY
+		ez.battery.begin();
+	#endif
 	#ifdef M5EZ_CLOCK
 		ez.clock.begin();
 	#endif
@@ -1706,6 +1709,113 @@ void ezSettings::defaults() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//   B A T T E R Y
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef M5EZ_BATTERY
+	bool ezBattery::_on = false;
+
+	void ezBattery::begin() {
+		Wire.begin();
+		ez.battery.readFlash();
+		ez.settings.menuObj.addItem("Battery settings", ez.battery.menu);
+		if (_on) {
+			_refresh();
+		}
+	}
+
+	void ezBattery::readFlash() {
+		Preferences prefs;
+		prefs.begin("M5ez", true);	// true: read-only
+		_on = prefs.getBool("battery_icon_on", false);
+		prefs.end();
+	}
+
+	void ezBattery::writeFlash() {
+		Preferences prefs;
+		prefs.begin("M5ez");
+		prefs.putBool("battery_icon_on", _on);
+		prefs.end();
+	}
+
+	void ezBattery::menu() {
+		bool on_orig = _on;
+		while(true) {
+			ezMenu clockmenu("Battery settings");
+			clockmenu.txtSmall();
+			clockmenu.buttons("up#Back#select##down#");
+			clockmenu.addItem("on|Display battery\t" + (String)(_on ? "on" : "off"));
+			switch (clockmenu.runOnce()) {
+				case 1:
+					_on = !_on;
+					_refresh();
+					break;
+				case 0:
+					if (_on != on_orig) {
+						writeFlash();
+					}
+					return;
+			}
+		}
+	}
+
+	uint16_t ezBattery::loop() {
+		if (!_on) return 0;
+		ez.header.draw("battery");
+		return 5000;
+	}
+
+	uint8_t ezBattery::getBatteryLevel() {
+		Wire.beginTransmission(0x75);
+		Wire.write(0x78);
+		if (Wire.endTransmission(false) == 0 && Wire.requestFrom(0x75, 1)) {
+			switch (Wire.read() & 0xF0) {
+				case 0xE0:
+					return 1;
+				case 0xC0:
+					return 2;
+				case 0x80:
+					return 3;
+				case 0x00:
+					return 4;
+				default:
+					return 0;
+			}
+		}
+		return 0;
+	}
+
+	void ezBattery::_refresh() {
+		if (_on) {
+			ez.header.insert(RIGHTMOST, "battery", ez.theme->battery_bar_width + 2 * ez.theme->header_hmargin, ez.battery._drawWidget);
+			ez.addEvent(ez.battery.loop);
+		} else {
+			ez.header.remove("battery");
+			ez.removeEvent(ez.battery.loop);
+		}
+	}
+
+	void ezBattery::_drawWidget(uint16_t x, uint16_t w) {
+		uint8_t levels = getBatteryLevel();
+		uint16_t left_offset = x + ez.theme->header_hmargin;
+		uint8_t top = ez.theme->header_height / 10;
+		uint8_t height = ez.theme->header_height * 0.8;
+		m5.lcd.drawRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, ez.theme->header_fgcolor);
+		uint8_t bar_width = (ez.theme->battery_bar_width - ez.theme->battery_bar_gap * 5) / 4.0;
+		uint8_t bar_height = height - ez.theme->battery_bar_gap * 2;
+		left_offset += ez.theme->battery_bar_gap;
+		for (uint8_t n = 0; n < levels; n++) {
+			m5.lcd.fillRect(left_offset + n * (bar_width + ez.theme->battery_bar_gap), top + ez.theme->battery_bar_gap, bar_width, bar_height, ez.theme->header_fgcolor);
+		}
+	}
+
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //   E Z
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1725,6 +1835,9 @@ ezSettings M5ez::settings;
 	ezWifi M5ez::wifi;
 	constexpr ezWifi& M5ez::w;
 #endif	
+#ifdef M5EZ_BATTERY
+	ezBattery M5ez::battery;
+#endif
 #ifdef M5EZ_BACKLIGHT
 	ezBacklight M5ez::backlight;
 #endif
