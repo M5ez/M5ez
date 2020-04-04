@@ -973,7 +973,7 @@ The [README.rd file of the OTA_https sample sketch](https://github.com/ropg/M5ez
 
 ### Battery
 
-The battery menu allows you to selectively show a battery level icon in the header bar. But due to [hardware limitations](https://github.com/m5stack/M5Stack/issues/74), we can only report battery status in 4 levels. You can access it's menu from `ez.battery.menu`
+The battery menu allows you to selectively show a battery level icon in the header bar. But due to [hardware limitations](https://github.com/m5stack/M5Stack/issues/74) it can only show four different battery levels. You can access its menu from `ez.battery.menu`.
 
 &nbsp;
 
