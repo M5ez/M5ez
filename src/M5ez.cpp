@@ -1714,13 +1714,54 @@ void ezSettings::defaults() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef M5EZ_BATTERY
+	bool ezBattery::_on = false;
+
 	void ezBattery::begin() {
 		Wire.begin();
-		ez.header.insert(RIGHTMOST, "battery", ez.theme->battery_bar_width + 2 * ez.theme->header_hmargin, ez.battery._drawWidget);
-		ez.addEvent(ez.battery.loop);
+		ez.battery.readFlash();
+		ez.settings.menuObj.addItem("Battery settings", ez.battery.menu);
+		if (_on) {
+			_refresh();
+		}
+	}
+
+	void ezBattery::readFlash() {
+		Preferences prefs;
+		prefs.begin("M5ez", true);	// true: read-only
+		_on = prefs.getBool("battery_icon_on", false);
+		prefs.end();
+	}
+
+	void ezBattery::writeFlash() {
+		Preferences prefs;
+		prefs.begin("M5ez");
+		prefs.putBool("battery_icon_on", _on);
+		prefs.end();
+	}
+
+	void ezBattery::menu() {
+		bool on_orig = _on;
+		while(true) {
+			ezMenu clockmenu("Battery settings");
+			clockmenu.txtSmall();
+			clockmenu.buttons("up#Back#select##down#");
+			clockmenu.addItem("on|Display battery\t" + (String)(_on ? "on" : "off"));
+			switch (clockmenu.runOnce()) {
+				case 1:
+					_on = !_on;
+					_refresh();
+					break;
+				case 0:
+					if (_on != on_orig) {
+						writeFlash();
+					}
+					return;
+			}
+		}
 	}
 
 	uint16_t ezBattery::loop() {
+		if (!_on) return 0;
 		ez.header.draw("battery");
 		return 5000;
 	}
@@ -1743,6 +1784,16 @@ void ezSettings::defaults() {
 			}
 		}
 		return 0;
+	}
+
+	void ezBattery::_refresh() {
+		if (_on) {
+			ez.header.insert(RIGHTMOST, "battery", ez.theme->battery_bar_width + 2 * ez.theme->header_hmargin, ez.battery._drawWidget);
+			ez.addEvent(ez.battery.loop);
+		} else {
+			ez.header.remove("battery");
+			ez.removeEvent(ez.battery.loop);
+		}
 	}
 
 	void ezBattery::_drawWidget(uint16_t x, uint16_t w) {

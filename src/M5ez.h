@@ -556,9 +556,14 @@ class ezSettings {
 	class ezBattery {
 		public:
 			static void begin();
+			static void readFlash();
+			static void writeFlash();
+			static void menu();
 			static uint16_t loop();
 			static uint8_t getBatteryLevel();
 		private:
+			static bool _on;
+			static void _refresh();
 			static void _drawWidget(uint16_t x, uint16_t w);
 	};
 

@@ -892,6 +892,7 @@ M5ez comes with a number of built-in settings menus. The settings are saved to f
 | Menu | `#define` | function |
 |:-----|:----------|:---------|
 | Wifi menu | `M5EZ_WIFI` | `ez.wifi.menu` |
+| Battery menu | `M5EZ_BATTERY` | `ez.battery.menu` |
 | Clock menu | `M5EZ_CLOCK` | `ez.clock.menu` |
 | Backlight brightness | `M5EZ_BACKLIGHT` | `ez.backlight.menu` |
 | FACES keyboard | `M5EZ_FACES` | `ez.faces.menu` |
@@ -967,6 +968,12 @@ Takes a URL and a root certificate. A shell script called `get_cert` is provided
 `ez.wifi.update` returns `true` if the file is downloaded and everything is set up. The next reboot - which can be forced with `ESP.restart()` - will start the new binary. If `ez.wifi.update` returns `false`, you can use `ez.wifi.updateError()` to return a String with a human-readbale error message. (The way the https stream data is handled by the underlying ESP32 `Update` library does not seem terribly robust: stream timeouts happen, even on otherwise good internet connections.)
 
 The [README.rd file of the OTA_https sample sketch](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) provides a step-by-step recipe that describes how to determine the URL and get the certficate using `get_cert`.
+
+&nbsp;
+
+### Battery
+
+The battery menu allows you to selectively show a battery level icon in the header bar. But due to [hardware limitations](https://github.com/m5stack/M5Stack/issues/74), we can only report battery status in 4 levels. You can access it's menu from `ez.battery.menu`
 
 &nbsp;
 
