@@ -2131,7 +2131,9 @@ void M5ez::yield() {
 			}
 		}
 	}
+#ifdef M5EZ_CLOCK
 	events();		//TMP	
+#endif
 }
 
 void M5ez::addEvent(uint16_t (*function)(), uint32_t when /* = 1 */) {

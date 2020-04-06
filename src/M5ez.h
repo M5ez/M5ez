@@ -32,10 +32,13 @@
 #define M5EZ_FACES
 
 #include <vector>			// std::vector
-#include <WiFi.h>			// WiFiEvent_t, system_event_info_t
+#ifdef M5EZ_WIFI
+	#include <WiFi.h>			// WiFiEvent_t, system_event_info_t
+#endif
 #include <M5Stack.h>		// GFXfont*
-#include <ezTime.h>			// events, on-screen clock
-
+#ifdef M5EZ_CLOCK
+	#include <ezTime.h>			// events, on-screen clock
+#endif
 // Special fake font pointers to access the older non FreeFonts in a unified way.
 // Only valid if passed to ez.setFont
 // (Note that these need to be specified without the & in front, unlike the FreeFonts)
