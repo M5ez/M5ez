@@ -382,7 +382,7 @@ uint16_t ezCanvas::loop() {
 void ezCanvas::_print(String text) {
  	ez.setFont(_font);
  	m5.lcd.setTextDatum(TL_DATUM);
-	m5.lcd.setTextColor(_color);
+	m5.lcd.setTextColor(_color, ez.theme->background);
  	uint8_t h = ez.fontHeight();
  	if (_y + h > _bottom) {
  		if (!_scroll) return;
