@@ -322,9 +322,9 @@ If you call `ez.buttons.poll`, it will return the name of the key pressed since 
 `String ez.buttons.wait()`
 
  `ez.buttons.wait` does the same thing as `ez.buttons.poll()` except it does not return if nothing is pressed. If you call it with no arguments, it assumes the buttons have already been drawn with `ez.drawButtons`. (And if not your program is stuck.) 
- 
+
 `String ez.buttons.wait(String buttons)`
-  
+
 You can specify the keys to be drawn straight into `ez.buttons.wait` for simple usages. For instance `ez.buttons.wait("OK")` will display a single "OK" on the center button and return "OK" when it is pressed. (But given that you are not interested in the return value in this case, you can just specify that as a statement.)
 
 &nbsp;
@@ -507,7 +507,7 @@ What that all means is that without adding any fonts of your own, you can specif
 	&FreeSerifBoldItalic18pt7b
 	&FreeSerifBoldItalic24pt7b
 ```
-	
+
 ### FreeFonts included by the M5Stack driver
 
 ```
@@ -971,6 +971,12 @@ The [README.rd file of the OTA_https sample sketch](https://github.com/ropg/M5ez
 
 &nbsp;
 
+### BLE
+
+BLE, short for [Bluetooth Low Energy](https://en.wikipedia.org/wiki/Bluetooth_Low_Energy).  Is intended to provide considerably reduced power consumption and cost while maintaining a similar communication range. We implemented a device manager, so you can just focus on communicate with the target device. You can access it's interface from `ez.ble` , and can get access to connected devices from `ez.ble.getClient` function. 
+
+&nbsp;
+
 ### Battery
 
 The battery menu allows you to selectively show a battery level icon in the header bar. But due to [hardware limitations](https://github.com/m5stack/M5Stack/issues/74) it can only show four different battery levels. You can access its menu from `ez.battery.menu`.
@@ -1096,6 +1102,8 @@ Also note that you do not need to `#include` any sketches placed in the same dir
          * [Wifi](#wifi)
             * [The weird Wifi ghost button problem](#the-weird-wifi-ghost-button-problem)
             * [Over-The-Air (OTA) updates via https](#over-the-air-ota-updates-via-https)
+         * [BLE](#ble)
+         * [Battery](#battery)
          * [Clock](#clock)
          * [Backlight](#backlight)
          * [FACES keyboard](#faces-keyboard)

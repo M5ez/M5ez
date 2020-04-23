@@ -13,6 +13,12 @@
 // Turn this off if you don't have a battery attached
 #define M5EZ_BATTERY
 
+// Turn this off to compile without BLE (Bluetooth Low Energy)
+// #define M5EZ_BLE
+#ifdef M5EZ_BLE
+	#define M5EZ_BLE_DEVICE_NAME "M5ez"
+#endif
+
 // Have the autoconnect logic print debug messages on the serial port
 // #define M5EZ_WIFI_DEBUG
 
@@ -26,10 +32,13 @@
 #define M5EZ_FACES
 
 #include <vector>			// std::vector
-#include <WiFi.h>			// WiFiEvent_t, system_event_info_t
+#ifdef M5EZ_WIFI
+	#include <WiFi.h>			// WiFiEvent_t, system_event_info_t
+#endif
 #include <M5Stack.h>		// GFXfont*
-#include <ezTime.h>			// events, on-screen clock
-
+#ifdef M5EZ_CLOCK
+	#include <ezTime.h>			// events, on-screen clock
+#endif
 // Special fake font pointers to access the older non FreeFonts in a unified way.
 // Only valid if passed to ez.setFont
 // (Note that these need to be specified without the & in front, unlike the FreeFonts)
@@ -552,6 +561,41 @@ class ezSettings {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//   B L E
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef M5EZ_BLE
+
+	class ezBLE {
+		public:
+			static void begin();
+			static void readFlash();
+			static void writeFlash();
+			static void menu();
+			static void disconnect();
+			static class BLEClient* getClient(uint16_t index);
+			static uint16_t getClientCount();
+		private:
+			static const std::vector<std::pair<uint16_t, String>> _gattUuids;
+			static bool _on;
+			static bool _initialized;
+			static std::vector<class BLEClient*> _clients;
+			static bool _scan(ezMenu* callingMenu);
+			static void _connect(class BLEAdvertisedDevice& device);
+			static bool _listClients(ezMenu* callingMenu);
+			static bool _showClient(class BLEClient* client);
+			static void _cleanup();
+			static void _refresh();
+			friend class M5ezClientCallback;
+	};
+
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //   B A T T E R Y
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -607,6 +651,9 @@ class M5ez {
 		#ifdef M5EZ_WIFI
 			static ezWifi wifi;
 			static constexpr ezWifi& w = wifi;
+		#endif
+		#ifdef M5EZ_BLE
+			static ezBLE ble;
 		#endif
 		#ifdef M5EZ_BATTERY
 			static ezBattery battery;
