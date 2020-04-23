@@ -1766,24 +1766,42 @@ void ezSettings::defaults() {
 		return 5000;
 	}
 
-	uint8_t ezBattery::getBatteryLevel() {
-		Wire.beginTransmission(0x75);
-		Wire.write(0x78);
-		if (Wire.endTransmission(false) == 0 && Wire.requestFrom(0x75, 1)) {
-			switch (Wire.read() & 0xF0) {
-				case 0xE0:
-					return 1; //25
-				case 0xC0:
-					return 2; //50
-				case 0x80:
-					return 3; //75 
-				case 0x00:
-					return 4; //100
-				default:
-					return 0; //0
-			}
+	//Transform the M5Stack built in battery level into an internal format.
+	// From [100, 75, 50, 25, 0] to [4, 3, 2, 1, 0]
+	uint8_t ezBattery::getTransformedBatteryLevel()
+	{
+		switch (m5.Power.getBatteryLevel()) 
+		{
+			case 100:
+				return 4;
+			case 75:
+				return 3;
+			case 50:
+				return 2;
+			case 25:
+				return 1;
+			default:
+				return 0;
 		}
-		return 0;
+	}
+
+	//Return the theme based battery bar color according to its level
+	uint32_t ezBattery::getBatteryBarColor(uint8_t batteryLevel)
+	{
+		switch (batteryLevel) {
+			case 0:
+				return ez.theme->battery_0_fgcolor;				
+			case 1:
+				return ez.theme->battery_25_fgcolor;				
+			case 2:
+				return ez.theme->battery_50_fgcolor;				
+			case 3:
+				return ez.theme->battery_75_fgcolor;				
+			case 4:
+				return ez.theme->battery_100_fgcolor;
+			default:
+				return ez.theme->header_fgcolor;	
+		}
 	}
 
 	void ezBattery::_refresh() {
@@ -1797,7 +1815,7 @@ void ezSettings::defaults() {
 	}
 
 	void ezBattery::_drawWidget(uint16_t x, uint16_t w) {
-		uint8_t levels = getBatteryLevel();
+		uint8_t currentBatteryLevel = getTransformedBatteryLevel();
 		uint16_t left_offset = x + ez.theme->header_hmargin;
 		uint8_t top = ez.theme->header_height / 10;
 		uint8_t height = ez.theme->header_height * 0.8;
@@ -1806,29 +1824,9 @@ void ezSettings::defaults() {
 		uint8_t bar_width = (ez.theme->battery_bar_width - ez.theme->battery_bar_gap * 5) / 4.0;
 		uint8_t bar_height = height - ez.theme->battery_bar_gap * 2;
 		left_offset += ez.theme->battery_bar_gap;
-
-		//Set the color of the battery bar widget based on the battery charge percentage - these values comes from the theme
-		uint32_t batteryBarsColor = ez.theme->header_fgcolor;
-		switch (levels) {
-			case 0:
-				batteryBarsColor = ez.theme->battery_0_fgcolor;
-				break;
-			case 1:
-				batteryBarsColor = ez.theme->battery_25_fgcolor;
-				break;
-			case 2:
-				batteryBarsColor = ez.theme->battery_50_fgcolor;
-				break;
-			case 3:
-				batteryBarsColor = ez.theme->battery_75_fgcolor;
-				break;
-			case 4:
-				batteryBarsColor = ez.theme->battery_100_fgcolor;
-				break;
-		}
-
-		for (uint8_t n = 0; n < levels; n++) {
-			m5.lcd.fillRect(left_offset + n * (bar_width + ez.theme->battery_bar_gap), top + ez.theme->battery_bar_gap, bar_width, bar_height, ez.theme->header_fgcolor);
+		for (uint8_t n = 0; n < currentBatteryLevel; n++) {
+			m5.lcd.fillRect(left_offset + n * (bar_width + ez.theme->battery_bar_gap), top + ez.theme->battery_bar_gap, 
+				bar_width, bar_height, getBatteryBarColor(currentBatteryLevel));
 		}
 	}
 
