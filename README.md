@@ -725,19 +725,22 @@ If you issue on of these statements, you are creating an instance of the ezMenu 
 ```
 bool addItem(String nameAndCaption, 
 	void (*simpleFunction)() = NULL,
-	bool (*advancedFunction)(ezMenu* callingMenu) = NULL)
+	bool (*advancedFunction)(ezMenu* callingMenu) = NULL,
+	void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL)
 ```
 
 ```
 bool addItem(const char *image, String nameAndCaption, 
 	void (*simpleFunction)() = NULL,
-	bool (*advancedFunction)(ezMenu* callingMenu) = NULL)
+	bool (*advancedFunction)(ezMenu* callingMenu) = NULL,
+	void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL)
 ```
 
 ```
 bool addItem(fs::FS &fs, String path, String nameAndCaption, 
 	void (*simpleFunction)() = NULL,
-	bool (*advancedFunction)(ezMenu* callingMenu) = NULL)
+	bool (*advancedFunction)(ezMenu* callingMenu) = NULL,
+	void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL)
 ```
 
 Adds items to a menu. The first form adds a text only item, the second and third forms make image menus. You can either supply a pointer to the image which is encoded as a byte array in a special .h file that you should have included, or a file system reference and a path for a file stored on SD of SPIFFS. 
@@ -765,6 +768,18 @@ bool myAdvancedFunction(ezMenu* callingMenu) {
 ```
 
 This function will print the caption printed on the menu item that was picked, and it will ask the user whether she really wants to exit the menu, causing the calling menu to exit by returning `false` if she presses yes. Note that items called "Back", "Exit" or "Done" do not cause the menu to exit immediately if they have an advancedFunction set: in that case the decision is left to the advancedFunction.
+
+If you want your code to have access to the way the menus are drawn, you can supply an drawFunction pointer. The coordinates x, y, w (width) and h (height) define the rectangle where the menu is located.
+
+```
+void myDrawFunction(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h){
+  m5.lcd.setTextDatum(CL_DATUM);
+  m5.lcd.setTextColor(ez.theme->menu_item_color);
+  // New callingMenu aspect
+  m5.lcd.fillRoundRect(x, y, w, h, 1, TFT_RED);
+  m5.lcd.drawString("New text",x + ez.theme->menu_item_hmargin,y + ez.fontHeight() / 2 - 2);
+}
+```
 
 Note that to address member functions of the calling menu in this function we need to use '->' instead of '.'. That's because we were passed a pointer to the instance, not an instance itself, but don't worry too much if you don't understand that.
 

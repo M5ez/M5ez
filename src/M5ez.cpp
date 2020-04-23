@@ -2726,24 +2726,25 @@ void ezMenu::txtSmall() { _font = ez.theme->menu_small_font; }
 
 void ezMenu::txtFont(const GFXfont* font) { _font = font; }
 
-bool ezMenu::addItem(String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */) {
-	return addItem(NULL, nameAndCaption, simpleFunction, advancedFunction);
+bool ezMenu::addItem(String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
+	return addItem(NULL, nameAndCaption, simpleFunction, advancedFunction, drawFunction);
 }
 
-bool ezMenu::addItem(const char *image, String nameAndCaption , void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */) {
+bool ezMenu::addItem(const char *image, String nameAndCaption , void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
 	MenuItem_t new_item;
 	new_item.image = image;
 	new_item.fs = NULL;
 	new_item.nameAndCaption = nameAndCaption;
 	new_item.simpleFunction = simpleFunction;
 	new_item.advancedFunction = advancedFunction;
+	new_item.drawFunction = drawFunction;
 	if (_selected == -1) _selected = _items.size();
 	_items.push_back(new_item);
 	M5ez::_redraw = true;
 	return true;
 }
 
-bool ezMenu::addItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */) {
+bool ezMenu::addItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
 	MenuItem_t new_item;
 	new_item.image = NULL;
 	new_item.fs = &fs;
@@ -2751,6 +2752,7 @@ bool ezMenu::addItem(fs::FS &fs, String path, String nameAndCaption, void (*simp
 	new_item.nameAndCaption = nameAndCaption;
 	new_item.simpleFunction = simpleFunction;
 	new_item.advancedFunction = advancedFunction;
+	new_item.drawFunction = drawFunction;
 	if (_selected == -1) _selected = _items.size();
 	_items.push_back(new_item);
 	M5ez::_redraw = true;
@@ -2880,8 +2882,19 @@ int16_t ezMenu::_runTextOnce() {
 
 		// Flicker prevention, only redraw whole menu if scrolled
 		if (_offset == old_offset) {
-			_drawItem(old_selected - _offset, ez.rightOf(_items[old_selected].nameAndCaption, "|"), false);
-			_drawItem(_selected - _offset, ez.rightOf(_items[_selected].nameAndCaption, "|"), true);
+			int16_t top_item_h = ez.canvas.top() + (ez.canvas.height() % _per_item_h) / 2;   // remainder of screen left over by last item not fitting split to center menu
+			if (_items[old_selected].drawFunction) {
+				ez.setFont(_font);
+				(_items[old_selected].drawFunction)(this, ez.theme->menu_lmargin, top_item_h + (old_selected - _offset) * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h);
+			} else {
+				_drawItem(old_selected - _offset, ez.rightOf(_items[old_selected].nameAndCaption, "|"), false);
+			};
+			if (_items[_selected].drawFunction) {
+				ez.setFont(_font);
+				(_items[_selected].drawFunction)(this, ez.theme->menu_lmargin, top_item_h + (_selected - _offset) * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h);
+			} else {
+				_drawItem(_selected - _offset, ez.rightOf(_items[_selected].nameAndCaption, "|"), true);
+			};
 		} else {
 			ez.canvas.clear();
 			_drawItems();
@@ -2893,7 +2906,13 @@ void ezMenu::_drawItems() {
 	for (int16_t n = 0; n < _items_per_screen; n++) {
 		int16_t item_ref = _offset + n;
 		if (item_ref < _items.size()) {
-			_drawItem(n, ez.rightOf(_items[item_ref].nameAndCaption, "|"), (item_ref == _selected));
+			if (_items[item_ref].drawFunction) {
+				int16_t top_item_h = ez.canvas.top() + (ez.canvas.height() % _per_item_h) / 2;   // remainder of screen left over by last item not fitting split to center menu
+				ez.setFont(_font);
+				(_items[item_ref].drawFunction)(this, ez.theme->menu_lmargin, top_item_h + n * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h);
+			} else {
+				_drawItem(n, ez.rightOf(_items[item_ref].nameAndCaption, "|"), (item_ref == _selected));
+			}
 		}
 	}
 	_Arrows();

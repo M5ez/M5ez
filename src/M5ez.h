@@ -318,9 +318,9 @@ class ezButtons {
 class ezMenu {
 	public:
 		ezMenu(String hdr = "");
-		bool addItem(String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL);
-		bool addItem(const char *image, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL);
-		bool addItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL);
+		bool addItem(String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
+		bool addItem(const char *image, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
+		bool addItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
 		bool deleteItem(int16_t index);
 		bool deleteItem(String name);
 		bool setCaption(int16_t index, String caption);
@@ -353,6 +353,7 @@ class ezMenu {
 			String path;
 			void (*simpleFunction)();
 			bool (*advancedFunction)(ezMenu* callingMenu);
+			void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h);
 		};
 		std::vector<MenuItem_t> _items;
 		int16_t _selected, _offset;
