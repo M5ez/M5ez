@@ -140,6 +140,11 @@ class ezTheme {
 
 		uint8_t battery_bar_width = 26;
 		uint8_t battery_bar_gap = 2;
+		uint32_t battery_0_fgcolor = TFT_RED; 
+		uint32_t battery_25_fgcolor = TFT_ORANGE;
+		uint32_t battery_50_fgcolor = TFT_YELLOW;
+		uint32_t battery_75_fgcolor = TFT_GREENYELLOW;
+		uint32_t battery_100_fgcolor = TFT_GREEN;
 	//						
 };
 
