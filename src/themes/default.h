@@ -62,6 +62,13 @@
 	// theme.signal_interval = 2000;						
 	// theme.signal_bar_width = 4;							
 	// theme.signal_bar_gap = 2;
+	// theme.battery_bar_width = 26;
+	// theme.battery_bar_gap = 2;
+	// theme.battery_0_fgcolor = TFT_RED; 
+	// theme.battery_25_fgcolor = TFT_ORANGE;
+	// theme.battery_50_fgcolor = TFT_YELLOW;
+	// theme.battery_75_fgcolor = TFT_GREENYELLOW;
+	// theme.battery_100_fgcolor = TFT_GREEN;
 
 	theme.add();
 }
