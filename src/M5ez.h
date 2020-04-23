@@ -610,7 +610,8 @@ class ezSettings {
 			static void writeFlash();
 			static void menu();
 			static uint16_t loop();
-			static uint8_t getBatteryLevel();
+			static uint8_t getTransformedBatteryLevel();
+			static uint32_t getBatteryBarColor(uint8_t batteryLevel);
 		private:
 			static bool _on;
 			static void _refresh();
