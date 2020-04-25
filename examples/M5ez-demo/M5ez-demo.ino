@@ -114,8 +114,9 @@ void mainmenu_buttons() {
   ez.canvas.println("");      
   ez.canvas.println("You can have three buttons");
   ez.canvas.println("with defined funtions.");
-  ez.buttons.show("One # Two # Done");
-  printButton();
+  String initialButtons = "One # Two # Done";
+  ez.buttons.show(initialButtons);
+  pollButtons(initialButtons);
   ez.canvas.clear();
   ez.header.show("More functions...");
   ez.canvas.println("");      
@@ -123,8 +124,9 @@ void mainmenu_buttons() {
   ez.canvas.println("If you press a little longer");
   ez.canvas.println("You access the functions");
   ez.canvas.println("printed in cyan.");
-  ez.buttons.show("One # Two # Three # Four # Done #");
-  printButton();
+  String longPressButtons = "One # Two # Three # Four # Done #";
+  ez.buttons.show(longPressButtons);
+  pollButtons(longPressButtons);
   ez.canvas.clear();
   ez.header.show("Two keys ...");
   ez.canvas.y(ez.canvas.top() + 10);
@@ -132,14 +134,27 @@ void mainmenu_buttons() {
   ez.canvas.println("The purple bar shows the");
   ez.canvas.println("functions for key combis.");
   ez.canvas.println("See if you can work it out...");
-  ez.buttons.show("One # Two # Three # Four # Five # Six # Seven # Eight # Done");
-  printButton();
+  String keyCombinationButtons = "One # Two # Three # Four # Five # Six # Seven # Eight # Done";
+  ez.buttons.show(keyCombinationButtons);
+  pollButtons(keyCombinationButtons);
 }
 
-void printButton(){
+void pollButtons(String buttons){
   while (true) {
   String btnpressed = ez.buttons.poll();
-  if (btnpressed == "Done") break;
+  if (btnpressed == "Done") {
+    //Prefix the button with a themed char - start button press simulation  
+    buttons.replace("Done", String(ez.theme->button_press_char) + "Done"); 
+    ez.buttons.show(buttons);
+    //Execute your button action logic here instead of delaying the sketch execution
+    delay(400);
+    //Once finished change back the name of the button
+    buttons.replace(String(ez.theme->button_press_char) + "Done", "Done");
+    ez.buttons.show(buttons);
+    //This delay was added here only to demonstrate that the button was changed back to normal
+    delay(200); //Only for demo purpose
+    break;
+  }
   if (btnpressed != "") {
     m5.lcd.fillRect (0, ez.canvas.bottom() - 45, TFT_W, 40, ez.theme->background); 
     ez.canvas.pos(20, ez.canvas.bottom() - 45);

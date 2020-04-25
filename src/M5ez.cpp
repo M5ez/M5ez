@@ -581,7 +581,16 @@ void ezButtons::_drawButton(int16_t row, String text_s, String text_l, int16_t x
 	} else {
 		y = TFT_H - 2 * ez.theme->button_height - ez.theme->button_gap;
 		bg_color = ez.theme->button_bgcolor_t;
+	}	
+	//Button press is indicated with the button_press_char in the theme
+	if (text_s[0] == ez.theme->button_press_char) {        
+		bg_color = ez.theme->button_press_bgcolor;
+		text_s.remove(0, 1);
 	}
+	else if (text_l[0] == ez.theme->button_press_char) {
+		bg_color = ez.theme->button_press_bgcolor;
+		text_l.remove(0, 1);
+	}	
 	if (text_s != "" || text_l != "") {
 		ez.setFont(ez.theme->button_font);
 		m5.lcd.fillRoundRect(x, y, w, ez.theme->button_height, ez.theme->button_radius, bg_color);
