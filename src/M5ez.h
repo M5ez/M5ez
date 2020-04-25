@@ -99,7 +99,9 @@ class ezTheme {
 		uint16_t button_bgcolor_b = TFT_BLUE;					
 		uint16_t button_bgcolor_t = TFT_PURPLE;					
 		uint16_t button_fgcolor = TFT_WHITE;					
-		uint16_t button_longcolor = TFT_CYAN;					
+		uint16_t button_longcolor = TFT_CYAN;
+		char button_press_char = '$';                   		// First char of the button text, which indicates button press			
+		uint16_t button_press_bgcolor = TFT_DARKGREY;           // Backgroung color after button press
 
 		uint8_t input_top = 50;									// pixels below ez.canvas.top()
 		uint8_t input_hmargin = 10;								// The distance between text box and edge of screen

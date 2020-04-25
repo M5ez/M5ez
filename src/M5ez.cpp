@@ -572,7 +572,16 @@ void ezButtons::_drawButton(int16_t row, String text_s, String text_l, int16_t x
 	} else {
 		y = TFT_H - 2 * ez.theme->button_height - ez.theme->button_gap;
 		bg_color = ez.theme->button_bgcolor_t;
+	}	
+	//Button press is indicated with the button_press_char in the theme
+	if (text_s[0] == ez.theme->button_press_char) {        
+		bg_color = ez.theme->button_press_bgcolor;
+		text_s.remove(0, 1);
 	}
+	else if (text_l[0] == ez.theme->button_press_char) {
+		bg_color = ez.theme->button_press_bgcolor;
+		text_l.remove(0, 1);
+	}	
 	if (text_s != "" || text_l != "") {
 		ez.setFont(ez.theme->button_font);
 		m5.lcd.fillRoundRect(x, y, w, ez.theme->button_height, ez.theme->button_radius, bg_color);
@@ -619,38 +628,47 @@ String ezButtons::poll() {
 		if (_btn_ab != "" && m5.BtnA.isPressed() && m5.BtnB.isPressed() ) {
 			keystr = ez.leftOf(_btn_ab, "|", true);
 			_key_release_wait = true;
+			Serial.println("M5ez AB press: " + keystr);
 		}
 		if (_btn_bc != "" && m5.BtnB.isPressed() && m5.BtnC.isPressed() ) {
 			keystr = ez.leftOf(_btn_bc, "|", true);
 			_key_release_wait = true;
+			Serial.println("M5ez BC press: " + keystr);
 		}
 		if (_btn_ac != "" && m5.BtnA.isPressed() && m5.BtnC.isPressed() ) {
 			keystr = ez.leftOf(_btn_ac, "|", true);
 			_key_release_wait = true;
+			Serial.println("M5ez AC press: " + keystr);
 		}
 
 		if (_btn_a_l != "" && m5.BtnA.pressedFor(ez.theme->longpress_time) ) {
 			keystr = ez.leftOf(_btn_a_l, "|", true);
 			_key_release_wait = true;
+			Serial.println("M5ez A long press: " + keystr);
 		}
 		if (_btn_a_s != "" && m5.BtnA.wasReleased() ) {
 			keystr = ez.leftOf(_btn_a_s, "|", true);
+			Serial.println("M5ez A short press: " + keystr);
 		}
 
 		if (_btn_b_l != "" && m5.BtnB.pressedFor(ez.theme->longpress_time) ) {
 			keystr = ez.leftOf(_btn_b_l, "|", true);
 			_key_release_wait = true;
+			Serial.println("M5ez B long press: " + keystr);
 		}
 		if (_btn_b_s != "" && m5.BtnB.wasReleased() ) {
 			keystr = ez.leftOf(_btn_b_s, "|", true);
+			Serial.println("M5ez B short press: " + keystr);
 		}
 
 		if (_btn_c_l != "" && m5.BtnC.pressedFor(ez.theme->longpress_time) ) {
 			keystr = ez.leftOf(_btn_c_l, "|", true);
 			_key_release_wait = true;
+			Serial.println("M5ez C long press: " + keystr);
 		}
 		if (_btn_c_s != "" && m5.BtnC.wasReleased() ) {
 			keystr = ez.leftOf(_btn_c_s, "|", true);
+			Serial.println("M5ez C short press: " + keystr);
 		}
 	}
 
@@ -661,7 +679,7 @@ String ezButtons::poll() {
 	if (keystr == "~") keystr = "";
 	#ifdef M5EZ_BACKLIGHT
 		if (keystr != "") ez.backlight.activity();
-	#endif
+	#endif	
 	return keystr;
 }
 
