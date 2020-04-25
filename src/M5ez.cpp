@@ -651,7 +651,7 @@ String ezButtons::poll() {
 			_key_release_wait = true;
 		}
 		if (_btn_b_s != "" && m5.BtnB.wasReleased() ) {
-			keystr = ez.leftOf(_btn_b_s, "|", true);			
+			keystr = ez.leftOf(_btn_b_s, "|", true);
 		}
 
 		if (_btn_c_l != "" && m5.BtnC.pressedFor(ez.theme->longpress_time) ) {
