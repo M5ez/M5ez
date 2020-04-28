@@ -62,6 +62,11 @@
 #define TFT_W		320
 #define TFT_H		240
 
+#define IMAGE_JPG  1
+#define IMAGE_BMP  2
+#define IMAGE_PNG  3
+#define IMAGE_XBMP 4
+
 struct line_t {
 	int16_t position;
 	String line;
@@ -322,7 +327,11 @@ class ezMenu {
 		ezMenu(String hdr = "");
 		bool addItem(String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
 		bool addItem(const char *image, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
+		bool addBmpImageItem(const unsigned short *image, String nameAndCaption, int16_t width, int16_t height, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
+		bool addXBmpImageItem(const char *image, String nameAndCaption, int16_t width, int16_t height, uint16_t xbmpColor = TFT_WHITE, uint16_t xbmpBgColor = TFT_BLACK, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
 		bool addItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
+		bool addBmpImageItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
+		bool addPngImageItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);		
 		bool deleteItem(int16_t index);
 		bool deleteItem(String name);
 		bool setCaption(int16_t index, String caption);
@@ -342,6 +351,7 @@ class ezMenu {
 		void txtFont(const GFXfont* font);
 		void imgBackground(uint16_t color);
 		void imgFromTop(int16_t offset);
+		void imgFromLeft(int16_t offset);
 		void imgCaptionFont(const GFXfont* font);	
 		void imgCaptionLocation(uint8_t datum);
 		void imgCaptionColor(uint16_t color);
@@ -350,9 +360,16 @@ class ezMenu {
 	private:
 		struct MenuItem_t {
 			String nameAndCaption;
-			const char *image;
+			const char *jpgImageData;
+			const unsigned short *bmpImageData;
+			const char *xbmpImageData;
 			fs::FS *fs;
 			String path;
+			uint8_t imageType = IMAGE_JPG;
+			int16_t imageWidth = 0; 
+			int16_t imageHeight = 0;
+			uint16_t xbmpColor = TFT_WHITE; 
+			uint16_t xbmpBgColor = TFT_BLACK;
 			void (*simpleFunction)();
 			bool (*advancedFunction)(ezMenu* callingMenu);
 			void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h);
@@ -375,6 +392,7 @@ class ezMenu {
 		void _drawItem(int16_t n, String text, bool selected);
 		void _Arrows();
 		int16_t _img_from_top;
+		int16_t _img_from_left;
 		uint8_t _img_caption_location;
 		uint16_t _img_caption_color;
 		uint16_t _img_background;

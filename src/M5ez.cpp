@@ -2720,6 +2720,7 @@ ezMenu::ezMenu(String hdr /* = "" */) {
 	_buttons = "";
 	_font = NULL;
 	_img_from_top = 0;
+	_img_from_left = 0;
 	_img_caption_location = TC_DATUM;
 	_img_caption_font = &FreeSansBold12pt7b;
 	_img_caption_color = TFT_RED;
@@ -2739,7 +2740,50 @@ bool ezMenu::addItem(String nameAndCaption, void (*simpleFunction)() /* = NULL *
 
 bool ezMenu::addItem(const char *image, String nameAndCaption , void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
 	MenuItem_t new_item;
-	new_item.image = image;
+	new_item.jpgImageData = image;
+	new_item.bmpImageData = NULL;
+	new_item.xbmpImageData = NULL;
+	new_item.imageType = IMAGE_JPG;
+	new_item.fs = NULL;
+	new_item.nameAndCaption = nameAndCaption;
+	new_item.simpleFunction = simpleFunction;
+	new_item.advancedFunction = advancedFunction;
+	new_item.drawFunction = drawFunction;
+	if (_selected == -1) _selected = _items.size();
+	_items.push_back(new_item);
+	M5ez::_redraw = true;
+	return true;
+}
+
+bool ezMenu::addBmpImageItem(const unsigned short *image, String nameAndCaption, int16_t width, int16_t height, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
+	MenuItem_t new_item;
+	new_item.jpgImageData = NULL;
+	new_item.bmpImageData = image;
+	new_item.xbmpImageData = NULL;
+	new_item.imageType = IMAGE_BMP;
+	new_item.imageWidth = width;
+	new_item.imageHeight = height;
+	new_item.fs = NULL;
+	new_item.nameAndCaption = nameAndCaption;
+	new_item.simpleFunction = simpleFunction;
+	new_item.advancedFunction = advancedFunction;
+	new_item.drawFunction = drawFunction;
+	if (_selected == -1) _selected = _items.size();
+	_items.push_back(new_item);
+	M5ez::_redraw = true;
+	return true;
+}
+
+bool ezMenu::addXBmpImageItem(const char *image, String nameAndCaption, int16_t width, int16_t height, uint16_t xbmpColor /* = TFT_WHITE */, uint16_t xbmpBgColor /* = TFT_BLACK */, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
+	MenuItem_t new_item;
+	new_item.jpgImageData = NULL;
+	new_item.bmpImageData = NULL;
+	new_item.xbmpImageData = image;
+	new_item.imageType = IMAGE_XBMP;
+	new_item.imageWidth = width;
+	new_item.imageHeight = height;
+	new_item.xbmpColor = xbmpColor;
+	new_item.xbmpBgColor = xbmpBgColor;
 	new_item.fs = NULL;
 	new_item.nameAndCaption = nameAndCaption;
 	new_item.simpleFunction = simpleFunction;
@@ -2753,7 +2797,45 @@ bool ezMenu::addItem(const char *image, String nameAndCaption , void (*simpleFun
 
 bool ezMenu::addItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
 	MenuItem_t new_item;
-	new_item.image = NULL;
+	new_item.jpgImageData = NULL;
+	new_item.bmpImageData = NULL;
+	new_item.xbmpImageData = NULL;
+	new_item.imageType = IMAGE_JPG;
+	new_item.fs = &fs;
+	new_item.path = path;
+	new_item.nameAndCaption = nameAndCaption;
+	new_item.simpleFunction = simpleFunction;
+	new_item.advancedFunction = advancedFunction;
+	new_item.drawFunction = drawFunction;
+	if (_selected == -1) _selected = _items.size();
+	_items.push_back(new_item);
+	M5ez::_redraw = true;
+	return true;
+}
+
+bool ezMenu::addBmpImageItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
+	MenuItem_t new_item;
+	new_item.jpgImageData = NULL;
+	new_item.bmpImageData = NULL;
+	new_item.xbmpImageData = NULL;
+	new_item.imageType = IMAGE_BMP;
+	new_item.fs = &fs;
+	new_item.path = path;
+	new_item.nameAndCaption = nameAndCaption;
+	new_item.simpleFunction = simpleFunction;
+	new_item.advancedFunction = advancedFunction;
+	new_item.drawFunction = drawFunction;
+	if (_selected == -1) _selected = _items.size();
+	_items.push_back(new_item);
+	M5ez::_redraw = true;
+	return true;
+}
+
+bool ezMenu::addPngImageItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
+	MenuItem_t new_item;
+	new_item.jpgImageData = NULL;
+	new_item.bmpImageData = NULL;
+	new_item.imageType = IMAGE_PNG;
 	new_item.fs = &fs;
 	new_item.path = path;
 	new_item.nameAndCaption = nameAndCaption;
@@ -2828,7 +2910,7 @@ int16_t ezMenu::runOnce() {
 	if (_selected == -1) _selected = 0;
 	if (!_font)	_font = ez.theme->menu_big_font;	// Cannot be in constructor: ez.theme not there yet
 	for (int16_t n = 0; n < _items.size(); n++) {
-		if (_items[n].image != NULL || _items[n].fs != NULL) return _runImagesOnce();
+		if (_items[n].jpgImageData != NULL || _items[n].bmpImageData != NULL || _items[n].xbmpImageData != NULL || _items[n].fs != NULL) return _runImagesOnce();
 	}
 	return _runTextOnce();
 }
@@ -2953,6 +3035,8 @@ void ezMenu::imgBackground(uint16_t color) {
 
 void ezMenu::imgFromTop(int16_t offset) { _img_from_top = offset; }
 
+void ezMenu::imgFromLeft(int16_t offset) { _img_from_left = offset; }
+
 void ezMenu::imgCaptionFont(const GFXfont* font) { _img_caption_font = font; }
 
 void ezMenu::imgCaptionLocation(uint8_t datum) { _img_caption_location = datum; }
@@ -3029,11 +3113,58 @@ int16_t ezMenu::_runImagesOnce() {
 }
 
 void ezMenu::_drawImage(MenuItem_t &item) {
-	if (item.image) {
-		m5.lcd.drawJpg((uint8_t *)item.image, (sizeof(item.image) / sizeof(item.image[0])), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top);
-	}
-	if (item.fs) {
-		m5.lcd.drawJpgFile(*(item.fs), item.path.c_str(), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top);
+	if (item.jpgImageData && item.imageType == IMAGE_JPG) {		
+		m5.lcd.drawJpg(
+			(uint8_t *)item.jpgImageData,                   
+			(sizeof(item.jpgImageData) / sizeof(item.jpgImageData[0])),   //data length
+			_img_from_left,                                     //Coordinate X (left corner)
+			ez.canvas.top() + _img_from_top,                    //Coordinate Y (left corner)
+			TFT_W - _img_from_left,                             //Maximum width (px)
+			ez.canvas.height() - _img_from_top);                //Maximum height (px)
+	} else if (item.bmpImageData && item.imageType == IMAGE_BMP) {		
+		m5.lcd.drawBitmap(
+			_img_from_left,                                     //Coordinate X (left corner)
+			ez.canvas.top() + _img_from_top,				    //Coordinate Y (left corner)
+			item.imageWidth,								    //Image width (px)
+			item.imageHeight,								    //Image height (px)
+			item.bmpImageData,                                  
+			TFT_BLACK                                           //Color displayed as transparent
+		);
+	} else if (item.xbmpImageData && item.imageType == IMAGE_XBMP) {
+		m5.lcd.drawXBitmap(
+			_img_from_left,                                     //Coordinate X (left corner)
+			ez.canvas.top() + _img_from_top,                    //Coordinate Y (left corner)
+			(uint8_t *)item.xbmpImageData,                                  
+			item.imageWidth,                                    //Image width (px)
+			item.imageHeight,                                   //Image height (px) 
+			item.xbmpColor,                                     //Image foreground color
+			item.xbmpBgColor);                                  //Image backgorund color
+	} else if (item.fs) {
+		if (item.imageType == IMAGE_JPG) {
+			m5.lcd.drawJpgFile(
+				*(item.fs), 
+				item.path.c_str(), 								//File path
+				_img_from_left, 								//Coordinate X (left corner)
+				ez.canvas.top() + _img_from_top, 				//Coordinate Y (left corner)
+				TFT_W - _img_from_left,                         //Maximum width (px) 
+				ez.canvas.height() - _img_from_top);			//Maximum height (px)
+		} else if (item.imageType == IMAGE_BMP) {
+			m5.lcd.drawBmpFile(
+				*(item.fs), 
+				item.path.c_str(),								//File path
+				_img_from_left, 								//Coordinate X (left corner)
+				ez.canvas.top() + _img_from_top 				//Coordinate Y (left corner)
+			);
+		} else if (item.imageType == IMAGE_PNG) {
+			m5.lcd.drawPngFile(
+				*(item.fs), 
+				item.path.c_str(),								//File path
+				_img_from_left, 								//Coordinate X (left corner)
+				ez.canvas.top() + _img_from_top, 				//Coordinate Y (left corner)
+				TFT_W - _img_from_left,                         //Maximum width (px) 
+				ez.canvas.height() - _img_from_top  			//Maximum height (px)				
+			);
+		}
 	}
 }
 
