@@ -1,7 +1,6 @@
 // Arrays containing FLASH images can be created with UTFT library tool:
 // http://www.rinkydinkelectronics.com/t_imageconverter565.php
 // Convert to .c format then copy into a new tab
-// Convert to .raw format and put it onto an SD card
 
 #pragma once
 #include <pgmspace.h>  // PROGMEM support header

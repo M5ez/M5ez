@@ -1,3 +1,6 @@
+// For more information about the M5Stack file formats, please refer to the following blog post: 
+// https://schrenk.hu/2020/04/29/M5StackImageFormats/
+//
 #include <Arduino.h>
 #include <ezTime.h>
 #include <M5ez.h>
