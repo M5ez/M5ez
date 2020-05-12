@@ -141,6 +141,8 @@ class ezTheme {
 		const GFXfont* menu_small_font = &FreeSans9pt7b;		
 		uint8_t menu_item_hmargin = 10;							
 		uint8_t menu_item_radius = 8;
+		uint16_t menu_checked_fgcolor = TFT_GREEN;
+		uint16_t menu_checked_bgcolor = TFT_DARKGREEN;
 
 		const GFXfont* msg_font = &FreeSans12pt7b;				
 		uint16_t msg_color = foreground;						
@@ -322,6 +324,10 @@ class ezButtons {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define CHECK_TPYE_NONE  1
+#define CHECK_TYPE_RADIO 2
+#define CHECK_TYPE_MULTI 3
+
 class ezMenu {
 	public:
 		ezMenu(String hdr = "");
@@ -357,9 +363,15 @@ class ezMenu {
 		void imgCaptionColor(uint16_t color);
 		void imgCaptionMargins(int16_t hmargin, int16_t vmargin);
 		void imgCaptionMargins(int16_t margin);
+		void setCheckButtonName(String name);
+		void setCheckType(int8_t checkType);
+		void check(int16_t index);
+		int16_t getCheckedItemIndex();
+		bool isChecked(int16_t index);	
 	private:
 		struct MenuItem_t {
 			String nameAndCaption;
+			bool checked = false;
 			const char *jpgImageData;
 			const unsigned short *bmpImageData;
 			const char *xbmpImageData;
@@ -376,6 +388,8 @@ class ezMenu {
 		};
 		std::vector<MenuItem_t> _items;
 		int16_t _selected, _offset;
+		int8_t _checkType = CHECK_TPYE_NONE;
+		String _checkName = "check";
 		bool _redraw;
 		String _header, _buttons, _pick_button;
 		String _up_on_first, _down_on_last;
@@ -389,7 +403,7 @@ class ezMenu {
 		int16_t _runTextOnce();
 		void _fixOffset();
 		void _drawItems();
-		void _drawItem(int16_t n, String text, bool selected);
+		void _drawItem(int16_t n, String text, bool selected, bool checked);
 		void _Arrows();
 		int16_t _img_from_top;
 		int16_t _img_from_left;

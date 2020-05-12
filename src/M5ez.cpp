@@ -2881,6 +2881,54 @@ int16_t ezMenu::getItemNum(String name) {
 	return 0;
 }
 
+void ezMenu::setCheckButtonName(String name)
+{
+	_checkName = name;
+}
+
+void ezMenu::setCheckType(int8_t checkType)
+{
+	if (checkType == CHECK_TPYE_NONE || checkType == CHECK_TYPE_RADIO || checkType == CHECK_TYPE_MULTI) {
+		_checkType = checkType;
+	}		
+}
+
+void ezMenu::check(int16_t index)
+{
+	if (_checkType != CHECK_TPYE_NONE && 0 <= index && index < _items.size()) {
+		if (isChecked(index)) {
+			_items[index].checked = false;
+		} else {
+			if (_checkType == CHECK_TYPE_RADIO)	{
+				int16_t currentCheckedIndex = getCheckedItemIndex();
+				if (currentCheckedIndex != -1) {					
+					_items[currentCheckedIndex].checked = false;										
+					//Removes the previously checked item, if it is on the same screen
+					if (abs(index - currentCheckedIndex) < _items_per_screen) {
+						_drawItem(currentCheckedIndex - _offset, ez.rightOf(_items[currentCheckedIndex].nameAndCaption, "|"), false, false);
+					}
+				}				
+			}		
+			_items[index].checked = true;
+		}
+	}
+}
+
+int16_t ezMenu::getCheckedItemIndex()
+{
+	for (int16_t i = 0; i < _items.size(); i++) {
+		if (_items[i].checked) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+bool ezMenu::isChecked(int16_t index)
+{
+	return _items[index].checked;
+}
+
 void ezMenu::buttons(String bttns) {
 	_buttons = bttns;
 }	
@@ -2956,6 +3004,9 @@ int16_t ezMenu::_runTextOnce() {
 			_selected = -1;
 			ez.screen.clear();
 			return 0;
+		} else if (pressed == _checkName) {
+			check(_selected);
+			_fixOffset();
 		} else {
 			// Some other key must have been pressed. We're done here!
 			ez.screen.clear();
@@ -2976,13 +3027,13 @@ int16_t ezMenu::_runTextOnce() {
 				ez.setFont(_font);
 				(_items[old_selected].drawFunction)(this, ez.theme->menu_lmargin, top_item_h + (old_selected - _offset) * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h);
 			} else {
-				_drawItem(old_selected - _offset, ez.rightOf(_items[old_selected].nameAndCaption, "|"), false);
+				_drawItem(old_selected - _offset, ez.rightOf(_items[old_selected].nameAndCaption, "|"), false, isChecked(old_selected));
 			};
 			if (_items[_selected].drawFunction) {
 				ez.setFont(_font);
 				(_items[_selected].drawFunction)(this, ez.theme->menu_lmargin, top_item_h + (_selected - _offset) * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h);
 			} else {
-				_drawItem(_selected - _offset, ez.rightOf(_items[_selected].nameAndCaption, "|"), true);
+				_drawItem(_selected - _offset, ez.rightOf(_items[_selected].nameAndCaption, "|"), true, isChecked(_selected));
 			};
 		} else {
 			ez.canvas.clear();
@@ -3000,7 +3051,7 @@ void ezMenu::_drawItems() {
 				ez.setFont(_font);
 				(_items[item_ref].drawFunction)(this, ez.theme->menu_lmargin, top_item_h + n * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h);
 			} else {
-				_drawItem(n, ez.rightOf(_items[item_ref].nameAndCaption, "|"), (item_ref == _selected));
+				_drawItem(n, ez.rightOf(_items[item_ref].nameAndCaption, "|"), (item_ref == _selected), isChecked(item_ref));
 			}
 		}
 	}
@@ -3008,18 +3059,28 @@ void ezMenu::_drawItems() {
 	M5ez::_redraw = false;
 }
 
-void ezMenu::_drawItem(int16_t n, String text, bool selected) {
+void ezMenu::_drawItem(int16_t n, String text, bool selected, bool checked) {
 	uint16_t fill_color;
 	ez.setFont(_font);
 	int16_t top_item_h = ez.canvas.top() + (ez.canvas.height() % _per_item_h) / 2;   // remainder of screen left over by last item not fitting split to center menu
 	m5.lcd.setTextDatum(CL_DATUM);
 	if (selected) {
 		fill_color = ez.theme->menu_sel_bgcolor;
-		m5.lcd.setTextColor(ez.theme->menu_sel_fgcolor);
+		if (_checkType != CHECK_TPYE_NONE && checked) {
+			m5.lcd.setTextColor(ez.theme->menu_checked_fgcolor);
+		} else {
+			m5.lcd.setTextColor(ez.theme->menu_sel_fgcolor);
+		}		
 	} else {
-		fill_color = ez.screen.background();
-		m5.lcd.setTextColor(ez.theme->menu_item_color);
+		if (_checkType != CHECK_TPYE_NONE && checked) {
+			fill_color = ez.theme->menu_checked_bgcolor;
+			m5.lcd.setTextColor(ez.theme->menu_sel_fgcolor);			
+		} else {
+			fill_color = ez.screen.background();
+			m5.lcd.setTextColor(ez.theme->menu_item_color);
+		}		
 	}
+
 	text = ez.clipString(text, TFT_W - ez.theme->menu_lmargin - 2 * ez.theme->menu_item_hmargin - ez.theme->menu_rmargin);
 	m5.lcd.fillRoundRect(ez.theme->menu_lmargin, top_item_h + n * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h, ez.theme->menu_item_radius, fill_color);
 	m5.lcd.drawString(ez.leftOf(text, "\t"), ez.theme->menu_lmargin + ez.theme->menu_item_hmargin, top_item_h + _per_item_h / 2 + n * _per_item_h - 2);

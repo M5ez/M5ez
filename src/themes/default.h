@@ -54,7 +54,9 @@
 	// theme.GFXfont* menu_big_font = &FreeSans12pt7b;			
 	// theme.GFXfont* menu_small_font = &FreeSans9pt7b;		
 	// theme.menu_item_hmargin = 10;							
-	// theme.menu_item_radius = 8;							
+	// theme.menu_item_radius = 8;
+	// theme.menu_checked_fgcolor = TFT_GREEN;
+	// theme.menu_checked_bgcolor = TFT_DARKGREEN;						
 	// theme.GFXfont* msg_font = &FreeSans12pt7b;				
 	// theme.msg_color = theme.foreground;						
 	// theme.msg_hmargin = 20;								
