@@ -348,6 +348,7 @@ class ezMenu {
 		void downOnLast(String nameAndCaption);
 		void rightOnLast(String nameAndCaption);
 		int16_t getItemNum(String name);
+		int16_t getItemSize();
 		int16_t pick();
 		String pickName(), pickCaption(), pickButton();
 		void run();
