@@ -366,8 +366,10 @@ class ezMenu {
 		void imgCaptionMargins(int16_t margin);
 		void setCheckButtonName(String name);
 		void setCheckType(int8_t checkType);
+		bool check(String name);
 		void check(int16_t index);
 		int16_t getCheckedItemIndex();
+		String getCheckedItemName();
 		bool isChecked(int16_t index);	
 	private:
 		struct MenuItem_t {

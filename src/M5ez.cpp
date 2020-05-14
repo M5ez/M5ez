@@ -2895,6 +2895,17 @@ void ezMenu::setCheckType(int8_t checkType)
 	}		
 }
 
+bool ezMenu::check(String name) 
+{
+	for (int16_t i = 0; i < _items.size(); i++) {
+		if (_items[i].nameAndCaption == name) {
+			check(i);
+			return true;
+		}
+	}
+	return false;
+}
+
 void ezMenu::check(int16_t index)
 {
 	if (_checkType != CHECK_TPYE_NONE && 0 <= index && index < _items.size()) {
@@ -2924,6 +2935,16 @@ int16_t ezMenu::getCheckedItemIndex()
 		}
 	}
 	return -1;
+}
+
+String ezMenu::getCheckedItemName()
+{
+	for (int16_t i = 0; i < _items.size(); i++) {
+		if (_items[i].checked) {
+			return _items[i].nameAndCaption;
+		}
+	}
+	return "";
 }
 
 bool ezMenu::isChecked(int16_t index)
