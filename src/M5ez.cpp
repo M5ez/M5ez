@@ -3333,6 +3333,13 @@ String ezMenu::pickCaption() { return ez.rightOf(_items[_selected].nameAndCaptio
 
 String ezMenu::pickButton() { return _pick_button; }
 
+void ezMenu::pickItem(int16_t index)
+{
+	if (0 <= index && index < _items.size()) {
+		_selected = index;
+	}
+}
+
 void ezMenu::_Arrows() {
 	uint16_t fill_color;
 

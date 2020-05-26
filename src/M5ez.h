@@ -351,6 +351,7 @@ class ezMenu {
 		int16_t getItemSize();
 		int16_t pick();
 		String pickName(), pickCaption(), pickButton();
+		void pickItem(int16_t index);
 		void run();
 		int16_t runOnce();
 		void txtBig();
