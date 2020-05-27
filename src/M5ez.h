@@ -331,6 +331,7 @@ class ezButtons {
 class ezMenu {
 	public:
 		ezMenu(String hdr = "");
+		ezMenu(bool circularImageMenu);
 		bool addItem(String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
 		bool addItem(const char *image, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
 		bool addBmpImageItem(const unsigned short *image, String nameAndCaption, int16_t width, int16_t height, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
@@ -373,6 +374,7 @@ class ezMenu {
 		String getCheckedItemName();
 		bool isChecked(int16_t index);	
 	private:
+		void _init(String hdr, bool circular);
 		struct MenuItem_t {
 			String nameAndCaption;
 			bool checked = false;
@@ -394,7 +396,7 @@ class ezMenu {
 		int16_t _selected, _offset;
 		int8_t _checkType = CHECK_TPYE_NONE;
 		String _checkName = "check";
-		bool _redraw;
+		bool _redraw, _circularImageMenu;
 		String _header, _buttons, _pick_button;
 		String _up_on_first, _down_on_last;
 		int16_t _per_item_h, _vmargin;

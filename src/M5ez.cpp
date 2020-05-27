@@ -2713,6 +2713,16 @@ String M5ez::version() { return M5EZ_VERSION; }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ezMenu::ezMenu(String hdr /* = "" */) {
+	_init(hdr, false);
+}
+
+ezMenu::ezMenu(bool circularImageMenu /* = false */) {
+	_init("", circularImageMenu);
+}
+
+void ezMenu::_init(String hdr, bool circularImageMenu)
+{
+	_circularImageMenu = circularImageMenu;
 	_img_background = NO_COLOR;
 	_offset = 0;
 	_selected = -1;
@@ -3148,19 +3158,26 @@ int16_t ezMenu::_runImagesOnce() {
 	if (_buttons == "") _buttons = "left # select # right";
 	if (_img_background == NO_COLOR) _img_background = ez.theme->background;
 	ez.screen.clear(_img_background);
-	String tmp_buttons = _buttons;
-	tmp_buttons.replace("left", ""); 
-	tmp_buttons.replace("right", "");
-	ez.buttons.show(tmp_buttons);
-	ez.screen.clear(_img_background);
+	if (!_circularImageMenu) {
+		String tmp_buttons = _buttons;
+		tmp_buttons.replace("left", ""); 
+		tmp_buttons.replace("right", "");
+		ez.buttons.show(tmp_buttons);
+	} else {
+		ez.buttons.show(_buttons);
+	}	
 	if (_header != "") ez.header.show(_header);
 	_drawImage(_items[_selected]);
 	_drawCaption();	
 	while (true) {
-		tmp_buttons = _buttons;
-		if (_selected <= 0) tmp_buttons.replace("left", ""); 
-		if (_selected >= _items.size() - 1) tmp_buttons.replace("right", ""); 
-		ez.buttons.show(tmp_buttons);
+		if (!_circularImageMenu) {
+			String tmp_buttons = _buttons;
+			if (_selected <= 0) tmp_buttons.replace("left", ""); 
+			if (_selected >= _items.size() - 1) tmp_buttons.replace("right", ""); 
+			ez.buttons.show(tmp_buttons);
+		} else {
+			ez.buttons.show(_buttons);
+		}
 		String name = ez.leftOf(_items[_selected].nameAndCaption, "|");
 		String pressed;
 		while (true) {
@@ -3168,12 +3185,20 @@ int16_t ezMenu::_runImagesOnce() {
 			if (pressed != "") break;
 		}
 		if (pressed == "left") {
-			_selected--;
+			if (_circularImageMenu && _selected == 0) {
+				_selected = _items.size() -1;
+			} else {
+				_selected--;
+			}			
 			ez.canvas.clear();
 			_drawImage(_items[_selected]);
 			_drawCaption();
 		} else if (pressed == "right") {
-			_selected++;
+			if (_circularImageMenu && _selected == _items.size() - 1) {
+				_selected = 0;
+			} else {
+				_selected++;
+			}						
 			ez.canvas.clear();
 			_drawImage(_items[_selected]);
 			_drawCaption();
