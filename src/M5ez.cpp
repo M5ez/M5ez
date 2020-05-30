@@ -2066,13 +2066,21 @@ void ezSettings::defaults() {
 		}
 	}
 
+	void ezBattery::enableBatteryLevelIndicator() {
+		ez.header.insert(RIGHTMOST, "battery", ez.theme->battery_bar_width + 2 * ez.theme->header_hmargin, ez.battery._drawWidget);
+		ez.addEvent(ez.battery.loop);
+	}
+	
+	void ezBattery::disableBatteryLevelIndicator() {
+		ez.header.remove("battery");
+		ez.removeEvent(ez.battery.loop);
+	}
+
 	void ezBattery::_refresh() {
 		if (_on) {
-			ez.header.insert(RIGHTMOST, "battery", ez.theme->battery_bar_width + 2 * ez.theme->header_hmargin, ez.battery._drawWidget);
-			ez.addEvent(ez.battery.loop);
+			enableBatteryLevelIndicator();
 		} else {
-			ez.header.remove("battery");
-			ez.removeEvent(ez.battery.loop);
+			disableBatteryLevelIndicator();
 		}
 	}
 
@@ -2712,16 +2720,9 @@ String M5ez::version() { return M5EZ_VERSION; }
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ezMenu::ezMenu(String hdr /* = "" */) {
-	_init(hdr, false);
-}
-
-ezMenu::ezMenu(bool circularImageMenu /* = false */) {
-	_init("", circularImageMenu);
-}
-
-void ezMenu::_init(String hdr, bool circularImageMenu)
-{
+ezMenu::ezMenu(String hdr /* = "" */, bool circularImageMenu /* = false */) {
+	Serial.print("Constructor - Menu header: ");
+	Serial.println(hdr);
 	_circularImageMenu = circularImageMenu;
 	_img_background = NO_COLOR;
 	_offset = 0;
@@ -3000,7 +3001,9 @@ int16_t ezMenu::runOnce() {
 int16_t ezMenu::_runTextOnce() {
 	if (_buttons == "") _buttons = "up # select # down";
 	ez.screen.clear();
-	if (_header != "") ez.header.show(_header);
+	if (_header != "") {
+		ez.header.show(_header);
+	}
 	ez.setFont(_font);
 	_per_item_h = ez.fontHeight();
 	ez.buttons.show(_buttons); 	//we need to draw the buttons here to make sure ez.canvas.height() is correct
