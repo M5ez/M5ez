@@ -894,6 +894,8 @@ void ezSettings::defaults() {
 	bool ezClock::_am_pm;
 	String ezClock::_datetime;
 	bool ezClock::_starting = true;
+	String ezClock::_menuHeader = "Clock settings";
+	String ezClock::_menuButtons = "up#Back#select##down#";
 
 	void ezClock::begin() {
 		Preferences prefs;
@@ -936,9 +938,9 @@ void ezSettings::defaults() {
 		bool am_pm_orig = _am_pm;
 		String tz_orig = _timezone;
 		while(true) {
-			ezMenu clockmenu("Clock settings");
+			ezMenu clockmenu(_menuHeader);
 			clockmenu.txtSmall();
-			clockmenu.buttons("up#Back#select##down#");
+			clockmenu.buttons(_menuButtons);
 			clockmenu.addItem("on|Display clock\t" + (String)(_on ? "on" : "off"));
 			if (_on) {
 				clockmenu.addItem("tz|Timezone\t" + _timezone);
@@ -974,6 +976,14 @@ void ezSettings::defaults() {
 			}
 		}
 	}
+
+	void ezClock::setMenuHeader(String header) {
+		_menuHeader = header;
+	}
+	
+	void ezClock::setMenuButtons(String buttons) {
+		_menuButtons = buttons;
+	}	
 	
 	uint16_t ezClock::loop() {
 		ezt::events();
@@ -1118,6 +1128,8 @@ void ezSettings::defaults() {
 	ezProgressBar* ezWifi::_update_progressbar;
 	String ezWifi::_update_error;
 	bool ezWifi::autoConnect;
+	String ezWifi::_menuHeader = "Wifi settings";
+	String ezWifi::_menuButtons = "up#Back#select##down#";
 	#ifdef M5EZ_WPS
 		WiFiEvent_t ezWifi::_WPS_event;
 		String ezWifi::_WPS_pin;
@@ -1242,17 +1254,25 @@ void ezSettings::defaults() {
 		#ifdef M5EZ_WIFI_DEBUG
 			Serial.println("EZWIFI: Disabling autoconnect while in Wifi menu.");
 		#endif
-		ezMenu wifimain ("Wifi settings");
+		ezMenu wifimain (_menuHeader);
 		wifimain.txtSmall();
 		wifimain.addItem("onoff | Autoconnect\t" + (String)(autoConnect ? "ON" : "OFF"), NULL, _onOff);
 		wifimain.addItem("connection | " + (String)(WiFi.isConnected() ? "Connected: " + WiFi.SSID() : "Join a network"), NULL, _connection);
 		wifimain.addItem("Manage autoconnects", _manageAutoconnects);
-		wifimain.buttons("up#Back#select##down#");
+		wifimain.buttons(_menuButtons);
 		wifimain.run();
 		_state = EZWIFI_IDLE;
 		#ifdef M5EZ_WIFI_DEBUG
 			Serial.println("EZWIFI: Enabling autoconnect exiting Wifi menu.");
 		#endif
+	}
+
+	void ezWifi::setMenuHeader(String header) {
+		_menuHeader = header;
+	}
+	
+	void ezWifi::setMenuButtons(String buttons) {
+		_menuButtons = buttons;
 	}
 
 	bool ezWifi::_onOff(ezMenu* callingMenu) {
@@ -1977,6 +1997,8 @@ void ezSettings::defaults() {
 
 #ifdef M5EZ_BATTERY
 	bool ezBattery::_on = false;
+	String ezBattery::_menuHeader = "Battery settings";
+	String ezBattery::_menuButtons = "up#Back#select##down#";
 
 	void ezBattery::begin() {
 		Wire.begin();
@@ -2004,9 +2026,9 @@ void ezSettings::defaults() {
 	void ezBattery::menu() {
 		bool on_orig = _on;
 		while(true) {
-			ezMenu clockmenu("Battery settings");
+			ezMenu clockmenu(_menuHeader);
 			clockmenu.txtSmall();
-			clockmenu.buttons("up#Back#select##down#");
+			clockmenu.buttons(_menuButtons);
 			clockmenu.addItem("on|Display battery\t" + (String)(_on ? "on" : "off"));
 			switch (clockmenu.runOnce()) {
 				case 1:
@@ -2020,6 +2042,14 @@ void ezSettings::defaults() {
 					return;
 			}
 		}
+	}
+
+	void ezBattery::setMenuHeader(String header) {
+		_menuHeader = header;
+	}
+	
+	void ezBattery::setMenuButtons(String buttons) {
+		_menuButtons = buttons;
 	}
 
 	uint16_t ezBattery::loop() {

@@ -496,6 +496,8 @@ class ezSettings {
 			static void begin();
 			static void restart();
 			static void menu();
+			static void setMenuHeader(String header);
+			static void setMenuButtons(String buttons);
 			static uint16_t loop();
 			static void clear();
 			static void draw(uint16_t x, uint16_t w);
@@ -508,6 +510,8 @@ class ezSettings {
 			static bool _am_pm;
 			static String _datetime;
 			static bool _starting;
+			static String _menuHeader;
+			static String _menuButtons;
 		//
 	};
 #endif
@@ -569,6 +573,8 @@ class ezSettings {
 			static void readFlash();
 			static void writeFlash();
 			static void menu();
+			static void setMenuHeader(String header);
+			static void setMenuButtons(String buttons);
 			static uint16_t loop();
 			static bool update(String url, const char* root_cert, ezProgressBar* pb = NULL);
 			static String updateError();
@@ -586,6 +592,8 @@ class ezSettings {
 			static String _update_err2str(uint8_t _error);
 			static ezProgressBar* _update_progressbar;
 			static String _update_error;
+			static String _menuHeader;
+			static String _menuButtons;
 			#ifdef M5EZ_WPS
 				static void _WPShelper(WiFiEvent_t event, system_event_info_t info);
 				static WiFiEvent_t _WPS_event;
@@ -648,6 +656,8 @@ class ezSettings {
 			static void readFlash();
 			static void writeFlash();
 			static void menu();
+			static void setMenuHeader(String header);
+			static void setMenuButtons(String buttons);
 			static void enableBatteryLevelIndicator();
 			static void disableBatteryLevelIndicator();
 			static uint16_t loop();
@@ -655,6 +665,8 @@ class ezSettings {
 			static uint32_t getBatteryBarColor(uint8_t batteryLevel);
 		private:
 			static bool _on;
+			static String _menuHeader;
+			static String _menuButtons;
 			static void _refresh();
 			static void _drawWidget(uint16_t x, uint16_t w);
 	};
