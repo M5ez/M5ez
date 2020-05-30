@@ -502,6 +502,8 @@ class ezSettings {
 			static void clear();
 			static void draw(uint16_t x, uint16_t w);
 			static bool waitForSync(const uint16_t timeout = 0);
+			static bool isClockFormat12();
+			static bool isAmPmIndicatorDisplayed();
 		private:
 			static void _writePrefs();
 			static bool _on;

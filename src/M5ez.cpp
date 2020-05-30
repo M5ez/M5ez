@@ -1032,6 +1032,14 @@ void ezSettings::defaults() {
 		}
 		return true;
 	}
+
+	bool ezClock::isClockFormat12() {
+		return _clock12;
+	}
+	
+	bool ezClock::isAmPmIndicatorDisplayed() {
+		return _am_pm;
+	}
 			
 #endif
 
