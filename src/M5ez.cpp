@@ -2721,8 +2721,6 @@ String M5ez::version() { return M5EZ_VERSION; }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ezMenu::ezMenu(String hdr /* = "" */, bool circularImageMenu /* = false */) {
-	Serial.print("Constructor - Menu header: ");
-	Serial.println(hdr);
 	_circularImageMenu = circularImageMenu;
 	_img_background = NO_COLOR;
 	_offset = 0;
