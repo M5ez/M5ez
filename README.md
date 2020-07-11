@@ -349,6 +349,8 @@ With `addevent` you can register a function of your own to be executed periodica
 
 The value returned by your function is the number of milliseconds to wait before calling the function again. So a function that only needs to run once every second would simply return 1000. If your function returns 0, the event is deleted and not executed any further.
 
+> Note: These events are meant for things that need to happen frequently. The next event cannot be more than 65 seconds out as the period between them is a 16-bit unsigned integer. If you use M5ez with ezTime, you can use [ezTime's events](https://github.com/ropg/ezTime#events) for things that need to happen with more time between them.
+
 As the name implies, `ez.removeEvent` also removes your function from the loop.
 
 #### Redrawing after an event
