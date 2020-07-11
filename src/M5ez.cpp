@@ -1207,14 +1207,23 @@ void ezSettings::defaults() {
 
 	void ezWifi::writeFlash() {
 		Preferences prefs;
+		String idx;
+		uint8_t n = 1;
+
 		prefs.begin("M5ez", false);
-		prefs.clear();
+		prefs.remove("autoconnect_on");
+		while (true) {
+			idx = "SSID" + (String)n;
+			if(!prefs.remove(idx.c_str())) break;
+			idx = "key" + (String)n;
+			prefs.remove(idx.c_str());
+			n++;
+		}
 		prefs.putBool("autoconnect_on", autoConnect);
 		#ifdef M5EZ_WIFI_DEBUG
 			Serial.println("wifiWriteFlash: Autoconnect is " + (String)(autoConnect ? "ON" : "OFF"));
 		#endif
-		String idx;
-		for (uint8_t n = 0; n < networks.size(); n++) {
+		for (n = 0; n < networks.size(); n++) {
 			idx = "SSID" + (String)(n + 1);
 			prefs.putString(idx.c_str(), networks[n].SSID);
 			if (networks[n].key != "") {
