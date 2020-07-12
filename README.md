@@ -66,7 +66,7 @@ error: 'struct esp_wps_config_t' has no member named 'factory_info'
 ### What's new in M5ez 2.x ?
 
 * Many user-selectable settings, including backlight, clock/timezone, FACES keyboard, etc.
-* Theme values can be changed at runtime, multiple thmes can be loaded; a theme chooser then shows up in the settings
+* Theme values can be changed at runtime, multiple themes can be loaded; a theme chooser then shows up in the settings
 * Header can have user-defined widgets (internally used for clock and wifi signal display)
 * The canvas now inherits from the Print class, so everything print and println could do, you can now also do on the canvas.
 * The canvas scrolls (if you want it to)
@@ -165,9 +165,9 @@ The clock and WiFi signal strength displayed in the M5ez header are "widgets". Y
 
 `void ez.header.draw(String name = "")`
 
-`ez.header.insert` lets you add your own header widget. The header widget positions start at 0 (the leftmost widget), and `position` specifies t the left of which widget to insert the new one. `name` is just a name you use to refer to your widget. The names `title`, `clock` and `wifi` are reserved for use by M5ez. 
+`ez.header.insert` lets you add your own header widget. The header widget positions start at 0 (the leftmost widget), and `position` specifies t the left of which widget to insert the new one. `name` is just a name you use to refer to your widget. The names `title`, `clock` and `wifi` are reserved for use by M5ez.
 
-Exactly one widget can be specified as `leftover`, meaning it gets all the pixels not claimed by any other widgets. By default, this is the widget called "title" that holds the header title. All other widgets must have a width in pixels specified. 
+Exactly one widget can be specified as `leftover`, meaning it gets all the pixels not claimed by any other widgets. By default, this is the widget called "title" that holds the header title. All other widgets must have a width in pixels specified.
 
 `function` refers to the name of the function that draws your widget. It must be a function that returns nothing (`void`) and that takes two `uint16_t` arguments: the x position and width of your widget. This function will be called by the header code whenever the header is redrawn. But you can also force a redraw with `ez.header.draw`. For instance: the clock code calls for the `clock` widget to be redrawn every minute, for instance. Note that you would never call your widget draw function directly, because your code doesn't know where all the widgets are within the header. You would only ever call it indirectly using `ez.header.draw("your_widget_name")`, which will then see if the header is currently displayed, and if so lookup x position and width and call your draw function.
 
@@ -185,7 +185,7 @@ The "canvas" is M5ez's name for the area between the header and buttons. So if t
 
 `void ez.canvas.clear()`
 
-Clears the canvas area to the current background color &mdash; either the default from the theme or the one specified in the most recent `ez.screen.clear` command. Sets x and y positions for the the next print command to the top left (repecting the currently set left margin). 
+Clears the canvas area to the current background color &mdash; either the default from the theme or the one specified in the most recent `ez.screen.clear` command. Sets x and y positions for the the next print command to the top left (respecting the currently set left margin).
 
 `void ez.canvas.reset()`
 
@@ -245,11 +245,11 @@ size_t ez.canvas.println(void);
 
 `void ez.canvas.scroll(bool s)`
 
-If you turn on scrolling with `ez.canvas.scroll(true)`, M5ez will store what has been printed to the screen, so the contents of the screen can scroll. Note that when the canvas starts scrolling, only the contents placed there with the print functions from above will scroll, everything else will be wiped. So if, for example, you have drawn something with `m5.lcs.fillRect`, it will be gone once you print beyond the last line. 
+If you turn on scrolling with `ez.canvas.scroll(true)`, M5ez will store what has been printed to the screen, so the contents of the screen can scroll. Note that when the canvas starts scrolling, only the contents placed there with the print functions from above will scroll, everything else will be wiped. So if, for example, you have drawn something with `m5.lcs.fillRect`, it will be gone once you print beyond the last line.
 
 You can turn scrolling off with `ez.canvas.scroll(false)`, and you can ask what the present scroll status is with `ez.canvas.scroll()`.
 
->Note on scrolling: for scrolling to work, everything that is printed to the screen is kept in memory. It is only forgotten if it scrolls off the screen or if you clear the canvas or screen. What that means is that if you turn scrolling on and then print and overwrite something lots of times, evetually the memory will fill up and your application will crash. 
+>Note on scrolling: for scrolling to work, everything that is printed to the screen is kept in memory. It is only forgotten if it scrolls off the screen or if you clear the canvas or screen. What that means is that if you turn scrolling on and then print and overwrite something lots of times, eventually the memory will fill up and your application will crash.
 
 `bool ez.canvas.wrap()`
 
@@ -303,7 +303,7 @@ The captions on the key can differ from the name. To specify this, specify a nam
 
 If your button is captioned `up`, `down`, `left` or `right`, the caption is replaced by a triangle pointing in that direction.
 
-If a button has only one function, (no long press defined), the caption will be printed in the middle. If there is a short and a long press defined, they will be printed on the left and right, the right in cyan (in the default theme) to signify that it needs a longer press. 
+If a button has only one function, (no long press defined), the caption will be printed in the middle. If there is a short and a long press defined, they will be printed on the left and right, the right in cyan (in the default theme) to signify that it needs a longer press.
 
 *In some cases it may be necessary to define only a long or only a short press action explicitly. In that case, defining a the key with the placeholder "~" will make sure its function is not interpreted. Take the key definition string `~ # up # select # # right # down`: this defines the leftmost key to have the 'up' function, but only with a long press, a short press is ignored. The caption prints on the right side of the button and not in the middle. (One might use this to signify that the user got to the left edge of something she's navigating, not causing the 'up' function to trigger when she keeps pressing short before realising she's at the left edge.)*
 
@@ -317,11 +317,11 @@ This hides the buttons, growing the canvas to cover the area where the buttons w
 
 `String ez.buttons.poll()`
 
-If you call `ez.buttons.poll`, it will return the name of the key pressed since you last called it, or the empty string is nothing was pressed. This function is where everyone's M5ez programs will spends most of their time: waiting for the user to make things continue. If your code is waiting in a loop that inlcudes `ez.buttons.poll`, clock and WiFi signal updating, as well as execution of user-registered functions (see below) will continue.
+If you call `ez.buttons.poll`, it will return the name of the key pressed since you last called it, or the empty string is nothing was pressed. This function is where everyone's M5ez programs will spends most of their time: waiting for the user to make things continue. If your code is waiting in a loop that includes `ez.buttons.poll`, clock and WiFi signal updating, as well as execution of user-registered functions (see below) will continue.
 
 `String ez.buttons.wait()`
 
- `ez.buttons.wait` does the same thing as `ez.buttons.poll()` except it does not return if nothing is pressed. If you call it with no arguments, it assumes the buttons have already been drawn with `ez.drawButtons`. (And if not your program is stuck.) 
+ `ez.buttons.wait` does the same thing as `ez.buttons.poll()` except it does not return if nothing is pressed. If you call it with no arguments, it assumes the buttons have already been drawn with `ez.drawButtons`. (And if not your program is stuck.)
 
 `String ez.buttons.wait(String buttons)`
 
@@ -401,7 +401,7 @@ This will draw header, message, an empty (0 %) progress bar and the specified si
 	pb.value(float val)
 ```
 
-where `val` is a floating point value between 0 and 100. Check out the [Over-The-Air https update example](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) to see how the ezProgressBar object is used there. (You'll see that the `ez.wifi.update()` software update function accepts a pointer to an ezProgressBar instance to show its progress.) 
+where `val` is a floating point value between 0 and 100. Check out the [Over-The-Air https update example](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) to see how the ezProgressBar object is used there. (You'll see that the `ez.wifi.update()` software update function accepts a pointer to an ezProgressBar instance to show its progress.)
 
 &nbsp;
 
@@ -605,7 +605,7 @@ void loop() {
   myMenu.addItem("Item 1", mainmenu_one);
   myMenu.addItem("Item 2", mainmenu_two);
   myMenu.addItem("Item 3", mainmenu_three);
-  myMenu.run();    
+  myMenu.run();
 }
 
 void mainmenu_one() {
@@ -639,7 +639,7 @@ Until now we have considered menus that run all by themselves, unless they exit 
 #include <M5ez.h>
 
 void setup() {
-  ez.begin(); 
+  ez.begin();
 }
 
 void loop() {
@@ -653,7 +653,7 @@ void loop() {
   }
   if (myMenu.pickName() == "Item 2") {
   	Serial.println("Number two was pressed");
-  }   
+  }
 }
 ```
 
@@ -664,7 +664,7 @@ This does exactly the same as the first example we started with. Note that `.run
 #include <M5ez.h>
 
 void setup() {
-  ez.begin(); 
+  ez.begin();
 }
 
 void loop() {
@@ -722,30 +722,30 @@ As you will see in the function documentation below, there is much more you can 
 
 **`ezMenu yourMenu`**
 
-If you issue on of these statements, you are creating an instance of the ezMenu object called "yourMenu". This will allow you to reference it when you start adding items to it, change various properties of it. Eventually your code will run the menu, which means it will display on the screen. "yourMenu" should offcourse be replaced by any name of your choice, but we'll use it in this text to show all the functions that apply to menus. These functions should be called with the name of the menu followed by a dot in front of them, as they are "member functions" of the ezMenu object.
+If you issue on of these statements, you are creating an instance of the ezMenu object called "yourMenu". This will allow you to reference it when you start adding items to it, change various properties of it. Eventually your code will run the menu, which means it will display on the screen. "yourMenu" should off course be replaced by any name of your choice, but we'll use it in this text to show all the functions that apply to menus. These functions should be called with the name of the menu followed by a dot in front of them, as they are "member functions" of the ezMenu object.
 
 ```
-bool addItem(String nameAndCaption, 
+bool addItem(String nameAndCaption,
 	void (*simpleFunction)() = NULL,
 	bool (*advancedFunction)(ezMenu* callingMenu) = NULL,
 	void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL)
 ```
 
 ```
-bool addItem(const char *image, String nameAndCaption, 
+bool addItem(const char *image, String nameAndCaption,
 	void (*simpleFunction)() = NULL,
 	bool (*advancedFunction)(ezMenu* callingMenu) = NULL,
 	void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL)
 ```
 
 ```
-bool addItem(fs::FS &fs, String path, String nameAndCaption, 
+bool addItem(fs::FS &fs, String path, String nameAndCaption,
 	void (*simpleFunction)() = NULL,
 	bool (*advancedFunction)(ezMenu* callingMenu) = NULL,
 	void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL)
 ```
 
-Adds items to a menu. The first form adds a text only item, the second and third forms make image menus. You can either supply a pointer to the image which is encoded as a byte array in a special .h file that you should have included, or a file system reference and a path for a file stored on SD of SPIFFS. 
+Adds items to a menu. The first form adds a text only item, the second and third forms make image menus. You can either supply a pointer to the image which is encoded as a byte array in a special .h file that you should have included, or a file system reference and a path for a file stored on SD of SPIFFS.
 
 In the latter case your sketch must do either `#include <SPIFFS.h>` and `SPIFFS.begin()` or `#include <SD.h>' and 'SD.begin()`, and provide both the SD or SPIFFS object reference as well as the path to the file. The "ImagesSPIFFSorSD" example shows how to use this feature. Images from program flash, SPIFFS and SD-card can be freely mixed in the same menu.
 
@@ -753,13 +753,13 @@ The `simpleFunction` should be the name of a `void` function without parameters 
 
 The string named `nameAndCaption` can (as the name implies) hold both a name and a caption. If you don't do anything special they are set to the same string you supply. But if you pass `somename | Some caption`, the name is the part before the first pipe sign (`|`), the caption is everything after it. (Spaced around the pipe sign are removed.)
 
-The name is what is returned when you call `yourMenu.pickName()` after the menu has ran, and you can also supply it as an argument to `deleteItem()` (see below). The caption is what is printed, either in the item's line in the menu or as a caption with the image in an image menu. The caption is also returned by `yourMenu.pickCaption()`.   
+The name is what is returned when you call `yourMenu.pickName()` after the menu has ran, and you can also supply it as an argument to `deleteItem()` (see below). The caption is what is printed, either in the item's line in the menu or as a caption with the image in an image menu. The caption is also returned by `yourMenu.pickCaption()`.
 
 If you put a tab character (Represented by `\t`) in the caption of a menu item, the text to the left of the tab will be left-aligned to the left of the menu item, and the text to the right of it will be right-aligned to the right of the item. You can see this feature in use in M5ez's settings menu where the part on the right generally represents the actual state of a setting.
 
 If an item is named "Back", "Exit" or "Done" (either with first letter capitalised all all lower case), the menu will exit is this item is picked, unless an advancedFunction is supplied (see below). Note that while it has to be *named* one of these three things, it can be *captioned* something completely different.
 
-If you want your code to have more access to what just happened in the menu, you can supply an advancedFunction pointer. This way you can have a function that has access to all the member functions of the menu that called it, and it can determine whether the menu exits or not by returning `true` (keep running) or `false` (exit). 
+If you want your code to have more access to what just happened in the menu, you can supply an advancedFunction pointer. This way you can have a function that has access to all the member functions of the menu that called it, and it can determine whether the menu exits or not by returning `true` (keep running) or `false` (exit).
 
 ```
 bool myAdvancedFunction(ezMenu* callingMenu) {
@@ -795,7 +795,7 @@ The first form deletes the menu item at the position indicated, starting with 1 
 
 **`bool setCaption(String name, String caption)`**
 
-As the name implies, changes the caption (but not the name) of the item specfied either by position or by name.
+As the name implies, changes the caption (but not the name) of the item specified either by position or by name.
 
 **`int16_t getItemNum(String name)`**
 
@@ -807,7 +807,7 @@ This allows you to pass your own buttons to the function, using the format discu
 
 Buttons *captioned* "up", "down", "left" or "right" are displayed with a triangular arrow in the corresponding direction instead of that word. Buttons *named* "Back", "Exit" or "Done" cause the menu to exit. Note that menus without buttons named "up and "down" (text menus) or "left" and "right" (image menus) become impossible to navigate.
 
-Buttons named "first" and "last" ump to the first or last item of the menu repectively.
+Buttons named "first" and "last" ump to the first or last item of the menu respectively.
 
 **`void upOnFirst(String nameAndCaption)`**
 
@@ -837,7 +837,7 @@ These apply to text menus only. You can set the font. The theme can supply a def
 
 <hr>
 
-Then there are some functions that only apply to image menus 
+Then there are some functions that only apply to image menus
 
 **`void imgBackground(uint16_t color)`**
 
@@ -864,14 +864,13 @@ These settings allow for the menu item caption to be printed somewhere on the ca
 | **middle** | `ML_DATUM` | `MC_DATUM` | `MR_DATUM` |
 | **bottom** | `BL_DATUM` | `BC_DATUM` | `BR_DATUM` |
 
-and the margins specify how far away from the edges of the canvas the caption is printed. The default is for no caption to be printed, you must specify all these options if you want captions. 
-
+and the margins specify how far away from the edges of the canvas the caption is printed. The default is for no caption to be printed, you must specify all these options if you want captions.
 
 **`int16_t runOnce()`**
 
 If you execute `yourMenu.runOnce()`, the menu will show and the user can interact with it until an item is picked. Then the function returns the index of the picked item (starting at one). The menu can also 'exit' (which is not the same as the `.runOnce()` function exiting, which happens when an item is picked.
 
-* If the user picks an item named "Back", "Exit" or "Done" that does not have an advancedFunction passed. 
+* If the user picks an item named "Back", "Exit" or "Done" that does not have an advancedFunction passed.
 * If the user picks any item using a button named "Back", "Exit" or "Done".
 * if the advancedFunction that was ran for a picked item returned `false`.
 
@@ -887,7 +886,7 @@ void ezMenu::run() {
 }
 ```
 
-In other words: all it does is just call `.runOnce()` on your menu until it exits for any of the reasons listed above. If your menu is the main menu of the program, you would simply not supply any items or buttons called "Exit", "Back" or "Done" and have no advancedFunctions ever return `false`. This will cause the menu to run forever. 
+In other words: all it does is just call `.runOnce()` on your menu until it exits for any of the reasons listed above. If your menu is the main menu of the program, you would simply not supply any items or buttons called "Exit", "Back" or "Done" and have no advancedFunctions ever return `false`. This will cause the menu to run forever.
 
 **`int16_t pick()`**
 
@@ -896,7 +895,6 @@ In other words: all it does is just call `.runOnce()` on your menu until it exit
 **`String pickCaption()`**
 
 **`String pickButton()`**
-
 
 These functions will show the position, name and caption of the picked item. They are useful after your menu has been ran once with `.runOnce` or in an advancedFunction (see under `addItem` above).
 
@@ -919,7 +917,7 @@ M5ez comes with a number of built-in settings menus. The settings are saved to f
 
 The wifi menu allows the user to connect to an Access Point. The user can also turn on and off the "autoconnect" feature. With this feature on, M5EZ will behave like most smartphones and automatically connect to any Access Point which has been added to the autoconnect list when it was joined. 
 
-Note that this doesn't use the `WiFi.setAutoConnect` and `WiFi.setAutoReconnect` fucntions of the ESP32 WiFi library: they can only connect to one access point. Instead  M5ez has it's own logic for connecting, saving the ssid and password of networks you want to automatically connect to in flash.
+Note that this doesn't use the `WiFi.setAutoConnect` and `WiFi.setAutoReconnect` functions of the ESP32 WiFi library: they can only connect to one access point. Instead  M5ez has it's own logic for connecting, saving the ssid and password of networks you want to automatically connect to in flash.
 
 Below you can see how to access the stored networks as well as the stored "on/off" toggle for the autoconnect feature from code. You probably won't need this as `ez.wifi.menu` lets the user manage all of this. Note that if you do make any changes, you have to call `ez.wifi.writeFlash()` when you are done to save them to flash.
 
@@ -962,11 +960,11 @@ and replace that line with:
 ```
 // The digitalRead of the button pin is commented out below.
 // The two lines below fix an issue where BtnA gets spurious presses if the
-// Wifi is active. (The second line fixes it, the first remediates resulting 
+// Wifi is active. (The second line fixes it, the first remediates resulting
 // speaker noise.) For details: https://github.com/m5stack/M5Stack/issues/52
 
-//    pinVal = digitalRead(_pin); 
-    dacWrite(25, 0);							
+//    pinVal = digitalRead(_pin);
+    dacWrite(25, 0);
     pinVal = analogRead(_pin);
 ```
 
@@ -974,23 +972,23 @@ Now recompile and the problem is gone. It does mean that you cannot use the spea
 
 #### Over-The-Air (OTA) updates via https
 
-You might deploy hardware that needs updates but that you don't wnat to hook up via USB every time. But you will want this upload mechanism to offer some security against attackers that culd otherwise compromise large numbers of internet-connected IoT devices. M5ez allows you to boot from a compiled binary file that is downloaded from the internet over https.
+You might deploy hardware that needs updates but that you don't want to hook up via USB every time. But you will want this upload mechanism to offer some security against attackers that could otherwise compromise large numbers of internet-connected IoT devices. M5ez allows you to boot from a compiled binary file that is downloaded from the internet over https.
 
 `bool ez.wifi.update(String url, const char* root_cert, ezProgressBar* pb = NULL)`
 
 `String ez.wifi.updateError()`
 
-Takes a URL and a root certificate. A shell script called `get_cert` is provided in the `/tools` directory of this repository to get the right (non-forwarded) URL and create an include file to provide the correct certificate. The optional third argument is a pointer to the `ezProgressBar` instance that will show the progress of the firmware download. It must be provided with a leading ampersand. 
+Takes a URL and a root certificate. A shell script called `get_cert` is provided in the `/tools` directory of this repository to get the right (non-forwarded) URL and create an include file to provide the correct certificate. The optional third argument is a pointer to the `ezProgressBar` instance that will show the progress of the firmware download. It must be provided with a leading ampersand.
 
-`ez.wifi.update` returns `true` if the file is downloaded and everything is set up. The next reboot - which can be forced with `ESP.restart()` - will start the new binary. If `ez.wifi.update` returns `false`, you can use `ez.wifi.updateError()` to return a String with a human-readbale error message. (The way the https stream data is handled by the underlying ESP32 `Update` library does not seem terribly robust: stream timeouts happen, even on otherwise good internet connections.)
+`ez.wifi.update` returns `true` if the file is downloaded and everything is set up. The next reboot - which can be forced with `ESP.restart()` - will start the new binary. If `ez.wifi.update` returns `false`, you can use `ez.wifi.updateError()` to return a String with a human-readable error message. (The way the https stream data is handled by the underlying ESP32 `Update` library does not seem terribly robust: stream timeouts happen, even on otherwise good internet connections.)
 
-The [README.rd file of the OTA_https sample sketch](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) provides a step-by-step recipe that describes how to determine the URL and get the certficate using `get_cert`.
+The [README.rd file of the OTA_https sample sketch](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) provides a step-by-step recipe that describes how to determine the URL and get the certificate using `get_cert`.
 
 &nbsp;
 
 ### BLE
 
-BLE, short for [Bluetooth Low Energy](https://en.wikipedia.org/wiki/Bluetooth_Low_Energy).  Is intended to provide considerably reduced power consumption and cost while maintaining a similar communication range. We implemented a device manager, so you can just focus on communicate with the target device. You can access it's interface from `ez.ble` , and can get access to connected devices from `ez.ble.getClient` function. 
+BLE, short for [Bluetooth Low Energy](https://en.wikipedia.org/wiki/Bluetooth_Low_Energy).  Is intended to provide considerably reduced power consumption and cost while maintaining a similar communication range. We implemented a device manager, so you can just focus on communicate with the target device. You can access it's interface from `ez.ble` , and can get access to connected devices from `ez.ble.getClient` function.
 
 &nbsp;
 
@@ -1068,9 +1066,9 @@ To make your own theme, copy the default theme from the src/themes directory to 
 
 ## z-sketches
 
-With a simple trick, you can make code that does something pretty on its own, but that can also be included to provide a submenu in a bigger program. If you look at the M5ez-demo program, you will see that its directory includes another sketch named z-sysinfo.ino. This is the same z-sysinfo.ino that can be compiled on its own. (It is in the examples directory.) 
+With a simple trick, you can make code that does something pretty on its own, but that can also be included to provide a submenu in a bigger program. If you look at the M5ez-demo program, you will see that its directory includes another sketch named z-sysinfo.ino. This is the same z-sysinfo.ino that can be compiled on its own. (It is in the examples directory.)
 
-Normally putting two .ino files in the same directory is a bad idea as the compiler then finds two programs that each have a `setup()` and a `loop()`. But if one of the programs (the "master" program) specifies `#define MAIN_DECLARED` and the slave program has `#ifndef MAIN_DECLARED` and `#endif` around its declaration of `setup()` and `loop()`, it no longer conflicts. This means the master program can call functions from it. As you can see z-sysinfo.ino also uses whether or not `MAIN_DECLARED` is defined to determine whether to provide an "Exit" button. After all: if it is running stand-alone there is nothing to exit to. 
+Normally putting two .ino files in the same directory is a bad idea as the compiler then finds two programs that each have a `setup()` and a `loop()`. But if one of the programs (the "master" program) specifies `#define MAIN_DECLARED` and the slave program has `#ifndef MAIN_DECLARED` and `#endif` around its declaration of `setup()` and `loop()`, it no longer conflicts. This means the master program can call functions from it. As you can see z-sysinfo.ino also uses whether or not `MAIN_DECLARED` is defined to determine whether to provide an "Exit" button. After all: if it is running stand-alone there is nothing to exit to.
 
 Also note that you do not need to `#include` any sketches placed in the same directory as your master program: the compiler combines them automatically. That also means you must ensure that no names are declared twice, or otherwise the compiler will complain.
 
