@@ -1209,9 +1209,9 @@ void ezSettings::defaults() {
 		Preferences prefs;
 		String idx;
 		uint8_t n = 1;
-
 		prefs.begin("M5ez", false);
-		prefs.remove("autoconnect_on");
+		// Remove unknown number of items from NVS, sequentially named SSID1 to SSIDN, and key1 to keyN where N
+		// is the total number of WiFi Networks stored (which may be different than networks.size() at this point.)
 		while (true) {
 			idx = "SSID" + (String)n;
 			if(!prefs.remove(idx.c_str())) break;
