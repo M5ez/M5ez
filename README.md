@@ -2,11 +2,11 @@
 
 >*M5ez (pronounced "M5 easy") is a complete interface builder library for the M5Stack ESP32 system. It allows even novice programmers to create good looking interfaces. It comes with menus as text or as images, message boxes, very flexible button setup (including different length presses and multi-button functions), 3-button text input (you have to see it to believe it) and built-in Wifi support. Now you can concentrate on what your program does, and let M5ez worry about everything else.*
 
-*written by Rop Gonggrijp*
+*written by Rop Gonggrijp, with help and contributions from many others*
 
 [![](images/M5ez.png)](https://youtu.be/132gvdlwKZw)
 
-## introduction
+## Introduction
 
 The M5Stack is a small computer that is a tinkerer's dream. It is based on Espressif's ESP32 chip (with WiFi and Bluetooth), it has a 320x240 pixel color screen, three buttons, a speaker, an SD slot and it allows you to stack boards below it, each in their own plastic enclosure. The makers sell boards for GSM, GPS and LoRa (LOng RAnge radio) as well as a motor controller board and an empty experimenter board. The Chinese operation that makes them appears to sell a lot of them and I could get mine off of Amazon in a week. If you like to build things that you can hold in your hand and not just write code for yet another naked-looking board plugged into your USB port, this thing is your friend.
 
@@ -16,7 +16,19 @@ Making something that looks good and allows users to interact with it is not sim
 
 In the budding M5Stack community, there have been some initiatives to make it easier to create user interfaces. Most notably a M5Stack forum user named Calin make something called "M5Stack MultiApp" which allows more easy integration of multiple existing programs into one app. His work serves as an inspiration for my work. But as much as you could have multiple programs have a common user interface, creating the programs still was nowhere near simple enough.
 
-Enter M5ez, my contribution to making programming on the M5Stack *a lot* easier. I hope you'll enjoy programming with this.
+Enter M5ez, our contribution to making programming on the M5Stack *a lot* easier. We hope you'll enjoy programming with this.
+
+### Other products by M5
+
+M5 is not only making the M5stack anymore. There's now an M5Stick that is an even smaller ESP32 system with a smaller screen, there's the M5 Atom which has no screen and just LEDs, and soon there will be an M5stack Core2 which has a capacitive touch screen. We plan to support some of these devices, the stick support will be rolled out soon.
+
+### Alternatives 
+
+#### UiFlow
+
+Since writing M5ez, there has been another interface toolkit for the M5Stack, called UiFlow. It uses a web-and-cloud-based IDE that can be seen as "blocky" symbols or as python and creates micropython code. UiFlow supports a lot of the hardware sold in conjunction with the M5Stack and is very much geared towards learning and education.
+
+That said, building the functionality that comes "packaged" with M5ez would take quite a bit of work with UiFlow. If you have existing things that run on Arduino, like programming in C and/or with the Arduino IDE, then M5ez might be the better choice. Also it is generally easier to create consistent and visually pleasing interfaces in M5ez, and complex things can take surprisingly little work.
 
 &nbsp;
 
@@ -32,76 +44,25 @@ M5ez is an Arduino library. To start using it with the Arduino IDE:
 
 in File -> Examples you will now see an M5ez heading down under "Examples from custom libraries"
 
-You'll have your first application on the screen in no time. You can also start with one of the sketches below in the "Menus" section of the documentation.
-
-> *If you do not want M5ez to depend on the ezTime library, simply comment out the `#define M5EZ_CLOCK` line in the `M5ez.h` file in M5ez's library's directory.*
+You'll have your first application on the screen in no time. You can also start with one of the sketches below in the "Menus" section of the documentation. In fact we strongly recommend that you play around with the M5ez demo application, since it is a comprehensive showcase of M5ez's functionality that will give you a good feel for what you can and cannot do with M5ez.
 
 &nbsp;
 
 ### If you get `fatal error: ezTime.h: No such file or directory`
 
-You need to install two libraries:M5ez and ezTime (see above). 
+Note that it says above that you need to install two libraries: *M5ez* and *ezTime*. 
 
 > Alternatively, you can install M5ez without the time library (and without the on-screen clock), by commenting out `#define M5EZ_CLOCK` in file `m5ez.h` in the M5ez library directory.
 
-### If you get a WPS error: outdated ESP32 Arduino platform support
-
-By default, M5ez supports "WPS pushbutton" and "WPS pincode" as ways to connect to Wifi. If you run into an error saying ...
-
-```
-Documents\Arduino\libraries\M5ez-master\src\M5ez.cpp:1319:19:
-error: 'struct esp_wps_config_t' has no member named 'factory_info'
-```
-
-... it means your ESP32 library is out of date. Espressif (the ESP32 people) changed how WPS is done in late June 2018. If this happens to you and you would like to have WPS, simply follow the instructions [here](https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/boards_manager.md) to make sure you have the latest ESP32 Arduino support and the problem should go away.
-
-> *Alternatively, if you do not plan to use WPS, you can also comment out `#define M5EZ_WPS` in the `M5ez.h` file in the library's directory.**
-
 &nbsp;
 
-## M5ez 2.0 
+## Structure of documentation
 
-> *You can skip this section if you have never worked with M5ez 1.x*
+You've now seen the [Introduction](https://github.com/ropg/M5ez#introduction) and [Getting Started](https://github.com/ropg/M5ez#getting-started) sections of the manual. Below is the [User Manual](https://github.com/ropg/M5ez#m5ez-user-manual) which lists all the functions of M5ez in detail. At the end there's a [Table of Contents](https://github.com/ropg/M5ez#table-of-contents) which may be of help finding something. 
 
-### What's new in M5ez 2.x ?
+### Tech Notes
 
-* Many user-selectable settings, including backlight, clock/timezone, FACES keyboard, etc.
-* Theme values can be changed at runtime, multiple thmes can be loaded; a theme chooser then shows up in the settings
-* Header can have user-defined widgets (internally used for clock and wifi signal display)
-* The canvas now inherits from the Print class, so everything print and println could do, you can now also do on the canvas.
-* The canvas scrolls (if you want it to)
-* you can create your own events that get ran in the M5ez button wait loops
-* Many bugs got fixed
-* Code is a lot cleaner now, easier to add things without the sometimes ad-hoc and organically grown constructs of M5ez 1.x
-
-However, all of this comes with some changes to the names of common functions in M5ez. Generally things are more consistent now, but that does mean they are different: your M5ez 1.x code will not run without modifications. I am not planning an M5ez 3.0 at this time, so expect no further modifications to be needed to existing code for a while.
-
-### Converting code from M5ez 1.x to 2.x
-
-To convert code form 1.x to 2.x, first remove the `m5.begin()` at the start of your code, and replace it by `ez.begin()`. Then it is recommended you replace the following functions:
-
-| M5ez 1.x |    | M5ez 2.x |
-|:---------|:--:|:---------|
-| `ez.clearScreen()` | **&mdash;>** | `ez.screen.clear()`
-| `ez.background()` | **&mdash;>** | `ez.screen.background()`
-| `ez.drawHeader(` | **&mdash;>** | `ez.header.show(`
-| `ez.removeHeader()` | **&mdash;>** | `ez.header.hide()`
-| `ez.clearCanvas()` | **&mdash;>** | `ez.canvas.clear()`
-| `ez.canvasTop()` | **&mdash;>** | `ez.canvas.top()`
-| `ez.canvasBottom()` | **&mdash;>** | `ez.canvas.bottom()`
-| `ez.canvasLeft()` | **&mdash;>** | `ez.canvas.left()`
-| `ez.canvasRight()` | **&mdash;>** | `ez.canvas.right()`
-| `ez.canvasWidth()` | **&mdash;>** | `ez.canvas.width()`
-| `ez.canvasHeight()` | **&mdash;>** | `ez.canvas.height()`
-| `ez.print(` | **&mdash;>** | `ez.canvas.print(`
-| `ez.println(` | **&mdash;>** | `ez.canvas.println(`
-| `ez.drawButtons(` | **&mdash;>** | `ez.buttons.show(`
-| `ez.getButtons(` | **&mdash;>** | `ez.buttons.poll(`
-| `ez.waitForButtons(` | **&mdash;>** | `ez.buttons.wait(`
-
-Then, check all your print functions: they no longer support the setting of font, location or color in the statement itself: these need to be done with `ez.canvas.font`, `ez.canvas.color` etc. (Print is much nicer now because the canvas object inherited from the Print class, and because the canvas can scroll now.)
-
-Then simply fix any remaining problems by first fixing any compiler complaints with this document in hand, and then walk through all of your program's functionality to see if everything works as expected.
+Separate from this document, there is a directory [tech_notes](https://github.com/ropg/M5ez/tree/master/tech_notes) where we keep useful technical notes that may be a bit too obscure or in-depth for a general user manual.
 
 &nbsp;
 
@@ -1081,12 +1042,12 @@ Also note that you do not need to `#include` any sketches placed in the same dir
 ## Table of Contents
 
    * [M5ez The easy way to program on the M5Stack](#m5ez-the-easy-way-to-program-on-the-m5stack)
-      * [introduction](#introduction)
+      * [Introduction](#introduction)
+         * [Other products my M5](#other-products-my-m5)
+         * [Alternatives](#alternatives)
+            * [UiFlow](#uiflow)
       * [Getting started](#getting-started)
-         * [If you get a WPS error: outdated ESP32 Arduino platform support](#if-you-get-a-wps-error-outdated-esp32-arduino-platform-support)
-      * [M5ez 2.0](#m5ez-20)
-         * [What's new in M5ez 2.x ?](#whats-new-in-m5ez-2x-)
-         * [Converting code from M5ez 1.x to 2.x](#converting-code-from-m5ez-1x-to-2x)
+         * [If you get fatal error: ezTime.h: No such file or directory](#if-you-get-fatal-error-eztimeh-no-such-file-or-directory)
    * [M5ez User Manual](#m5ez-user-manual)
       * [How it all works](#how-it-all-works)
       * [Screen](#screen)
@@ -1100,6 +1061,71 @@ Also note that you do not need to `#include` any sketches placed in the same dir
       * [Scheduling tasks within M5ez](#scheduling-tasks-within-m5ez)
          * [Yield](#yield)
          * [Your own events](#your-own-events)
+            * [Redrawing after an event](#redrawing-after-an-event)
+      * [Showing messages with msgBox](#showing-messages-with-msgbox)
+      * [ezProgressBar](#ezprogressbar)
+      * [3-button text input](#3-button-text-input)
+      * [FACES keyboard support](#faces-keyboard-support)
+      * [Composing or viewing longer texts: textBox](#composing-or-viewing-longer-texts-textbox)
+      * [Fonts](#fonts)
+         * [FreeFonts from the Adafruit library](#freefonts-from-the-adafruit-library)
+         * [FreeFonts included by the M5Stack driver](#freefonts-included-by-the-m5stack-driver)
+         * [Older fonts available only through M5ez](#older-fonts-available-only-through-m5ez)
+         * [Using your own fonts](#using-your-own-fonts)
+      * [Menus](#menus)
+         * [Let's start with text menus](#lets-start-with-text-menus)
+         * [.runOnce()](#runonce)
+         * [Image menus](#image-menus)
+         * [Menus: all the functions documented](#menus-all-the-functions-documented)
+      * [Settings](#settings)
+         * [Wifi](#wifi)
+            * [The weird Wifi ghost button problem](#the-weird-wifi-ghost-button-problem)
+            * [Over-The-Air (OTA) updates via https](#over-the-air-ota-updates-via-https)
+         * [BLE](#ble)
+         * [Battery](#battery)
+         * [Clock](#clock)
+         * [Backlight](#backlight)
+         * [FACES keyboard](#faces-keyboard)
+         * [Factory defaults](#factory-defaults)
+         * [Adding your own settings](#adding-your-own-settings)
+      * [Themes](#themes)
+         * [Including themes](#including-themes)
+         * [Making your own](#making-your-own)
+      * [z-sketches](#z-sketches)
+      * [Table of Contents](#table-of-contents)
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
+cf:~/Documents/github/M5ez $ tools/gh-md-toc README.md 
+-bash: tools/gh-md-toc: /usr/bin/env: bad interpreter: Operation not permitted
+cf:~/Documents/github/M5ez $ xattr -d com.apple.quarantine tools/gh-md-toc 
+cf:~/Documents/github/M5ez $ tools/gh-md-toc README.md 
+
+Table of Contents
+=================
+
+   * [M5ez The easy way to program on the M5Stack](#m5ez-the-easy-way-to-program-on-the-m5stack)
+      * [Introduction](#introduction)
+         * [Other products by M5](#other-products-by-m5)
+         * [Alternatives](#alternatives)
+            * [UiFlow](#uiflow)
+      * [Getting started](#getting-started)
+         * [If you get fatal error: ezTime.h: No such file or directory](#if-you-get-fatal-error-eztimeh-no-such-file-or-directory)
+      * [Structure of documentation](#structure-of-documentation)
+         * [Tech Notes](#tech-notes)
+   * [M5ez User Manual](#m5ez-user-manual)
+      * [How it all works](#how-it-all-works)
+      * [Screen](#screen)
+      * [Header](#header)
+         * [Showing, hiding, title](#showing-hiding-title)
+         * [Your own header widgets](#your-own-header-widgets)
+      * [Canvas](#canvas)
+         * [Canvas dimensions](#canvas-dimensions)
+         * [Printing to the canvas](#printing-to-the-canvas)
+      * [Buttons](#buttons)
+      * [Scheduling tasks within M5ez](#scheduling-tasks-within-m5ez)
+         * [Yield](#yield)
+         * [Your own events](#your-own-events)
+            * [Redrawing after an event](#redrawing-after-an-event)
       * [Showing messages with msgBox](#showing-messages-with-msgbox)
       * [ezProgressBar](#ezprogressbar)
       * [3-button text input](#3-button-text-input)
