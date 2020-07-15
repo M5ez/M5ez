@@ -2139,8 +2139,8 @@ int16_t M5ez::_text_cursor_x, M5ez::_text_cursor_y, M5ez::_text_cursor_h, M5ez::
 bool M5ez::_text_cursor_state;
 long  M5ez::_text_cursor_millis;
 
-void M5ez::begin() {
-	m5.begin();
+void M5ez::begin(bool LCDEnable, bool SDEnable, bool SerialEnable, bool I2CEnable) {
+	m5.begin(LCDEnable, SDEnable, SerialEnable, I2CEnable);
 	ezTheme::begin();
 	ez.screen.begin();
 	ez.settings.begin();

@@ -670,7 +670,7 @@ class M5ez {
 			static ezFACES faces;
 		#endif	
 		
-		static void begin();
+		static void begin(bool LCDEnable = true, bool SDEnable = true, bool SerialEnable = true, bool I2CEnable = false);
 
 		static void yield();
 		
