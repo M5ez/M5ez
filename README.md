@@ -793,6 +793,35 @@ Note that the "first" and "last" are button *names* with special functions, and 
 
 These apply to text menus only. You can set the font. The theme can supply a default big and small menu font, which can be set by simply calling `.txtBig()` or `.txtSmall()` on a menu. In the default theme, the big menu can display 6 items at a time when a header and a single row of button labels is displayed, a small menu displays eight items at a time. You can set your own font with `txtFont` or create a new theme with different defaults.
 
+**`void setSortFunction(bool (*sortFunction)(const char* s1, const char* s2))`**
+
+Ordinarily, menu items are displayed in the order in which they are added. However, if you are building a menu from data which you have no control over, such as a list of file names from an SD card, a sort function will ensure that the names are displayed in a specific order. You may define a sort function that takes two `const char*`'s and returns true when the second is greater than the first, or use one of the eight built-in sorting functions.
+
+```
+bool ascendingCaseSensitive(const char* s1, const char* s2) {
+    return 0 > strcmp(s1, s2);
+}
+...
+menu.setSortFunction(ascendingCaseSensitive);
+```
+
+Once set, the menu is automatically kept sorted. All calls to addItem result in a sorted menu without further interaction. If setSortFunction is called after the menu has been populated, it's immediately resorted and maintained in its new order as items are added and deleted.
+
+Note that if your menus use Captions as well as Names, sorting is a bit more complicated. A set of functions is provided for sorting text in most typical manners:
+
+| Function                       | Purpose                                                                  |
+| :----------------------------- | :----------------------------------------------------------------------- |
+| `ezMenu::sort_asc_name_cs`		 | Sort ascending by menu name, case sensitive                              |
+| `ezMenu::sort_asc_name_ci`		 | Sort ascending by menu name, case insensitive                            |
+| `ezMenu::sort_dsc_name_cs`		 | Sort descending by menu name, case sensitive                             |
+| `ezMenu::sort_dsc_name_ci`		 | Sort descending by menu name, case insensitive                           |
+| `ezMenu::sort_asc_caption_cs`	 | Sort ascending by menu caption or name if no caption, case sensitive     |
+| `ezMenu::sort_asc_caption_ci`	 | Sort ascending by menu caption or name if no caption, incase sensitive   |
+| `ezMenu::sort_dsc_caption_cs`	 | Sort descending by menu caption or name if no caption, case sensitive    |
+| `ezMenu::sort_dsc_caption_ci`	 | Sort descending by menu caption or name if no caption, case insensitive  |
+
+See the example program SortedMenus for typical usage.
+
 ---
 
 Then there are some functions that only apply to image menus
@@ -1035,57 +1064,57 @@ Also note that you do not need to `#include` any sketches placed in the same dir
 
 ## Table of Contents
 
-* [`M5ez` The easy way to program on the M5Stack](#m5ez-the-easy-way-to-program-on-the-m5stack)
-  * [Introduction](#introduction)
-    * [Other products by M5](#other-products-by-m5)
-    * [Alternatives](#alternatives)
-      * [UiFlow](#uiflow)
-  * [Getting started](#getting-started)
-    * [If you get `fatal error: ezTime.h: No such file or directory`](#if-you-get-fatal-error-eztimeh-no-such-file-or-directory)
-  * [Structure of documentation](#structure-of-documentation)
-    * [Tech Notes](#tech-notes)
-* [M5ez User Manual](#m5ez-user-manual)
-  * [How it all works](#how-it-all-works)
-  * [Screen](#screen)
-  * [Header](#header)
-    * [Showing, hiding, title](#showing-hiding-title)
-    * [Your own header widgets](#your-own-header-widgets)
-  * [Canvas](#canvas)
-    * [Canvas dimensions](#canvas-dimensions)
-    * [Printing to the canvas](#printing-to-the-canvas)
-  * [Buttons](#buttons)
-  * [Scheduling tasks within M5ez](#scheduling-tasks-within-m5ez)
-    * [Yield](#yield)
-    * [Your own events](#your-own-events)
-      * [Redrawing after an event](#redrawing-after-an-event)
-  * [Showing messages with msgBox](#showing-messages-with-msgbox)
-  * [ezProgressBar](#ezprogressbar)
-  * [3-button text input](#3-button-text-input)
-  * [FACES keyboard support](#faces-keyboard-support)
-  * [Composing or viewing longer texts: textBox](#composing-or-viewing-longer-texts-textbox)
-  * [Fonts](#fonts)
-    * [FreeFonts from the Adafruit library](#freefonts-from-the-adafruit-library)
-    * [FreeFonts included by the M5Stack driver](#freefonts-included-by-the-m5stack-driver)
-    * [Older fonts available only through M5ez](#older-fonts-available-only-through-m5ez)
-    * [Using your own fonts](#using-your-own-fonts)
-  * [Menus](#menus)
-    * [Let's start with text menus](#lets-start-with-text-menus)
-    * [`.runOnce()`](#runonce)
-    * [Image menus](#image-menus)
-    * [Menus: all the functions documented](#menus-all-the-functions-documented)
-  * [Settings](#settings)
-    * [Wifi](#wifi)
-      * [The weird Wifi ghost button problem](#the-weird-wifi-ghost-button-problem)
-      * [Over-The-Air (OTA) updates via https](#over-the-air-ota-updates-via-https)
-    * [BLE](#ble)
-    * [Battery](#battery)
-    * [Clock](#clock)
-    * [Backlight](#backlight)
-    * [FACES keyboard](#faces-keyboard)
-    * [Factory defaults](#factory-defaults)
-    * [Adding your own settings](#adding-your-own-settings)
-  * [Themes](#themes)
-    * [Including themes](#including-themes)
-    * [Making your own](#making-your-own)
-  * [z-sketches](#z-sketches)
-* [Table of Contents](#table-of-contents)
+- [`M5ez` The easy way to program on the M5Stack](#m5ez-the-easy-way-to-program-on-the-m5stack)
+  - [Introduction](#introduction)
+    - [Other products by M5](#other-products-by-m5)
+    - [Alternatives](#alternatives)
+      - [UiFlow](#uiflow)
+  - [Getting started](#getting-started)
+    - [If you get `fatal error: ezTime.h: No such file or directory`](#if-you-get-fatal-error-eztimeh-no-such-file-or-directory)
+  - [Structure of documentation](#structure-of-documentation)
+    - [Tech Notes](#tech-notes)
+- [M5ez User Manual](#m5ez-user-manual)
+  - [How it all works](#how-it-all-works)
+  - [Screen](#screen)
+  - [Header](#header)
+    - [Showing, hiding, title](#showing-hiding-title)
+    - [Your own header widgets](#your-own-header-widgets)
+  - [Canvas](#canvas)
+    - [Canvas dimensions](#canvas-dimensions)
+    - [Printing to the canvas](#printing-to-the-canvas)
+  - [Buttons](#buttons)
+  - [Scheduling tasks within M5ez](#scheduling-tasks-within-m5ez)
+    - [Yield](#yield)
+    - [Your own events](#your-own-events)
+      - [Redrawing after an event](#redrawing-after-an-event)
+  - [Showing messages with msgBox](#showing-messages-with-msgbox)
+  - [ezProgressBar](#ezprogressbar)
+  - [3-button text input](#3-button-text-input)
+  - [FACES keyboard support](#faces-keyboard-support)
+  - [Composing or viewing longer texts: textBox](#composing-or-viewing-longer-texts-textbox)
+  - [Fonts](#fonts)
+    - [FreeFonts from the Adafruit library](#freefonts-from-the-adafruit-library)
+    - [FreeFonts included by the M5Stack driver](#freefonts-included-by-the-m5stack-driver)
+    - [Older fonts available only through M5ez](#older-fonts-available-only-through-m5ez)
+    - [Using your own fonts](#using-your-own-fonts)
+  - [Menus](#menus)
+    - [Let's start with text menus](#lets-start-with-text-menus)
+    - [`.runOnce()`](#runonce)
+    - [Image menus](#image-menus)
+    - [Menus: all the functions documented](#menus-all-the-functions-documented)
+  - [Settings](#settings)
+    - [Wifi](#wifi)
+      - [The weird Wifi ghost button problem](#the-weird-wifi-ghost-button-problem)
+      - [Over-The-Air (OTA) updates via https](#over-the-air-ota-updates-via-https)
+    - [BLE](#ble)
+    - [Battery](#battery)
+    - [Clock](#clock)
+    - [Backlight](#backlight)
+    - [FACES keyboard](#faces-keyboard)
+    - [Factory defaults](#factory-defaults)
+    - [Adding your own settings](#adding-your-own-settings)
+  - [Themes](#themes)
+    - [Including themes](#including-themes)
+    - [Making your own](#making-your-own)
+  - [z-sketches](#z-sketches)
+  - [Table of Contents](#table-of-contents)
