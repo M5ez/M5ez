@@ -3,49 +3,46 @@
 
 #define M5EZ_VERSION		"2.1.2"
 
+#include "M5ez_config.h"
 
-// Comment out the line below to disable WPS.
+// Do not change #defines below. If you want to change library configuration, edit M5ez_config.h
+// Lines below only set default values for undefined setting macros
 #ifndef M5EZ_WPS
-	#define M5EZ_WPS (1)
+	#define M5EZ_WPS (0)
 #endif
 
-// Turn this off to compile without WiFi (no) OTA updates, no clock)
 #ifndef M5EZ_WIFI
-	#define M5EZ_WIFI (1)
+	#define M5EZ_WIFI (0)
 #endif
 
-// Turn this off if you don't have a battery attached
 #ifndef M5EZ_BATTERY
-	#define M5EZ_BATTERY (1)
+	#define M5EZ_BATTERY (0)
 #endif
 
-// Turn this off to compile without BLE (Bluetooth Low Energy)
 #ifndef M5EZ_BLE
 	#define M5EZ_BLE (0)
 #endif
 
 #if M5EZ_BLE
+#ifndef M5EZ_BLE_DEVICE_NAME
 	#define M5EZ_BLE_DEVICE_NAME "M5ez"
 #endif
+#endif
 
-// Have the autoconnect logic print debug messages on the serial port
 #ifndef M5EZ_WIFI_DEBUG
 	#define M5EZ_WIFI_DEBUG (0)
 #endif
 
-// Determines whether the backlight is settable
 #ifndef M5EZ_BACKLIGHT
-	#define M5EZ_BACKLIGHT (1)
+	#define M5EZ_BACKLIGHT (0)
 #endif
 
-// Compile in ezTime and create a settings menu for clock display
 #ifndef M5EZ_CLOCK
-	#define M5EZ_CLOCK (1)
+	#define M5EZ_CLOCK (0)
 #endif
 
-// FACES settings menu
 #ifndef M5EZ_FACES
-	#define M5EZ_FACES (1)
+	#define M5EZ_FACES (0)
 #endif
 
 #include <vector>			// std::vector
