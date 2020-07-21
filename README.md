@@ -793,6 +793,35 @@ Note that the "first" and "last" are button *names* with special functions, and 
 
 These apply to text menus only. You can set the font. The theme can supply a default big and small menu font, which can be set by simply calling `.txtBig()` or `.txtSmall()` on a menu. In the default theme, the big menu can display 6 items at a time when a header and a single row of button labels is displayed, a small menu displays eight items at a time. You can set your own font with `txtFont` or create a new theme with different defaults.
 
+**`void setSortFunction(bool (*sortFunction)(const char* s1, const char* s2))`**
+
+Ordinarily, menu items are displayed in the order in which they are added. However, if you are building a menu from data which you have no control over, such as a list of file names from an SD card, a sort function will ensure that the names are displayed in a specific order. You may define a sort function that takes two `const char*`'s and returns true when the second is greater than the first, or use one of the eight built-in sorting functions.
+
+```
+bool ascendingCaseSensitive(const char* s1, const char* s2) {
+    return 0 > strcmp(s1, s2);
+}
+...
+menu.setSortFunction(ascendingCaseSensitive);
+```
+
+Once set, the menu is automatically kept sorted. All calls to addItem result in a sorted menu without further interaction. If setSortFunction is called after the menu has been populated, it's immediately resorted and maintained in its new order as items are added and deleted.
+
+Note that if your menus use Captions as well as Names, sorting is a bit more complicated. A set of functions is provided for sorting text in most typical manners:
+
+| Function                       | Purpose                                                                  |
+| :----------------------------- | :----------------------------------------------------------------------- |
+| `ezMenu::sort_asc_name_cs`		 | Sort ascending by menu name, case sensitive                              |
+| `ezMenu::sort_asc_name_ci`		 | Sort ascending by menu name, case insensitive                            |
+| `ezMenu::sort_dsc_name_cs`		 | Sort descending by menu name, case sensitive                             |
+| `ezMenu::sort_dsc_name_ci`		 | Sort descending by menu name, case insensitive                           |
+| `ezMenu::sort_asc_caption_cs`	 | Sort ascending by menu caption or name if no caption, case sensitive     |
+| `ezMenu::sort_asc_caption_ci`	 | Sort ascending by menu caption or name if no caption, incase sensitive   |
+| `ezMenu::sort_dsc_caption_cs`	 | Sort descending by menu caption or name if no caption, case sensitive    |
+| `ezMenu::sort_dsc_caption_ci`	 | Sort descending by menu caption or name if no caption, case insensitive  |
+
+See the example program SortedMenus for typical usage.
+
 ---
 
 Then there are some functions that only apply to image menus

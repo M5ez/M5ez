@@ -325,6 +325,7 @@ class ezMenu {
 		bool deleteItem(String name);
 		bool setCaption(int16_t index, String caption);
 		bool setCaption(String name, String caption);
+		void setSortFunction(bool (*sortFunction)(const char* s1, const char* s2));
 		void buttons(String bttns);
 		void upOnFirst(String nameAndCaption);
 		void leftOnFirst(String nameAndCaption);
@@ -345,6 +346,16 @@ class ezMenu {
 		void imgCaptionColor(uint16_t color);
 		void imgCaptionMargins(int16_t hmargin, int16_t vmargin);
 		void imgCaptionMargins(int16_t margin);
+
+		static bool sort_asc_name_cs (const char* s1, const char* s2);
+		static bool sort_asc_name_ci (const char* s1, const char* s2);
+		static bool sort_dsc_name_cs (const char* s1, const char* s2);
+		static bool sort_dsc_name_ci (const char* s1, const char* s2);
+		static bool sort_asc_caption_cs (const char* s1, const char* s2);
+		static bool sort_asc_caption_ci (const char* s1, const char* s2);
+		static bool sort_dsc_caption_cs (const char* s1, const char* s2);
+		static bool sort_dsc_caption_ci (const char* s1, const char* s2);
+
 	private:
 		struct MenuItem_t {
 			String nameAndCaption;
@@ -378,6 +389,9 @@ class ezMenu {
 		uint16_t _img_background;
 		const GFXfont* _img_caption_font;
 		int16_t _img_caption_hmargin, _img_caption_vmargin;
+		bool (*_sortFunction)(const char* s1, const char* s2);
+		void _sortItems();
+		bool _sortWrapper(MenuItem_t& item1, MenuItem_t& item2);
 	//
 };
 
