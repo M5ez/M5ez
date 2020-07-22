@@ -76,7 +76,7 @@ Preferences prefs;
 ...
   // Read preferences
   prefs.begin("M5ez", true);                              // Namespace = "M5ez", true means ReadOnly. No reason to modify settings when we're reading them.
-  String timezone = prefs.getString("theme", "Default");  // Type = String, Key name = "theme", default value if missing = "Default" (can be omitted)
+  String theme = prefs.getString("theme", "Default");     // Type = String, Key name = "theme", default value if missing = "Default" (can be omitted)
   uint8_t brightness = prefs.getUChar("brightness", 128); // Type = uint8_t (UChar), Key name = "brightness", default value if missing = 128 (can be omitted)
   prefs.end();                                            // Always close preferences promptly, open it only when needed.
 ```
