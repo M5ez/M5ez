@@ -42,10 +42,10 @@ The Clock settings include 4 items. The timezone names are described  [here](htt
 
 The Backlight settings are stored as two unsigned characters (0 - 255) representing brightness and inactivity timeout.
 
-| Key Name        | Type    | Purpose                                                    |
-| :-------------- | :------ | :--------------------------------------------------------- |
-| brightness      | UChar   | Lcd brightness. Default is 128.                            |
-| inactivity      | UChar   | Time until Lcd is blanked. 0 = never, else n * 30 seconds. |
+| Key Name        | Type      | Purpose                                                    |
+| :-------------- | :-------- | :--------------------------------------------------------- |
+| brightness      | uint8_t   | Lcd brightness. Default is 128.                            |
+| inactivity      | uint8_t   | Time until Lcd is blanked. 0 = never, else n * 30 seconds. |
 
 ## FACES Settings
 
@@ -62,3 +62,32 @@ The Theme settings group also contains a single member.
 | Key Name        | Type    | Purpose                                                    |
 | :-------------- | :------ | :--------------------------------------------------------- |
 | theme           | String  | Name of the selected theme (if any.)                       |
+
+---
+
+## Accessing Settings
+
+Using the Arduino Framework, access NVS settings using the Preferences library.
+
+Reading preferences:
+```
+#include <Preferences.h>
+Preferences prefs;
+...
+  // Read preferences
+  prefs.begin("M5ez", true);                              // Namespace = "M5ez", true means ReadOnly. No reason to modify settings when we're reading them.
+  String timezone = prefs.getString("theme", "Default");  // Type = String, Key name = "theme", default value if missing = "Default" (can be omitted)
+  uint8_t brightness = prefs.getUChar("brightness", 128); // Type = uint8_t (UChar), Key name = "brightness", default value if missing = 128 (can be omitted)
+  prefs.end();                                            // Always close preferences promptly, open it only when needed.
+```
+
+Writing preferences. Be certain to write using the correct data type or an error will result.
+```
+#include <Preferences.h>
+Preferences prefs;
+...
+  // Write preferences
+  prefs.begin("M5ez", false);               // Namespace = "M5ez", false means ReadWrite. Cannot change NVS otherwise.
+  prefs.putBool("autoconnect_on", true);    // Type = bool, Key name = "autoconnect_on", value = true
+  prefs.end();                              // Always close preferences promptly, especially when in read/write mode.
+```
