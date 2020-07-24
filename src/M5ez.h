@@ -549,7 +549,8 @@ class ezSettings {
 			static String updateError();
 		private:
 			static WifiState_t _state;
-			static uint8_t _current_from_scan;
+			static uint8_t _connectionIndex;
+			static bool _refreshNetworksNeeded;
 			static uint32_t _wait_until, _widget_time;
 			static void _drawWidget(uint16_t x, uint16_t w);
 			static bool _onOff(ezMenu* callingMenu);
