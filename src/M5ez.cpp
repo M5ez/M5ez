@@ -1102,8 +1102,7 @@ void ezSettings::defaults() {
 #ifdef M5EZ_WIFI
 
 	WifiState_t ezWifi::_state;
-	uint8_t ezWifi::_connectionIndex;
-	bool ezWifi::_refreshNetworksNeeded;
+	uint8_t ezWifi::_current_from_scan;
 	uint32_t ezWifi::_wait_until;
 	uint32_t ezWifi::_widget_time;
 	std::vector<WifiNetwork_t> ezWifi::networks;
@@ -1126,8 +1125,6 @@ void ezSettings::defaults() {
 		WiFi.setHostname("M5Stack");
 		ez.wifi.readFlash();
 		_state = EZWIFI_IDLE;
-		_connectionIndex = -1;			// invalid index when not in use
-		_refreshNetworksNeeded = false;	// set to true if we trim networks durring autoconnect sequence
 		const uint8_t cutoffs[] = { 0, 20, 40, 70 };
 		ez.settings.menuObj.addItem("Wifi settings", ez.wifi.menu);
 		ez.header.insert(RIGHTMOST, "wifi", sizeof(cutoffs) * (ez.theme->signal_bar_width + ez.theme->signal_bar_gap) + 2 * ez.theme->header_hmargin, ez.wifi._drawWidget);
@@ -1499,17 +1496,7 @@ void ezSettings::defaults() {
 				Serial.println("EZWIFI: Connected, returning to IDLE state");
 			#endif
 		}
-		if (WiFi.isConnected()) {
-			if (_refreshNetworksNeeded) {
-				#ifdef M5EZ_WIFI_DEBUG
-					Serial.println("EZWIFI: Refreshing network vector after trimming.");
-				#endif
-				ez.wifi.readFlash();
-				_refreshNetworksNeeded = false;
-			}
-			return 250;
-		}
-		if (!autoConnect || networks.size() == 0) return 250;
+		if (!autoConnect || WiFi.isConnected() || networks.size() == 0) return 250;
 		int8_t scanresult;
 		switch(_state) {
 			case EZWIFI_WAITING:
@@ -1525,6 +1512,7 @@ void ezSettings::defaults() {
 				#endif
 				WiFi.mode(WIFI_MODE_STA);
 				WiFi.scanNetworks(true);
+				_current_from_scan = 0;
 				_state = EZWIFI_SCANNING;
 				_wait_until = millis() + 10000;
 				break;
@@ -1548,9 +1536,8 @@ void ezSettings::defaults() {
 						#ifdef M5EZ_WIFI_DEBUG
 							Serial.println("EZWIFI: Scan got " + (String)scanresult + " networks");
 						#endif
-						for (uint8_t n = 0; n < scanresult; n++) {
+						for (uint8_t n = _current_from_scan; n < scanresult; n++) {
 							for (uint8_t m = 0; m < networks.size(); m++) {
-								_connectionIndex = m;	// Remember which network in case it's unresponsive
 								String ssid = networks[m].SSID;
 								String key = networks[m].key;
 								if (ssid == WiFi.SSID(n)) {
@@ -1579,17 +1566,10 @@ void ezSettings::defaults() {
 				#endif
 				if (millis() > _wait_until) {
 					#ifdef M5EZ_WIFI_DEBUG
-						Serial.println("EZWIFI: Connect timed out.");
+						Serial.println("EZWIFI: Connect timed out...");
 					#endif
-					if(0 < _connectionIndex) {
-						#ifdef M5EZ_WIFI_DEBUG
-							Serial.println("EZWIFI: Removing SSID '" + networks[_connectionIndex].SSID + "' from networks vector for remainder of scan.");
-						#endif
-						networks.erase(networks.begin() + _connectionIndex);
-						_connectionIndex = -1;
-						_refreshNetworksNeeded = true;
-					}
 					WiFi.disconnect();
+					_current_from_scan++;
 					_state = EZWIFI_SCANNING;
 				}
 				break;

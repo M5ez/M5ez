@@ -549,8 +549,7 @@ class ezSettings {
 			static String updateError();
 		private:
 			static WifiState_t _state;
-			static uint8_t _connectionIndex;
-			static bool _refreshNetworksNeeded;
+			static uint8_t _current_from_scan;
 			static uint32_t _wait_until, _widget_time;
 			static void _drawWidget(uint16_t x, uint16_t w);
 			static bool _onOff(ezMenu* callingMenu);
@@ -558,7 +557,7 @@ class ezSettings {
 			static bool _autoconnectSelected(ezMenu* callingMenu);
 			static void _askAdd();
 			static bool _connection(ezMenu* callingMenu);
-			static void _update_progress(int done, int total); 
+			static void _update_progress(int done, int total);
 			static String _update_err2str(uint8_t _error);
 			static ezProgressBar* _update_progressbar;
 			static String _update_error;
