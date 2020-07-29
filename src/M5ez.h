@@ -3,40 +3,54 @@
 
 #define M5EZ_VERSION		"2.1.2"
 
+#include "M5ez_config.h"
 
-// Comment out the line below to disable WPS.
-#define M5EZ_WPS
-
-// Turn this off to compile without WiFi (no) OTA updates, no clock)
-#define M5EZ_WIFI
-
-// Turn this off if you don't have a battery attached
-#define M5EZ_BATTERY
-
-// Turn this off to compile without BLE (Bluetooth Low Energy)
-// #define M5EZ_BLE
-#ifdef M5EZ_BLE
-	#define M5EZ_BLE_DEVICE_NAME "M5ez"
+// Do not change #defines below. If you want to change library configuration, edit M5ez_config.h
+// Lines below only set default values for undefined setting macros
+#ifndef M5EZ_WPS
+	#define M5EZ_WPS (0)
 #endif
 
-// Have the autoconnect logic print debug messages on the serial port
-// #define M5EZ_WIFI_DEBUG
+#ifndef M5EZ_WIFI
+	#define M5EZ_WIFI (0)
+#endif
 
-// Determines whether the backlight is settable
-#define M5EZ_BACKLIGHT
+#ifndef M5EZ_BATTERY
+	#define M5EZ_BATTERY (0)
+#endif
 
-// Compile in ezTime and create a settings menu for clock display
-#define M5EZ_CLOCK
+#ifndef M5EZ_BLE
+	#define M5EZ_BLE (0)
+#endif
 
-// FACES settings menu
-#define M5EZ_FACES
+#if M5EZ_BLE
+#ifndef M5EZ_BLE_DEVICE_NAME
+	#define M5EZ_BLE_DEVICE_NAME "M5ez"
+#endif
+#endif
+
+#ifndef M5EZ_WIFI_DEBUG
+	#define M5EZ_WIFI_DEBUG (0)
+#endif
+
+#ifndef M5EZ_BACKLIGHT
+	#define M5EZ_BACKLIGHT (0)
+#endif
+
+#ifndef M5EZ_CLOCK
+	#define M5EZ_CLOCK (0)
+#endif
+
+#ifndef M5EZ_FACES
+	#define M5EZ_FACES (0)
+#endif
 
 #include <vector>			// std::vector
-#ifdef M5EZ_WIFI
+#if M5EZ_WIFI
 	#include <WiFi.h>			// WiFiEvent_t, system_event_info_t
 #endif
 #include <M5Stack.h>		// GFXfont*
-#ifdef M5EZ_CLOCK
+#if M5EZ_CLOCK
 	#include <ezTime.h>			// events, on-screen clock
 #endif
 // Special fake font pointers to access the older non FreeFonts in a unified way.
@@ -437,7 +451,7 @@ class ezSettings {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef M5EZ_BACKLIGHT
+#if M5EZ_BACKLIGHT
 	#define NEVER		0
 	#define USER_SET	255
 	class ezBacklight {
@@ -464,7 +478,7 @@ class ezSettings {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef M5EZ_CLOCK
+#if M5EZ_CLOCK
 	class ezClock {
 		public:
 			static Timezone tz;
@@ -495,7 +509,7 @@ class ezSettings {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef M5EZ_FACES
+#if M5EZ_FACES
 	class ezFACES {
 		public:
 			static void begin();
@@ -516,7 +530,7 @@ class ezSettings {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef M5EZ_WIFI
+#if M5EZ_WIFI
 
 	enum WifiState_t {
 		EZWIFI_NOT_INIT,
@@ -561,7 +575,7 @@ class ezSettings {
 			static String _update_err2str(uint8_t _error);
 			static ezProgressBar* _update_progressbar;
 			static String _update_error;
-			#ifdef M5EZ_WPS
+			#if M5EZ_WPS
 				static void _WPShelper(WiFiEvent_t event, system_event_info_t info);
 				static WiFiEvent_t _WPS_event;
 				static String _WPS_pin;
@@ -580,7 +594,7 @@ class ezSettings {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef M5EZ_BLE
+#if M5EZ_BLE
 
 	class ezBLE {
 		public:
@@ -615,7 +629,7 @@ class ezSettings {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef M5EZ_BATTERY
+#if M5EZ_BATTERY
 
 	class ezBattery {
 		public:
@@ -664,23 +678,23 @@ class M5ez {
 		static ezButtons buttons;
 		static constexpr ezButtons& b = buttons;
 		static ezSettings settings;
-		#ifdef M5EZ_WIFI
+		#if M5EZ_WIFI
 			static ezWifi wifi;
 			static constexpr ezWifi& w = wifi;
 		#endif
-		#ifdef M5EZ_BLE
+		#if M5EZ_BLE
 			static ezBLE ble;
 		#endif
-		#ifdef M5EZ_BATTERY
+		#if M5EZ_BATTERY
 			static ezBattery battery;
 		#endif
-		#ifdef M5EZ_BACKLIGHT
+		#if M5EZ_BACKLIGHT
 			static ezBacklight backlight;
 		#endif
-		#ifdef M5EZ_CLOCK
+		#if M5EZ_CLOCK
 			static ezClock clock;
 		#endif
-		#ifdef M5EZ_FACES
+		#if M5EZ_FACES
 			static ezFACES faces;
 		#endif	
 		

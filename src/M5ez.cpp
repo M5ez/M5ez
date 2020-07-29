@@ -2,7 +2,7 @@
 
 #include <Preferences.h>
 
-#ifdef M5EZ_WIFI
+#if M5EZ_WIFI
 	#include <WiFi.h>
 	extern "C" {
 		#include "esp_wifi.h"
@@ -12,15 +12,21 @@
 	#include <Update.h>
 #endif //M5EZ_WIFI
 
-#ifdef M5EZ_CLOCK
+#if M5EZ_CLOCK
 	#include <ezTime.h>
 #endif
 
-#ifdef M5EZ_BLE
+#if M5EZ_BLE
 	#include <BLEDevice.h>
 	#include <BLEUtils.h>
 	#include <BLEScan.h>
 	#include <BLEAdvertisedDevice.h>
+#endif
+
+#if M5EZ_WIFI_DEBUG
+	#define M5EZ_WIFI_DEBUG_PRINT(msg) Serial.println(msg)
+#else
+	#define M5EZ_WIFI_DEBUG_PRINT(msg) 
 #endif
 
 #include <algorithm>
@@ -668,7 +674,7 @@ String ezButtons::poll() {
 	}		
 
 	if (keystr == "~") keystr = "";
-	#ifdef M5EZ_BACKLIGHT
+	#if M5EZ_BACKLIGHT
 		if (keystr != "") ez.backlight.activity();
 	#endif
 	return keystr;
@@ -696,22 +702,22 @@ ezMenu ezSettings::menuObj ("Settings menu");
 void ezSettings::begin() {
 	menuObj.txtSmall();
 	menuObj.buttons("up#Back#select##down#");
-	#ifdef M5EZ_WIFI
+	#if M5EZ_WIFI
 		ez.wifi.begin();
 	#endif
-	#ifdef M5EZ_BLE
+	#if M5EZ_BLE
 		ez.ble.begin();
 	#endif
-	#ifdef M5EZ_BATTERY
+	#if M5EZ_BATTERY
 		ez.battery.begin();
 	#endif
-	#ifdef M5EZ_CLOCK
+	#if M5EZ_CLOCK
 		ez.clock.begin();
 	#endif
-	#ifdef M5EZ_BACKLIGHT
+	#if M5EZ_BACKLIGHT
 		ez.backlight.begin();
 	#endif
-	#ifdef M5EZ_FACES
+	#if M5EZ_FACES
 		ez.faces.begin();
 	#endif	
 	if (ez.themes.size() > 1) {
@@ -743,7 +749,7 @@ void ezSettings::defaults() {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef M5EZ_BACKLIGHT
+#if M5EZ_BACKLIGHT
 	uint8_t ezBacklight::_brightness;
 	uint8_t ezBacklight::_inactivity;
 	uint32_t ezBacklight::_last_activity;
@@ -877,7 +883,7 @@ void ezSettings::defaults() {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef M5EZ_CLOCK
+#if M5EZ_CLOCK
 	Timezone ezClock::tz;
 	bool ezClock::_on;
 	String ezClock::_timezone;
@@ -1024,7 +1030,7 @@ void ezSettings::defaults() {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef M5EZ_FACES
+#if M5EZ_FACES
 
 	bool ezFACES::_on;
 
@@ -1078,7 +1084,7 @@ void ezSettings::defaults() {
 			while (Wire.available()) {
 				out += (char) Wire.read();
 			}
-			#ifdef M5EZ_BACKLIGHT
+			#if M5EZ_BACKLIGHT
 				ez.backlight.activity();
 			#endif
 			return out;
@@ -1099,7 +1105,7 @@ void ezSettings::defaults() {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef M5EZ_WIFI
+#if M5EZ_WIFI
 
 	WifiState_t ezWifi::_state;
 	uint8_t ezWifi::_current_from_scan;
@@ -1109,16 +1115,14 @@ void ezSettings::defaults() {
 	ezProgressBar* ezWifi::_update_progressbar;
 	String ezWifi::_update_error;
 	bool ezWifi::autoConnect;
-	#ifdef M5EZ_WPS
+	#if M5EZ_WPS
 		WiFiEvent_t ezWifi::_WPS_event;
 		String ezWifi::_WPS_pin;
 		bool ezWifi::_WPS_new_event;
 	#endif
 
 	void ezWifi::begin() {
-		#ifdef M5EZ_WIFI_DEBUG
-			Serial.println("EZWIFI: Initialising");
-		#endif
+		M5EZ_WIFI_DEBUG_PRINT("EZWIFI: Initialising");
 		WiFi.mode(WIFI_MODE_STA);
 		WiFi.setAutoConnect(false);		// We have our own multi-AP version of this
 		WiFi.setAutoReconnect(false);	// So we turn off the ESP32's versions
@@ -1179,9 +1183,7 @@ void ezSettings::defaults() {
 		networks.clear();
 		prefs.begin("M5ez", true);	// true: read-only
 		autoConnect = prefs.getBool("autoconnect_on", true);
-		#ifdef M5EZ_WIFI_DEBUG
-			Serial.println("wifiReadFlash: Autoconnect is " + (String)(autoConnect ? "ON" : "OFF"));
-		#endif
+		M5EZ_WIFI_DEBUG_PRINT("wifiReadFlash: Autoconnect is " + (String)(autoConnect ? "ON" : "OFF"));
 		WifiNetwork_t new_net;
 		String idx;
 		uint8_t index = 1;
@@ -1194,9 +1196,7 @@ void ezSettings::defaults() {
 				new_net.SSID = ssid;
 				new_net.key = key;
 				networks.push_back(new_net);
-				#ifdef M5EZ_WIFI_DEBUG
-					Serial.println("wifiReadFlash: Read ssid:" + ssid + " key:" + key);
-				#endif
+				M5EZ_WIFI_DEBUG_PRINT("wifiReadFlash: Read ssid:" + ssid + " key:" + key);
 				index++;
 			} else {
 				break;
@@ -1220,18 +1220,14 @@ void ezSettings::defaults() {
 			n++;
 		}
 		prefs.putBool("autoconnect_on", autoConnect);
-		#ifdef M5EZ_WIFI_DEBUG
-			Serial.println("wifiWriteFlash: Autoconnect is " + (String)(autoConnect ? "ON" : "OFF"));
-		#endif
+		M5EZ_WIFI_DEBUG_PRINT("wifiWriteFlash: Autoconnect is " + (String)(autoConnect ? "ON" : "OFF"));
 		for (n = 0; n < networks.size(); n++) {
 			idx = "SSID" + (String)(n + 1);
 			prefs.putString(idx.c_str(), networks[n].SSID);
 			if (networks[n].key != "") {
 				idx = "key" + (String)(n + 1);
 				prefs.putString(idx.c_str(), networks[n].key);
-				#ifdef M5EZ_WIFI_DEBUG
-					Serial.println("wifiWriteFlash: Wrote ssid:" + networks[n].SSID + " key:" + networks[n].key);
-				#endif
+				M5EZ_WIFI_DEBUG_PRINT("wifiWriteFlash: Wrote ssid:" + networks[n].SSID + " key:" + networks[n].key);
 			}
 		}
 		prefs.end();
@@ -1239,9 +1235,7 @@ void ezSettings::defaults() {
 
 	void ezWifi::menu() {
 		_state = EZWIFI_AUTOCONNECT_DISABLED;
-		#ifdef M5EZ_WIFI_DEBUG
-			Serial.println("EZWIFI: Disabling autoconnect while in Wifi menu.");
-		#endif
+		M5EZ_WIFI_DEBUG_PRINT("EZWIFI: Disabling autoconnect while in Wifi menu.");
 		ezMenu wifimain ("Wifi settings");
 		wifimain.txtSmall();
 		wifimain.addItem("onoff | Autoconnect\t" + (String)(autoConnect ? "ON" : "OFF"), NULL, _onOff);
@@ -1250,9 +1244,7 @@ void ezSettings::defaults() {
 		wifimain.buttons("up#Back#select##down#");
 		wifimain.run();
 		_state = EZWIFI_IDLE;
-		#ifdef M5EZ_WIFI_DEBUG
-			Serial.println("EZWIFI: Enabling autoconnect exiting Wifi menu.");
-		#endif
+		M5EZ_WIFI_DEBUG_PRINT("EZWIFI: Enabling autoconnect exiting Wifi menu.");
 	}
 
 	bool ezWifi::_onOff(ezMenu* callingMenu) {
@@ -1318,7 +1310,7 @@ void ezSettings::defaults() {
 			joinmenu.txtSmall();
 			joinmenu.addItem("Scan and join");
 			joinmenu.addItem("SmartConfig");
-			#ifdef M5EZ_WPS
+			#if M5EZ_WPS
 				joinmenu.addItem("WPS Button");
 				joinmenu.addItem("WPS Pin Code");
 			#endif
@@ -1393,7 +1385,7 @@ void ezSettings::defaults() {
 				}
 			}
 	
-			#ifdef M5EZ_WPS
+			#if M5EZ_WPS
 				if (joinmenu.pickName().substring(0,3) == "WPS") {
 					ez.msgBox("WPS setup", "Waiting for WPS", "Abort", false);
 					WiFi.mode(WIFI_MODE_STA);
@@ -1451,7 +1443,7 @@ void ezSettings::defaults() {
 		return true;
 	} 
 
-	#ifdef M5EZ_WPS
+	#if M5EZ_WPS
 		void ezWifi::_WPShelper(WiFiEvent_t event, system_event_info_t info) {
 			_WPS_event = event;
 			_WPS_new_event = true;
@@ -1483,9 +1475,7 @@ void ezSettings::defaults() {
 		}
 		if (WiFi.isConnected() && _state != EZWIFI_AUTOCONNECT_DISABLED && _state != EZWIFI_IDLE) {
 			_state = EZWIFI_IDLE;
-			#ifdef M5EZ_WIFI_DEBUG
-				Serial.println("EZWIFI: Connected, returning to IDLE state");
-			#endif			
+			M5EZ_WIFI_DEBUG_PRINT("EZWIFI: Connected, returning to IDLE state");
 		}
 		if (!autoConnect || WiFi.isConnected() || networks.size() == 0) return 250;
 		int8_t scanresult;
@@ -1493,9 +1483,7 @@ void ezSettings::defaults() {
 			case EZWIFI_WAITING:
 				if (millis() < _wait_until) return 250;
 			case EZWIFI_IDLE:
-				#ifdef M5EZ_WIFI_DEBUG
-					Serial.println("EZWIFI: Starting scan");
-				#endif
+				M5EZ_WIFI_DEBUG_PRINT("EZWIFI: Starting scan");
 				WiFi.mode(WIFI_MODE_STA);
 				WiFi.scanNetworks(true);
 				_current_from_scan = 0;
@@ -1508,25 +1496,19 @@ void ezSettings::defaults() {
 					case WIFI_SCAN_RUNNING:
 						break;
 					case WIFI_SCAN_FAILED:
-						#ifdef M5EZ_WIFI_DEBUG
-							Serial.println("EZWIFI: Scan failed");
-						#endif
+						M5EZ_WIFI_DEBUG_PRINT("EZWIFI: Scan failed");
 						_state = EZWIFI_WAITING;
 						_wait_until = millis() + 60000;
 						WiFi.scanDelete();
 						return 250;
 					default:
-						#ifdef M5EZ_WIFI_DEBUG
-							Serial.println("EZWIFI: Scan got " + (String)scanresult + " networks");
-						#endif
+						M5EZ_WIFI_DEBUG_PRINT("EZWIFI: Scan got " + (String)scanresult + " networks");
 						for (uint8_t n = _current_from_scan; n < scanresult; n++) {
 							for (uint8_t m = 0; m < networks.size(); m++) {
 								String ssid = networks[m].SSID;
 								String key = networks[m].key;
 								if (ssid == WiFi.SSID(n)) {
-									#ifdef M5EZ_WIFI_DEBUG
-										Serial.println("EZWIFI: Match: " + WiFi.SSID(n) + ", connecting...");
-									#endif
+									M5EZ_WIFI_DEBUG_PRINT("EZWIFI: Match: " + WiFi.SSID(n) + ", connecting...");
 									WiFi.mode(WIFI_MODE_STA);
 									WiFi.begin(ssid.c_str(), key.c_str());
 									_state = EZWIFI_CONNECTING;
@@ -1535,9 +1517,7 @@ void ezSettings::defaults() {
 								}
 							}
 						}
-						#ifdef M5EZ_WIFI_DEBUG
-							Serial.println("EZWIFI: No (further) matches, waiting...");
-						#endif
+						M5EZ_WIFI_DEBUG_PRINT("EZWIFI: No (further) matches, waiting...");
 						_state = EZWIFI_WAITING;
 						_wait_until = millis() + 60000;
 						WiFi.scanDelete();
@@ -1545,9 +1525,7 @@ void ezSettings::defaults() {
 				}
 			case EZWIFI_CONNECTING:
 				if (millis() > _wait_until) {
-					#ifdef M5EZ_WIFI_DEBUG
-						Serial.println("EZWIFI: Connect timed out...");
-					#endif
+					M5EZ_WIFI_DEBUG_PRINT("EZWIFI: Connect timed out...");
 					WiFi.disconnect();
 					_current_from_scan++;
 					_state = EZWIFI_SCANNING;
@@ -1734,7 +1712,7 @@ void ezSettings::defaults() {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef M5EZ_BLE
+#if M5EZ_BLE
 
 	class M5ezClientCallback : public BLEClientCallbacks {
 		void onConnect(BLEClient*) {}
@@ -1975,7 +1953,7 @@ void ezSettings::defaults() {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef M5EZ_BATTERY
+#if M5EZ_BATTERY
 	bool ezBattery::_on = false;
 
 	void ezBattery::begin() {
@@ -2113,23 +2091,23 @@ constexpr ezCanvas& M5ez::c;
 ezButtons M5ez::buttons;
 constexpr ezButtons& M5ez::b;
 ezSettings M5ez::settings;
-#ifdef M5EZ_WIFI
+#if M5EZ_WIFI
 	ezWifi M5ez::wifi;
 	constexpr ezWifi& M5ez::w;
 #endif	
-#ifdef M5EZ_BLE
+#if M5EZ_BLE
 	ezBLE M5ez::ble;
 #endif
-#ifdef M5EZ_BATTERY
+#if M5EZ_BATTERY
 	ezBattery M5ez::battery;
 #endif
-#ifdef M5EZ_BACKLIGHT
+#if M5EZ_BACKLIGHT
 	ezBacklight M5ez::backlight;
 #endif
-#ifdef M5EZ_CLOCK
+#if M5EZ_CLOCK
 	ezClock M5ez::clock;
 #endif
-#ifdef M5EZ_FACES
+#if M5EZ_FACES
 	ezFACES M5ez::faces;
 #endif	
 std::vector<event_t> M5ez::_events;
@@ -2160,7 +2138,7 @@ void M5ez::yield() {
 			}
 		}
 	}
-#ifdef M5EZ_CLOCK
+#if M5EZ_CLOCK
 	events();		//TMP	
 #endif
 }
@@ -2247,7 +2225,7 @@ String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, cons
 String M5ez::textInput(String header /* = "" */, String defaultText /* = "" */) {
 
 	int16_t current_kb = 0, prev_kb = 0, locked_kb = 0;
-	#ifdef M5EZ_FACES
+	#if M5EZ_FACES
 		if (ez.faces.on()) {
 			current_kb = locked_kb = prev_kb = ez.theme->input_faces_btns;
 			ez.faces.poll(); 	// flush key buffer in FACES
@@ -2263,7 +2241,7 @@ String M5ez::textInput(String header /* = "" */, String defaultText /* = "" */) 
 
 	while (true) {
 		key = ez.buttons.poll();
-		#ifdef M5EZ_FACES
+		#if M5EZ_FACES
 			if (ez.faces.on() && key == "") key = ez.faces.poll();
 		#endif
 		if (key == "Done" || key == (String)char(13)) return text;
@@ -2366,7 +2344,7 @@ void M5ez::_textCursor(bool state) {
 String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonly /*= false*/, String buttons /*= "up#Done#down"*/, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
 	if (!font) font = ez.theme->tb_font;
 	if (color == NO_COLOR) color = ez.theme->tb_color;
-	#ifdef M5EZ_FACES
+	#if M5EZ_FACES
 		if (ez.faces.on()) {
 			ez.faces.poll(); 	// flush key buffer in FACES
 		} else {
@@ -2455,7 +2433,7 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 			}
 		}
 		String key = ez.buttons.poll();
-		#ifdef M5EZ_FACES
+		#if M5EZ_FACES
 			if (ez.faces.on() && key == "") key = ez.faces.poll();
 		#endif
 		if (key == "down") {
