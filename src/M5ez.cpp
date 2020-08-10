@@ -2113,6 +2113,7 @@ constexpr ezCanvas& M5ez::c;
 ezButtons M5ez::buttons;
 constexpr ezButtons& M5ez::b;
 ezSettings M5ez::settings;
+ezMenu* M5ez::currentMenu = nullptr;
 #ifdef M5EZ_WIFI
 	ezWifi M5ez::wifi;
 	constexpr ezWifi& M5ez::w;
@@ -2728,6 +2729,10 @@ ezMenu::ezMenu(String hdr /* = "" */) {
 	_sortFunction = NULL;
 }
 
+ezMenu::~ezMenu() {
+	if(this == M5ez::currentMenu) M5ez::currentMenu = nullptr;
+}
+
 void ezMenu::txtBig() { _font = ez.theme->menu_big_font; }
 
 void ezMenu::txtSmall() { _font = ez.theme->menu_small_font; }
@@ -2832,13 +2837,21 @@ void ezMenu::run() {
 }
 
 int16_t ezMenu::runOnce() {
+	int16_t result;
+	M5ez::currentMenu = this;
 	if(_items.size() == 0) return 0;
 	if (_selected == -1) _selected = 0;
 	if (!_font)	_font = ez.theme->menu_big_font;	// Cannot be in constructor: ez.theme not there yet
 	for (int16_t n = 0; n < _items.size(); n++) {
-		if (_items[n].image != NULL || _items[n].fs != NULL) return _runImagesOnce();
+		if (_items[n].image != NULL || _items[n].fs != NULL) {
+			result = _runImagesOnce();
+			if(0 == result) M5ez::currentMenu = nullptr;
+			return result;
+		}
 	}
-	return _runTextOnce();
+	result = _runTextOnce();
+	if(0 == result) M5ez::currentMenu = nullptr;
+	return result;
 }
 
 int16_t ezMenu::_runTextOnce() {

@@ -318,6 +318,7 @@ class ezButtons {
 class ezMenu {
 	public:
 		ezMenu(String hdr = "");
+		~ezMenu();
 		bool addItem(String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
 		bool addItem(const char *image, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
 		bool addItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
@@ -664,6 +665,7 @@ class M5ez {
 		static ezButtons buttons;
 		static constexpr ezButtons& b = buttons;
 		static ezSettings settings;
+		static ezMenu* currentMenu;
 		#ifdef M5EZ_WIFI
 			static ezWifi wifi;
 			static constexpr ezWifi& w = wifi;
