@@ -332,6 +332,7 @@ class ezMenu {
 		void leftOnFirst(String nameAndCaption);
 		void downOnLast(String nameAndCaption);
 		void rightOnLast(String nameAndCaption);
+		String getTitle();
 		int16_t getItemNum(String name);
 		int16_t pick();
 		String pickName(), pickCaption(), pickButton();
@@ -665,7 +666,6 @@ class M5ez {
 		static ezButtons buttons;
 		static constexpr ezButtons& b = buttons;
 		static ezSettings settings;
-		static ezMenu* currentMenu;
 		#ifdef M5EZ_WIFI
 			static ezWifi wifi;
 			static constexpr ezWifi& w = wifi;
@@ -694,6 +694,8 @@ class M5ez {
 		static void removeEvent(uint16_t (*function)());
 		static void redraw();
 
+		static ezMenu* getCurrentMenu();
+
 		// ez.msgBox
 		static String msgBox(String header, String msg, String buttons = "OK", const bool blocking = true, const GFXfont* font = NULL, uint16_t color = NO_COLOR);
 
@@ -721,7 +723,7 @@ class M5ez {
 	private:
 		static std::vector<event_t> _events;
 		static bool _redraw;
-
+		static ezMenu* _currentMenu;
 
 		// ez.textInput
 		static int16_t _text_cursor_x, _text_cursor_y, _text_cursor_h, _text_cursor_w;
