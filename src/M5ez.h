@@ -318,6 +318,7 @@ class ezButtons {
 class ezMenu {
 	public:
 		ezMenu(String hdr = "");
+		~ezMenu();
 		bool addItem(String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
 		bool addItem(const char *image, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
 		bool addItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
@@ -331,6 +332,7 @@ class ezMenu {
 		void leftOnFirst(String nameAndCaption);
 		void downOnLast(String nameAndCaption);
 		void rightOnLast(String nameAndCaption);
+		String getTitle();
 		int16_t getItemNum(String name);
 		int16_t pick();
 		String pickName(), pickCaption(), pickButton();
@@ -692,6 +694,8 @@ class M5ez {
 		static void removeEvent(uint16_t (*function)());
 		static void redraw();
 
+		static ezMenu* getCurrentMenu();
+
 		// ez.msgBox
 		static String msgBox(String header, String msg, String buttons = "OK", const bool blocking = true, const GFXfont* font = NULL, uint16_t color = NO_COLOR);
 
@@ -719,7 +723,7 @@ class M5ez {
 	private:
 		static std::vector<event_t> _events;
 		static bool _redraw;
-
+		static ezMenu* _currentMenu;
 
 		// ez.textInput
 		static int16_t _text_cursor_x, _text_cursor_y, _text_cursor_h, _text_cursor_w;

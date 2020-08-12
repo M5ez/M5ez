@@ -2140,6 +2140,7 @@ constexpr ezCanvas& M5ez::c;
 ezButtons M5ez::buttons;
 constexpr ezButtons& M5ez::b;
 ezSettings M5ez::settings;
+ezMenu* M5ez::_currentMenu = nullptr;
 #ifdef M5EZ_WIFI
 	ezWifi M5ez::wifi;
 	constexpr ezWifi& M5ez::w;
@@ -2212,6 +2213,9 @@ void M5ez::removeEvent(uint16_t (*function)()) {
 bool M5ez::_redraw;
 
 void M5ez::redraw() { _redraw = true; }
+
+ezMenu* M5ez::getCurrentMenu() { return _currentMenu; }
+
 
 static const char * _keydefs[] PROGMEM = {
 	"KB3|qrstu.#SP#KB4|vwxyz,#Del#KB5|More#LCK:|Lock#KB1|abcdefgh#KB2|ijklmnop#Done",	//KB0
@@ -2755,6 +2759,10 @@ ezMenu::ezMenu(String hdr /* = "" */) {
 	_sortFunction = NULL;
 }
 
+ezMenu::~ezMenu() {
+	if(this == M5ez::_currentMenu) M5ez::_currentMenu = nullptr;
+}
+
 void ezMenu::txtBig() { _font = ez.theme->menu_big_font; }
 
 void ezMenu::txtSmall() { _font = ez.theme->menu_small_font; }
@@ -2808,6 +2816,8 @@ bool ezMenu::deleteItem(int16_t index) {
 
 bool ezMenu::deleteItem(String name) { return deleteItem(getItemNum(name)); }
 
+String ezMenu::getTitle() { return _header; }
+
 bool ezMenu::setCaption(int16_t index, String caption) {
 	if (index < 1 || index > _items.size()) return false;
 	index--;	// internally we work with zero-referenced items
@@ -2859,13 +2869,21 @@ void ezMenu::run() {
 }
 
 int16_t ezMenu::runOnce() {
+	int16_t result;
+	M5ez::_currentMenu = this;
 	if(_items.size() == 0) return 0;
 	if (_selected == -1) _selected = 0;
 	if (!_font)	_font = ez.theme->menu_big_font;	// Cannot be in constructor: ez.theme not there yet
 	for (int16_t n = 0; n < _items.size(); n++) {
-		if (_items[n].image != NULL || _items[n].fs != NULL) return _runImagesOnce();
+		if (_items[n].image != NULL || _items[n].fs != NULL) {
+			result = _runImagesOnce();
+			if(0 == result) M5ez::_currentMenu = nullptr;
+			return result;
+		}
 	}
-	return _runTextOnce();
+	result = _runTextOnce();
+	if(0 == result) M5ez::_currentMenu = nullptr;
+	return result;
 }
 
 int16_t ezMenu::_runTextOnce() {

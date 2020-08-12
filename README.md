@@ -320,6 +320,22 @@ As the name implies, `ez.removeEvent` also removes your function from the loop.
 
 Sometimes code executed in an event will have changed the contents of the screen. The running menu knows nothing about this, and so when your event ends, it will not refresh the screen. To fix this, you can execute `ez.redraw()` whenever your event routine has done something on the screen. The menu code will then redraw the screen accordingly.
 
+#### Changing the menu from an event
+
+You can get a pointer to the current menu from inside your event code by calling `M5ez::getCurrentMenu()`. Events are not related to any specific menu, so you may get a pointer to different menus at different times durring the program, or even no menu at all (`nullptr`).  
+If you need to confirm what menu you are dealing with, you can retrieve the title you gave the menu when it was created via `ezMenu::getTitle()`, which returns a `String`.  
+An example of a safe usage pattern is:
+
+```c
+ezMenu* cur_menu = M5ez::getCurrentMenu();
+// Test to see if menu exists before testing menu's title
+if(cur_menu && cur_menu->getTitle() == "Desired Menu Title") {
+    cur_menu->setCaption(someItem, someCaption);
+}
+```
+
+Note: If a menu item uses a `simpleFunction` or an `advancedFunction` to display a screen which does not display any menu at all (perhaps only the canvas and buttons are rendered), `M5ez::getCurrentMenu()` will still return the last active menu. You can modify this menu even when it's not displayed, and the changes will be evident when you return from the `simpleFunction` or `advancedFunction`.
+
 &nbsp;
 
 ## Showing messages with msgBox
