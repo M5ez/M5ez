@@ -1128,9 +1128,18 @@ void ezSettings::defaults() {
 		const uint8_t cutoffs[] = { 0, 20, 40, 70 };
 		ez.settings.menuObj.addItem("Wifi settings", ez.wifi.menu);
 		ez.header.insert(RIGHTMOST, "wifi", sizeof(cutoffs) * (ez.theme->signal_bar_width + ez.theme->signal_bar_gap) + 2 * ez.theme->header_hmargin, ez.wifi._drawWidget);
+		// For handling issue #50, when initial connection attempt fails in this specific mode but will succeed if tried again.
+		WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info){
+			if(WIFI_REASON_ASSOC_FAIL == info.disconnected.reason) {
+			#ifdef M5EZ_WIFI_DEBUG
+				Serial.println("EZWIFI: Special case: Disconnect w/ ASSOC_FAIL. Setting _state to EZWIFI_SCANNING;");
+			#endif
+			_state = EZWIFI_SCANNING;
+		}
+		}, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED);
 		ez.addEvent(ez.wifi.loop);
 	}
-	
+
 	void ezWifi::_drawWidget(uint16_t x, uint16_t w) {
 		const uint8_t cutoffs[] = { 0, 20, 40, 70 };
 		uint8_t max_bars = sizeof(cutoffs);
@@ -1151,7 +1160,7 @@ void ezSettings::defaults() {
 			m5.lcd.fillRect(left_offset + n * (ez.theme->signal_bar_width + ez.theme->signal_bar_gap), top + max_len - this_len, ez.theme->signal_bar_width, this_len, (n + 1 <= bars ? ez.theme->header_fgcolor : ez.theme->header_bgcolor) );
 		}
 	}
-	
+
 	void ezWifi::add(String ssid, String key){
 		WifiNetwork_t new_net;
 		new_net.SSID = ssid;
@@ -1173,7 +1182,7 @@ void ezSettings::defaults() {
 		}
 		return -1;
 	}
-	
+
 	void ezWifi::readFlash() {
 		Preferences prefs;
 		networks.clear();
@@ -1275,7 +1284,7 @@ void ezSettings::defaults() {
 		autoconnect.buttons("up#Back#Forget##down#");
 		autoconnect.run();
 	}
-	
+
 	bool ezWifi::_autoconnectSelected(ezMenu* callingMenu) {
 		if (callingMenu->pickButton() == "Forget") {
 			if (ez.msgBox("Forgetting wifi network", "Are you sure you want | to forget wifi network | " + callingMenu->pickName() + " ?", "Yes##No") == "Yes") {
@@ -1286,7 +1295,7 @@ void ezSettings::defaults() {
 		}
 		return false;
 	}
-	
+
 	bool ezWifi::_connection(ezMenu* callingMenu) {
 		if (WiFi.isConnected()) {
 			const uint8_t tab = 140;
@@ -1310,7 +1319,7 @@ void ezSettings::defaults() {
 				WiFi.disconnect();
 				while(WiFi.isConnected()) {}
 			}
-		
+
 		} else {
 
 			String SSID = "", key = "";
@@ -1324,7 +1333,7 @@ void ezSettings::defaults() {
 			#endif
 			joinmenu.buttons("up#Back#select##down#");
 			joinmenu.runOnce();
-	
+
 			if (joinmenu.pickName() == "Scan and join") {
 				ez.msgBox("WiFi setup menu", "Scanning ...", "");
 				WiFi.disconnect();
@@ -1375,11 +1384,11 @@ void ezSettings::defaults() {
 					WiFi.scanDelete();
 				}
 			}
-		
+
 			if (joinmenu.pickName() == "SmartConfig") {
 				ez.msgBox("SmartConfig setup", "Waiting for SmartConfig", "Abort", false);
 				WiFi.mode(WIFI_MODE_STA);
-				WiFi.beginSmartConfig();			
+				WiFi.beginSmartConfig();
 				bool done_already = false;
 				while (!WiFi.isConnected()) {
 					if (ez.buttons.poll() == "Abort") {
@@ -1392,7 +1401,7 @@ void ezSettings::defaults() {
 					}
 				}
 			}
-	
+
 			#ifdef M5EZ_WPS
 				if (joinmenu.pickName().substring(0,3) == "WPS") {
 					ez.msgBox("WPS setup", "Waiting for WPS", "Abort", false);
@@ -1402,7 +1411,7 @@ void ezSettings::defaults() {
 					strcpy(config.factory_info.manufacturer, "ESPRESSIF");
 					strcpy(config.factory_info.model_number, "ESP32");
 					strcpy(config.factory_info.model_name, "ESPRESSIF IOT");
-					strcpy(config.factory_info.device_name, "ESP STATION");				
+					strcpy(config.factory_info.device_name, "ESP STATION");
 					if (joinmenu.pickName() == "WPS Button") {
 						config.wps_type = WPS_TYPE_PBC;
 					} else {
@@ -1411,7 +1420,7 @@ void ezSettings::defaults() {
 					WiFi.onEvent(_WPShelper);
 					esp_wifi_wps_enable(&config);
 					esp_wifi_wps_start(0);
-		
+
 					_WPS_new_event = false;
 					while (!WiFi.isConnected()) {
 						if (ez.buttons.poll() == "Abort") {
@@ -1443,13 +1452,13 @@ void ezSettings::defaults() {
 						}
 					}
 				}
-			#endif			
+			#endif
 
 			if (WiFi.isConnected()) _askAdd();
 		}
 		callingMenu->setCaption("connection", (String)(WiFi.isConnected() ? "Connected: " + WiFi.SSID() : "Join a network"));
 		return true;
-	} 
+	}
 
 	#ifdef M5EZ_WPS
 		void ezWifi::_WPShelper(WiFiEvent_t event, system_event_info_t info) {
@@ -1465,7 +1474,7 @@ void ezSettings::defaults() {
 			}
 		}
 	#endif
-	
+
 	void ezWifi::_askAdd() {
 		for (uint8_t n = 0; n < networks.size(); n++) {
 			if (networks[n].SSID == WiFi.SSID()) return;
@@ -1485,15 +1494,20 @@ void ezSettings::defaults() {
 			_state = EZWIFI_IDLE;
 			#ifdef M5EZ_WIFI_DEBUG
 				Serial.println("EZWIFI: Connected, returning to IDLE state");
-			#endif			
+			#endif
 		}
 		if (!autoConnect || WiFi.isConnected() || networks.size() == 0) return 250;
 		int8_t scanresult;
 		switch(_state) {
 			case EZWIFI_WAITING:
+				#ifdef M5EZ_WIFI_DEBUG
+					Serial.println("EZWIFI: State Machine: _state = EZWIFI_WAITING");
+				#endif
 				if (millis() < _wait_until) return 250;
+				// intentional fall-through
 			case EZWIFI_IDLE:
 				#ifdef M5EZ_WIFI_DEBUG
+					Serial.println("EZWIFI: State Machine: _state = EZWIFI_IDLE");
 					Serial.println("EZWIFI: Starting scan");
 				#endif
 				WiFi.mode(WIFI_MODE_STA);
@@ -1503,6 +1517,9 @@ void ezSettings::defaults() {
 				_wait_until = millis() + 10000;
 				break;
 			case EZWIFI_SCANNING:
+				#ifdef M5EZ_WIFI_DEBUG
+					Serial.println("EZWIFI: State Machine: _state = EZWIFI_SCANNING");
+				#endif
 				scanresult = WiFi.scanComplete();
 				switch(scanresult) {
 					case WIFI_SCAN_RUNNING:
@@ -1544,6 +1561,9 @@ void ezSettings::defaults() {
 					//
 				}
 			case EZWIFI_CONNECTING:
+				#ifdef M5EZ_WIFI_DEBUG
+					Serial.println("EZWIFI: State Machine: _state = EZWIFI_CONNECTING");
+				#endif
 				if (millis() > _wait_until) {
 					#ifdef M5EZ_WIFI_DEBUG
 						Serial.println("EZWIFI: Connect timed out...");
@@ -1552,18 +1572,25 @@ void ezSettings::defaults() {
 					_current_from_scan++;
 					_state = EZWIFI_SCANNING;
 				}
+				break;
 			case EZWIFI_AUTOCONNECT_DISABLED:
-				return 250;
+				#ifdef M5EZ_WIFI_DEBUG
+					Serial.println("EZWIFI: State Machine: _state = EZWIFI_AUTOCONNECT_DISABLED");
+				#endif
+				break;
 			default:
+				#ifdef M5EZ_WIFI_DEBUG
+					Serial.println("EZWIFI: State Machine: default case! _state = " + String(_state));
+				#endif
 				break;
 		}
 		return 250;
 	}
-	
+
 	bool ezWifi::update(String url, const char* root_cert, ezProgressBar* pb /* = NULL */) {
 
 		_update_progressbar = pb;
-  
+
 		if (!WiFi.isConnected()) {
 			_update_error = "No WiFi connection.";
 			return false;
@@ -1605,7 +1632,7 @@ void ezSettings::defaults() {
 			_update_error = "Connection to " + String(host) + " failed.";
 			return false;
 		}
-  
+
 		client.print(String("GET ") + file + " HTTP/1.1\r\n" +
 			"Host: " + host + "\r\n" +
 			"Cache-Control: no-cache\r\n" +
@@ -1619,7 +1646,7 @@ void ezSettings::defaults() {
 				return false;
 			}
 		}
-  
+
 		// Process header
 		while (client.available()) {
 			String line = client.readStringUntil('\n');
@@ -1655,7 +1682,7 @@ void ezSettings::defaults() {
 
 		// Process payload
 		Update.onProgress(_update_progress);
-  
+
 		if (!Update.begin(contentLength)) {
 			_update_error = "Not enough space to begin OTA";
 			client.flush();
@@ -1663,7 +1690,7 @@ void ezSettings::defaults() {
 		}
 
 		size_t written = Update.writeStream(client);
-	
+
 		if (!Update.end()) {
 			_update_error = "Error: " + String(_update_err2str(Update.getError())) + " | (after " + String(written) + " of " + String(contentLength) + " bytes)";
 			return false;
@@ -1677,7 +1704,7 @@ void ezSettings::defaults() {
 		return true;
 
 	}
-	
+
 	void ezWifi::_update_progress(int done, int total) {
 		if (ez.buttons.poll() != "") {
 			Update.abort();
@@ -1722,7 +1749,7 @@ void ezSettings::defaults() {
 		}
 		return ("UNKNOWN");
 	}
-	
+
 
 #endif
 

@@ -557,7 +557,7 @@ class ezSettings {
 			static bool _autoconnectSelected(ezMenu* callingMenu);
 			static void _askAdd();
 			static bool _connection(ezMenu* callingMenu);
-			static void _update_progress(int done, int total); 
+			static void _update_progress(int done, int total);
 			static String _update_err2str(uint8_t _error);
 			static ezProgressBar* _update_progressbar;
 			static String _update_error;
