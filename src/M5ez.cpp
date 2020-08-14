@@ -2141,6 +2141,7 @@ ezButtons M5ez::buttons;
 constexpr ezButtons& M5ez::b;
 ezSettings M5ez::settings;
 ezMenu* M5ez::_currentMenu = nullptr;
+bool M5ez::_in_event = false;
 #ifdef M5EZ_WIFI
 	ezWifi M5ez::wifi;
 	constexpr ezWifi& M5ez::w;
@@ -2177,9 +2178,12 @@ void M5ez::begin() {
 void M5ez::yield() {
 	::yield();			// execute the Arduino yield in the root namespace
 	M5.update();
+	if(M5ez::_in_event) return;			// prevent reentrancy
 	for (uint8_t n = 0; n< _events.size(); n++) {
 		if (millis() > _events[n].when) {
+			M5ez::_in_event = true;		// prevent reentrancy
 			uint16_t r = (_events[n].function)();
+			M5ez::_in_event = false;	// prevent reentrancy
 			if (r) {
 				_events[n].when = millis() + r - 1;
 			} else {

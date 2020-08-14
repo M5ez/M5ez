@@ -724,6 +724,7 @@ class M5ez {
 		static std::vector<event_t> _events;
 		static bool _redraw;
 		static ezMenu* _currentMenu;
+		static bool _in_event;
 
 		// ez.textInput
 		static int16_t _text_cursor_x, _text_cursor_y, _text_cursor_h, _text_cursor_w;
