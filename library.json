@@ -1,23 +1,24 @@
 {
-  "name": "M5ez",
-  "description": "Complete interface builder for the M5Stack, an ESP32 based mini tinker-computer",
-  "keywords": "m5ez, m5stack, esp32",
-  "authors": {
-    "name": "Rop Gonggrijp",
-    "url": "https://github.com/ropg",
-    "maintainer": true
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ropg/M5ez"
-  },
-  "dependencies": {
-  	"name": "M5Stack"
-  },
-  "version": "2.1.2",
-  "framework": "arduino",
-  "platforms": "espressif32",
-  "build": {
-    "libArchive": false
-  }
+    "name": "M5ez",
+    "description": "Complete interface builder for the M5Stack, an ESP32 based mini tinker-computer",
+    "keywords": "m5ez, m5stack, esp32",
+    "authors": {
+        "name": "Rop Gonggrijp",
+        "url": "https://github.com/ropg",
+        "maintainer": true
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/M5ez/M5ez"
+    },
+    "dependencies": [
+        { "name": "M5Stack" },
+        { "name": "ezTime" }
+    ],
+    "version": "2.3.0",
+    "framework": "arduino",
+    "platforms": "espressif32",
+    "build": {
+        "libArchive": false
+    }
 }
