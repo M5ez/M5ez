@@ -21,7 +21,7 @@ cat > $OUTPUT_FILE <<EOF
 // File created on `date` 
 // Made by the include_file script that is part of
 // "M5ez: the easiest way to program on M5Stack."
-// https://github.com/ropg/M5ez
+// https://github.com/M5ez/M5ez
 //
 
 const char $ARRAYNAME[] PROGMEM = {
