@@ -2,7 +2,6 @@
 #include <M5ez.h>
 
 void setup() {
-  ezt::setDebug(INFO);
   ez.begin();
   ezMenu OTA_menu ("OTA via https demo");
   OTA_menu.addItem("Settings", ez.settings.menu);
