@@ -6,7 +6,7 @@
 
 // Standard Arduino setup function. ez.begin() takes care of startup and initialization
 void setup() {
-  #include <themes/default.h>                         // per https://github.com/ropg/M5ez#themes
+  #include <themes/default.h>                         // per https://github.com/M5ez/M5ez#themes
   #include <themes/dark.h>                            // makes both themes available
   ez.begin();                                         // initializes everything
 }

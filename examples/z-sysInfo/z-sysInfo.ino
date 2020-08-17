@@ -1,7 +1,7 @@
 /*
  * 
  * This is a "z-sketch". It means you can run this sketch on its own, or use it as a sub-sketch of some bigger program
- * See the M5ez user manual under z-sketches at https://github.com/ropg/M5ez
+ * See the M5ez user manual under z-sketches at https://github.com/M5ez/M5ez
  *
  */
 
