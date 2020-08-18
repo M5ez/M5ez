@@ -31,6 +31,14 @@
 // FACES settings menu
 #define M5EZ_FACES
 
+// Use light sleep while waiting for buttons (instead of while loop)
+#define M5EZ_LIGHT_SLEEPx
+
+#ifdef M5EZ_LIGHT_SLEEP
+	#include "esp32/ulp.h"
+	#include "driver/rtc_io.h"
+#endif // M5EZ_LIGHT_SLEEP
+
 #include <vector>			// std::vector
 #ifdef M5EZ_WIFI
 	#include <WiFi.h>			// WiFiEvent_t, system_event_info_t
@@ -738,6 +746,9 @@ class M5ez {
 		// ez.textBox
 		static void _wrapLines(String text, uint16_t width, std::vector<line_t>& lines);
 		static void _fitLines(String text, uint16_t max_width, uint16_t min_width, std::vector<line_t>& lines);
+#ifdef M5EZ_LIGHT_SLEEP
+		static void loadULP();
+#endif // M5EZ_LIGHT_SLEEP
 	//
 };
 

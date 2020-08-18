@@ -853,6 +853,8 @@ void ezSettings::defaults() {
 		if (!_backlight_off && _inactivity) {
 			if (millis() > _last_activity + 30000 * _inactivity) {
 				_backlight_off = true;
+
+#ifndef M5EZ_LIGHT_SLEEP
 				m5.lcd.setBrightness(0);
 				while (true) {
 					if (m5.BtnA.wasPressed() || m5.BtnB.wasPressed() || m5.BtnC.wasPressed()) break;
@@ -861,6 +863,47 @@ void ezSettings::defaults() {
 				}
 				ez.buttons.releaseWait();	// Make sure the key pressed to wake display gets ignored
 				m5.lcd.setBrightness(_brightness);
+#else // M5EZ_LIGHT_SLEEP
+				// Disconnect WiFi
+				WiFi.disconnect();
+				// Deactivate LCD
+				m5.lcd.setBrightness(0);
+				m5.lcd.sleep();
+				// Keep boost (5V) active all the time (else system shuts down due to light load)
+				m5.Power.setPowerBoostKeepOn(true);
+				// Assign button A, B and C (so they can be used by ULP)
+				const gpio_num_t btnAPin = GPIO_NUM_39;
+				rtc_gpio_init(btnAPin);
+				rtc_gpio_set_direction(btnAPin, RTC_GPIO_MODE_INPUT_ONLY);
+				const gpio_num_t btnBPin = GPIO_NUM_38;
+				rtc_gpio_init(btnBPin);
+				rtc_gpio_set_direction(btnBPin, RTC_GPIO_MODE_INPUT_ONLY);
+				const gpio_num_t btnCPin = GPIO_NUM_37;
+				rtc_gpio_init(btnCPin);
+				rtc_gpio_set_direction(btnCPin, RTC_GPIO_MODE_INPUT_ONLY);
+				// Run previously loaded ULP code
+				ulp_run(0);
+				// Set power domain and allow wake up by ULP
+				esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_AUTO);
+				esp_sleep_enable_ulp_wakeup();
+				// Finally activate light sleep
+				esp_light_sleep_start();
+				// Unassign button A, B and C (so they can be used by main CPU again)
+				rtc_gpio_deinit(btnAPin);
+				rtc_gpio_deinit(btnBPin);
+				rtc_gpio_deinit(btnCPin);
+				// Allow shutdown under light load again (else power button wont't work)
+				m5.Power.setPowerBoostKeepOn(false);
+				// Reactivate LCD
+				m5.Lcd.wakeup();
+				m5.Lcd.setBrightness(_brightness);
+				// Make sure wakeup button is ignored
+				ez.buttons.releaseWait();
+				m5.BtnA.read();
+				m5.BtnB.read();
+				m5.BtnC.read();
+#endif // M5EZ_LIGHT_SLEEP
+
 				activity();
 				_backlight_off = false;
 			}
@@ -2173,6 +2216,9 @@ void M5ez::begin() {
 	ezTheme::begin();
 	ez.screen.begin();
 	ez.settings.begin();
+#ifdef M5EZ_LIGHT_SLEEP
+	ez.loadULP();
+#endif // M5EZ_LIGHT_SLEEP
 }
 
 void M5ez::yield() {
@@ -2739,6 +2785,38 @@ int16_t M5ez::fontHeight() { return m5.lcd.fontHeight(m5.lcd.textfont); }
 
 String M5ez::version() { return M5EZ_VERSION; } 
 
+#ifdef M5EZ_LIGHT_SLEEP
+void M5ez::loadULP()
+{
+	const int btnABit = RTCIO_GPIO39_CHANNEL + 14;
+	const int btnBBit = RTCIO_GPIO38_CHANNEL + 14;
+	const int btnCBit = RTCIO_GPIO37_CHANNEL + 14;
+
+	memset(RTC_SLOW_MEM, 0, 8192);
+
+	const ulp_insn_t ulp_prog[] = {
+		// Check if either button A, B or C has been pressed
+		I_RD_REG(RTC_GPIO_IN_REG, btnABit, btnABit),
+		M_BL(1001, 1),
+		I_RD_REG(RTC_GPIO_IN_REG, btnBBit, btnBBit),
+		M_BL(1001, 1),
+		I_RD_REG(RTC_GPIO_IN_REG, btnCBit, btnCBit),
+		M_BL(1001, 1),
+		I_HALT(), // Halt ULP, will be restarted automatically
+
+	M_LABEL(1001),
+		// Wait until main CPU can be woken up
+		I_RD_REG(RTC_CNTL_LOW_POWER_ST_REG, RTC_CNTL_RDY_FOR_WAKEUP_S, RTC_CNTL_RDY_FOR_WAKEUP_S),
+		M_BL(1001, 1),
+
+		I_WAKE(), // Wake main CPU
+		I_END(),  // Do not restart ULP
+		I_HALT(), // Halt ULP
+	};
+	size_t size = sizeof(ulp_prog) / sizeof(ulp_insn_t);
+	ulp_process_macros_and_load(0, ulp_prog, &size);
+}
+#endif // M5EZ_LIGHT_SLEEP
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
