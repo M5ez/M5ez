@@ -3237,6 +3237,7 @@ ezProgressBar::ezProgressBar(String header /* = "" */, String msg /* = "" */, St
 	if (color == NO_COLOR) color = ez.theme->msg_color;
 	if (bar_color == NO_COLOR) bar_color = ez.theme->progressbar_color;
 	_bar_color = bar_color;
+	_old_val = -1;
 	ez.screen.clear();
 	if (header != "") ez.header.show(header);
 	ez.buttons.show(buttons);
@@ -3259,10 +3260,22 @@ ezProgressBar::ezProgressBar(String header /* = "" */, String msg /* = "" */, St
 }
 
 void ezProgressBar::value(float val) {
+	// Prevent flickering
+	if(_old_val == val)
+	{
+		return;
+	}
+	_old_val = val;
+
 	uint16_t left = ez.canvas.left() + ez.theme->msg_hmargin + ez.theme->progressbar_line_width;
 	uint16_t width = (int16_t)(ez.canvas.width() - 2 * ez.theme->msg_hmargin - 2 * ez.theme->progressbar_line_width);
 	m5.lcd.fillRect(left, _bar_y + ez.theme->progressbar_line_width, width * val / 100, ez.theme->progressbar_width - 2 * ez.theme->progressbar_line_width, _bar_color);
 	m5.lcd.fillRect(left + (width * val / 100), _bar_y + ez.theme->progressbar_line_width, width - (width * val / 100), ez.theme->progressbar_width - 2 * ez.theme->progressbar_line_width, ez.screen.background());
+
+	m5.lcd.setTextDatum(CC_DATUM);
+	m5.lcd.setTextColor(ez.theme->progressbar_number_color);
+	ez.setFont(ez.theme->msg_font);
+	m5.lcd.drawFloat(val, 0, TFT_W / 2, _bar_y + ez.theme->progressbar_width / 2 - 1);
 }
 
 

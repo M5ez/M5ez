@@ -142,6 +142,7 @@ class ezTheme {
 		uint8_t progressbar_line_width = 4;						
 		uint8_t progressbar_width = 25;							
 		uint16_t progressbar_color = foreground;				
+		uint16_t progressbar_number_color = TFT_DARKGREY;
 
 		uint16_t signal_interval = 2000;						
 		uint8_t signal_bar_width = 4;							
@@ -412,6 +413,7 @@ class ezProgressBar {
 	private:
 		int16_t _bar_y;
 		uint16_t _bar_color;
+		float _old_val;
 };
 
 
