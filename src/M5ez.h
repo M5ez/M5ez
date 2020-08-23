@@ -142,7 +142,7 @@ class ezTheme {
 		uint8_t progressbar_line_width = 4;						
 		uint8_t progressbar_width = 25;							
 		uint16_t progressbar_color = foreground;				
-		uint16_t progressbar_number_color = TFT_DARKGREY;
+		uint16_t progressbar_val_color = TFT_DARKGREY;
 
 		uint16_t signal_interval = 2000;						
 		uint8_t signal_bar_width = 4;							
@@ -408,11 +408,13 @@ class ezMenu {
 
 class ezProgressBar {
 	public:
-		ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = NULL, uint16_t color = NO_COLOR, uint16_t bar_color = NO_COLOR);
+		ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = NULL, uint16_t color = NO_COLOR, uint16_t bar_color = NO_COLOR, bool show_val = false, uint16_t val_color = NO_COLOR);
 		void value(float val);
 	private:
 		int16_t _bar_y;
 		uint16_t _bar_color;
+		bool _show_val;
+		uint16_t _val_color;
 		float _old_val;
 };
 
