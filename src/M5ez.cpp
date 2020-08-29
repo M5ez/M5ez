@@ -2235,10 +2235,10 @@ static const char * _keydefs[] PROGMEM = {
 	"KB11|1-5.#SP#KB12|6-0,#Del#KB13|More#LCK:NUM|Lock###Done",							//KB10
 	"1#2#3#4#5#,###Back",																//KB11
 	"6#7#8#9#0#.###Back",																//KB12
-	"KB14|!?:;\\#$^&#SP#KB15|*()_-+=\|#Del#KB0|More#LCK:SYM|Lock#KB16|'\"`@%\\/#KB17|<>{}[]()#Done",	//KB13
+	"KB14|!?:;\\#$^&#SP#KB15|*()_-+=\\|#Del#KB0|More#LCK:SYM|Lock#KB16|'\"`@%\\/#KB17|<>{}[]()#Done",	//KB13
 	"!#?#:#;#\\##$#^#&#Back",															//KB14
 	"*#(#)#_#-#+#=#\\|#Back",															//KB15
-	"'#\"#`#@#%#/#\##Back",																//KB16
+	"'#\"#`#@#%#/#\\##Back",																//KB16
 	"<#>#{#}#[#]#(#)#Back",																//KB17
 	".#,#Del##Done#"																	//KB18
 	
