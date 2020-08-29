@@ -28,3 +28,4 @@ jobs:
         platform-url: https://dl.espressif.com/dl/package_esp32_index.json
         required-libraries: ezTime,M5Stack
         sketch-names-find-start: examples
+        sketches-exclude: M5ez-demo
