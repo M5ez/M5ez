@@ -24,7 +24,7 @@ jobs:
     - name: Compile all examples
       uses: ArminJo/arduino-test-compile@v2
       with:
-        arduino-board-fqbn: esp32:esp32:m5stack-grey
+        arduino-board-fqbn: esp32:esp32:m5stack-core-esp32  
         platform-url: https://dl.espressif.com/dl/package_esp32_index.json
         required-libraries: ezTime,M5Stack
         sketch-names-find-start: examples
