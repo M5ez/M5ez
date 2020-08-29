@@ -2238,7 +2238,7 @@ static const char * _keydefs[] PROGMEM = {
 	"KB14|!?:;\\#$^&#SP#KB15|*()_-+=\\|#Del#KB0|More#LCK:SYM|Lock#KB16|'\"`@%\\/#KB17|<>{}[]()#Done",	//KB13
 	"!#?#:#;#\\##$#^#&#Back",															//KB14
 	"*#(#)#_#-#+#=#\\|#Back",															//KB15
-	"'#\"#`#@#%#/#\\##Back",																//KB16
+	"'#\"#`#@#%#/###Back",																//KB16
 	"<#>#{#}#[#]#(#)#Back",																//KB17
 	".#,#Del##Done#"																	//KB18
 	
