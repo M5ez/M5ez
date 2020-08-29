@@ -2,6 +2,8 @@
 
 >*M5ez (pronounced "M5 easy") is a complete interface builder library for the M5Stack ESP32 system. It allows even novice programmers to create good looking interfaces. It comes with menus as text or as images, message boxes, very flexible button setup (including different length presses and multi-button functions), 3-button text input (you have to see it to believe it) and built-in Wifi support. Now you can concentrate on what your program does, and let M5ez worry about everything else.*
 
+![M5EzBuild](https://github.com/M5ez/M5ez/workflows/M5EzBuild/badge.svg?branch=master)
+
 *written by Rop Gonggrijp, with help and contributions from many others*
 
 [![](images/M5ez.png)](https://youtu.be/132gvdlwKZw)
@@ -58,11 +60,11 @@ Note that it says above that you need to install two libraries: *M5ez* and *ezTi
 
 ## Structure of documentation
 
-You've now seen the [Introduction](https://github.com/ropg/M5ez#introduction) and [Getting Started](https://github.com/ropg/M5ez#getting-started) sections of the manual. Below is the [User Manual](https://github.com/ropg/M5ez#m5ez-user-manual) which lists all the functions of M5ez in detail. At the end there's a [Table of Contents](https://github.com/ropg/M5ez#table-of-contents) which may be of help finding something.
+You've now seen the [Introduction](https://github.com/M5ez/M5ez#introduction) and [Getting Started](https://github.com/M5ez/M5ez#getting-started) sections of the manual. Below is the [User Manual](https://github.com/M5ez/M5ez#m5ez-user-manual) which lists all the functions of M5ez in detail. At the end there's a [Table of Contents](https://github.com/M5ez/M5ez#table-of-contents) which may be of help finding something.
 
 ### Tech Notes
 
-Separate from this document, there is a directory [tech_notes](https://github.com/ropg/M5ez/tree/master/tech_notes) where we keep useful technical notes that may be a bit too obscure or in-depth for a general user manual.
+Separate from this document, there is a directory [tech_notes](https://github.com/M5ez/M5ez/tree/master/tech_notes) where we keep useful technical notes that may be a bit too obscure or in-depth for a general user manual.
 
 &nbsp;
 
@@ -362,7 +364,7 @@ The font and color options allow you to use something other than the default (th
 
 ## ezProgressBar
 
-**`class ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR)`**
+**`class ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR, bool show_val = false, uint16_t val_color = PROGRESSBAR_VAL_COLOR)`**
 
 ![](images/ezProgressBar.png)
 
@@ -378,7 +380,7 @@ This will draw header, message, an empty (0 %) progress bar and the specified si
   pb.value(float val)
 ```
 
-where `val` is a floating point value between 0 and 100. Check out the [Over-The-Air https update example](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) to see how the ezProgressBar object is used there. (You'll see that the `ez.wifi.update()` software update function accepts a pointer to an ezProgressBar instance to show its progress.)
+where `val` is a floating point value between 0 and 100. Check out the [Over-The-Air https update example](https://github.com/M5ez/M5ez/tree/master/examples/OTA_https) to see how the ezProgressBar object is used there. (You'll see that the `ez.wifi.update()` software update function accepts a pointer to an ezProgressBar instance to show its progress.)
 
 &nbsp;
 
@@ -984,7 +986,7 @@ Takes a URL and a root certificate. A shell script called `get_cert` is provided
 
 `ez.wifi.update` returns `true` if the file is downloaded and everything is set up. The next reboot - which can be forced with `ESP.restart()` - will start the new binary. If `ez.wifi.update` returns `false`, you can use `ez.wifi.updateError()` to return a String with a human-readable error message. (The way the https stream data is handled by the underlying ESP32 `Update` library does not seem terribly robust: stream timeouts happen, even on otherwise good internet connections.)
 
-The [README.rd file of the OTA_https sample sketch](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) provides a step-by-step recipe that describes how to determine the URL and get the certificate using `get_cert`.
+The [README.rd file of the OTA_https sample sketch](https://github.com/M5ez/M5ez/tree/master/examples/OTA_https) provides a step-by-step recipe that describes how to determine the URL and get the certificate using `get_cert`.
 
 &nbsp;
 
