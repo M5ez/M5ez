@@ -20,12 +20,17 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-
     - name: Compile all examples
-      uses: ArminJo/arduino-test-compile@v2
+      uses: arduino/actions/libraries/compile-examples@master
       with:
-        arduino-board-fqbn: esp32:esp32:m5stack-core-esp32  
-        platform-url: https://dl.espressif.com/dl/package_esp32_index.json
-        required-libraries: ezTime,M5Stack
-        sketch-names-find-start: examples
-        sketches-exclude: M5ez-demo
+       enable-size-deltas-report: true
+       fqbn: '"esp32:esp32:m5stack-core-esp32" "https://dl.espressif.com/dl/package_esp32_index.json"'
+       github-token: ${{ secrets.GITHUB_TOKEN }}
+       libraries: |
+         - name: ezTime
+         - name: M5Stack
+    - if: github.event_name == 'pull_request'
+      uses: actions/upload-artifact@v1
+      with:
+       name: size-deltas-reports
+       path: size-delta-reports
