@@ -3232,11 +3232,15 @@ bool ezMenu::sort_dsc_caption_ci (const char* s1, const char* s2) { return 0 < s
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ezProgressBar::ezProgressBar(String header /* = "" */, String msg /* = "" */, String buttons /* = "" */, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */, uint16_t bar_color /* = NO_COLOR */) {
+ezProgressBar::ezProgressBar(String header /* = "" */, String msg /* = "" */, String buttons /* = "" */, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */, uint16_t bar_color /* = NO_COLOR */, bool show_val /* = false */, uint16_t val_color /* = NO_COLOR */) {
 	if (!font) font = ez.theme->msg_font;
 	if (color == NO_COLOR) color = ez.theme->msg_color;
 	if (bar_color == NO_COLOR) bar_color = ez.theme->progressbar_color;
+	if (val_color == NO_COLOR) val_color = ez.theme->progressbar_val_color;
 	_bar_color = bar_color;
+	_show_val = show_val;
+	_val_color = val_color;
+	_old_val = -1;
 	ez.screen.clear();
 	if (header != "") ez.header.show(header);
 	ez.buttons.show(buttons);
@@ -3259,10 +3263,23 @@ ezProgressBar::ezProgressBar(String header /* = "" */, String msg /* = "" */, St
 }
 
 void ezProgressBar::value(float val) {
+	// Prevent flickering
+	if (_old_val == val) {
+		return;
+	}
+	_old_val = val;
+
 	uint16_t left = ez.canvas.left() + ez.theme->msg_hmargin + ez.theme->progressbar_line_width;
 	uint16_t width = (int16_t)(ez.canvas.width() - 2 * ez.theme->msg_hmargin - 2 * ez.theme->progressbar_line_width);
 	m5.lcd.fillRect(left, _bar_y + ez.theme->progressbar_line_width, width * val / 100, ez.theme->progressbar_width - 2 * ez.theme->progressbar_line_width, _bar_color);
 	m5.lcd.fillRect(left + (width * val / 100), _bar_y + ez.theme->progressbar_line_width, width - (width * val / 100), ez.theme->progressbar_width - 2 * ez.theme->progressbar_line_width, ez.screen.background());
+
+	if (_show_val == true) {
+		m5.lcd.setTextDatum(CC_DATUM);
+		m5.lcd.setTextColor(_val_color);
+		ez.setFont(ez.theme->msg_font);
+		m5.lcd.drawFloat(val, 0, TFT_W / 2, _bar_y + ez.theme->progressbar_width / 2 - 1);
+	}
 }
 
 

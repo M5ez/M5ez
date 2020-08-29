@@ -364,7 +364,7 @@ The font and color options allow you to use something other than the default (th
 
 ## ezProgressBar
 
-**`class ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR)`**
+**`class ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR, bool show_val = false, uint16_t val_color = PROGRESSBAR_VAL_COLOR)`**
 
 ![](images/ezProgressBar.png)
 
