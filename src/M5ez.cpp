@@ -761,9 +761,7 @@ void M5ez::yield() {
 			}
 		}
 	}
-#ifdef M5EZ_CLOCK
-	events();		//TMP
-#endif
+	events();		// This was #ifdef M5EZ_CLOCK, with a comment: TMP
 }
 
 void M5ez::addEvent(uint16_t (*function)(), uint32_t when /* = 1 */) {

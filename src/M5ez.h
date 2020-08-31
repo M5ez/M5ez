@@ -3,9 +3,6 @@
 
 #define M5EZ_VERSION		"2.4.0"
 
-// Compile in ezTime and create a settings menu for clock display
-#define M5EZ_CLOCK
-
 #include <vector>			// std::vector
 #include <M5Stack.h>		// GFXfont*
 
