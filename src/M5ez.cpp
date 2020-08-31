@@ -2,16 +2,7 @@
 
 #include <Preferences.h>
 
-#ifdef M5EZ_WIFI
-	#include <WiFi.h>
-	extern "C" {
-		#include "esp_wifi.h"
-		#include "esp_wps.h"
-	}
-	#include <WiFiClientSecure.h>		// For ez.update
-	#include <Update.h>
-#endif //M5EZ_WIFI
-
+#include "./extensions/ezWifi/ezWifi.h"
 #include "./extensions/ezFACES/ezFACES.h"
 #include "./extensions/ezBacklight/ezBacklight.h"
 #include "./extensions/ezClock/ezClock.h"
@@ -47,7 +38,7 @@ void ezTheme::add() {
 
 bool ezTheme::select(String name) {
 	for (uint8_t n = 0; n < ez.themes.size(); n++) {
-		if (ez.themes[n].name == name) { 
+		if (ez.themes[n].name == name) {
 			ez.theme = &ez.themes[n];
 			return true;
 		}
@@ -74,7 +65,7 @@ void ezTheme::menu() {
 		prefs.putString("theme", ez.theme->name);
 		prefs.end();
 	}
-	return;	
+	return;
 }
 
 
@@ -85,7 +76,7 @@ void ezTheme::menu() {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-uint16_t ezScreen::_background; 
+uint16_t ezScreen::_background;
 
 void ezScreen::begin() {
 	_background = ez.theme->background;
@@ -209,11 +200,7 @@ void ezHeader::clear(bool wipe /* = true */) {
 bool ezHeader::shown() { return _shown; }
 
 String ezHeader::title() {
-//	if (_shown)	{
-		return _title;
-//	} else {
-//		return "";
-//	}
+	return _title;
 }
 
 void ezHeader::title(String t) {
@@ -227,7 +214,7 @@ void ezHeader::_drawTitle(uint16_t x, uint16_t w) {
 	m5.lcd.setTextColor(ez.theme->header_fgcolor);
 	ez.setFont(ez.theme->header_font);
 	m5.lcd.drawString(ez.clipString(_title, w - ez.theme->header_hmargin), x + ez.theme->header_hmargin, ez.theme->header_tmargin);
-}	
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -289,7 +276,7 @@ void ezCanvas::scroll(bool s) { _scroll = s; }
 
 bool ezCanvas::wrap() { return _wrap; }
 
-void ezCanvas::wrap(bool w) { _wrap = w; }	
+void ezCanvas::wrap(bool w) { _wrap = w; }
 
 uint16_t ezCanvas::lmargin() { return _lmargin; }
 
@@ -318,7 +305,7 @@ void ezCanvas::x(uint16_t x) { _x = x; }
 uint8_t ezCanvas::y() { return _y; }
 
 void ezCanvas::y(uint8_t y) { _y = y; }
-		
+
 void ezCanvas::top(uint8_t newtop) {
 	if (_y < newtop) _y = newtop;
 	_top = newtop;
@@ -372,7 +359,7 @@ uint16_t ezCanvas::loop() {
 		_font = hold_font;
 		_color = hold_color;
 		_next_scroll = 0;
-		
+
 		std::vector<print_t> clean_copy;
 		for (uint16_t n = 0; n < _printed.size(); n++) {
 			if (_printed[n].y >= 0) clean_copy.push_back(_printed[n]);
@@ -382,7 +369,7 @@ uint16_t ezCanvas::loop() {
 	}
 	return 10;
 }
-	
+
 
 void ezCanvas::_print(String text) {
  	ez.setFont(_font);
@@ -392,7 +379,7 @@ void ezCanvas::_print(String text) {
  	if (_y + h > _bottom) {
  		if (!_scroll) return;
  		if (!_next_scroll) _next_scroll = millis() + 200;
- 	} 	
+ 	}
  	int16_t crlf = text.indexOf("\r\n");
  	String remainder = "";
  	if (crlf != -1) {
@@ -406,7 +393,7 @@ void ezCanvas::_print(String text) {
 			if (_x + m5.lcd.textWidth(text.substring(0, n + 1)) > _right) {
 				if (n) {
 					_putString(text.substring(0, n));
-				} 
+				}
 				if (_wrap) {
 					_x = _lmargin;
 					_y += h;
@@ -414,7 +401,7 @@ void ezCanvas::_print(String text) {
 				}
 				break;
 			}
-		}			
+		}
 	}
 	if (crlf != -1) {
 		_x = _lmargin;
@@ -446,7 +433,7 @@ void ezCanvas::_putString(String text) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//   B U T T O N S 
+//   B U T T O N S
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -455,7 +442,7 @@ String ezButtons::_btn_b_s, ezButtons::_btn_b_l;
 String ezButtons::_btn_c_s, ezButtons::_btn_c_l;
 String ezButtons::_btn_ab, ezButtons::_btn_bc, ezButtons::_btn_ac;
 bool ezButtons::_key_release_wait;
-bool ezButtons::_lower_button_row, ezButtons::_upper_button_row;  
+bool ezButtons::_lower_button_row, ezButtons::_upper_button_row;
 
 void ezButtons::begin() { clear(false); }
 
@@ -511,12 +498,12 @@ void ezButtons::_drawButtons(String btn_a_s, String btn_a_l, String btn_b_s, Str
 		if (_btn_b_s != btn_b_s || _btn_b_l != btn_b_l) {
 			_drawButton(1, ez.rightOf(btn_b_s, "|", true), ez.rightOf(btn_b_l, "|", true), btnwidth + 2 * ez.theme->button_gap, btnwidth);
 			_btn_b_s = btn_b_s;
-			_btn_b_l = btn_b_l;		
+			_btn_b_l = btn_b_l;
 		}
 		if (_btn_c_s != btn_c_s || _btn_c_l != btn_c_l) {
 			_drawButton(1, ez.rightOf(btn_c_s, "|", true), ez.rightOf(btn_c_l, "|", true), 2 * btnwidth + 3 * ez.theme->button_gap, btnwidth);
 			_btn_c_s = btn_c_s;
-			_btn_c_l = btn_c_l;		
+			_btn_c_l = btn_c_l;
 		}
 		_lower_button_row = true;
 	} else {
@@ -561,7 +548,7 @@ void ezButtons::_drawButtons(String btn_a_s, String btn_a_l, String btn_b_s, Str
 			m5.lcd.fillRect(0, TFT_H - 2 * (ez.theme->button_height + ez.theme->button_gap), TFT_W, ez.theme->button_height + ez.theme->button_gap, ez.screen.background());
 			_btn_ab = _btn_bc = _btn_ac = "";
 			_upper_button_row = false;
-		}			
+		}
 	}
 
 	uint8_t button_rows = _upper_button_row ? 2 : (_lower_button_row ? 1 : 0);
@@ -599,11 +586,11 @@ void ezButtons::_drawButtonString(String text, int16_t x, int16_t y, uint16_t co
 		int16_t w = m5.lcd.textWidth("A") * 1.2;
 		int16_t h = ez.fontHeight() * 0.6;
 		if (datum == TR_DATUM) x = x - w;
-		if (datum == TC_DATUM) x = x - w/2; 
+		if (datum == TC_DATUM) x = x - w/2;
 		if (text == "up") m5.lcd.fillTriangle(x, y + h, x + w, y + h, x + w/2 ,y , color);
 		if (text == "down") m5.lcd.fillTriangle(x, y, x + w, y, x + w/2 ,y + h, color);
 		if (text == "right") m5.lcd.fillTriangle(x, y, x, y + h, x + w, y + h/2, color);
-		if (text == "left") m5.lcd.fillTriangle(x + w, y, x + w, y + h, x, y + h/2, color);		
+		if (text == "left") m5.lcd.fillTriangle(x + w, y, x + w, y + h, x, y + h/2, color);
 	} else {
 		m5.lcd.setTextColor(color);
 		m5.lcd.setTextDatum(datum);
@@ -690,9 +677,6 @@ ezMenu ezSettings::menuObj ("Settings menu");
 void ezSettings::begin() {
 	menuObj.txtSmall();
 	menuObj.buttons("up#Back#select##down#");
-	#ifdef M5EZ_WIFI
-		ez.wifi.begin();
-	#endif
 	if (ez.themes.size() > 1) {
 		ez.settings.menuObj.addItem("Theme chooser", ez.theme->menu);
 	}
@@ -722,669 +706,6 @@ void ezSettings::defaults() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//   W I F I
-//
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef M5EZ_WIFI
-
-	WifiState_t ezWifi::_state;
-	uint8_t ezWifi::_current_from_scan;
-	uint32_t ezWifi::_wait_until;
-	uint32_t ezWifi::_widget_time;
-	std::vector<WifiNetwork_t> ezWifi::networks;
-	ezProgressBar* ezWifi::_update_progressbar;
-	String ezWifi::_update_error;
-	bool ezWifi::autoConnect;
-	#ifdef M5EZ_WPS
-		WiFiEvent_t ezWifi::_WPS_event;
-		String ezWifi::_WPS_pin;
-		bool ezWifi::_WPS_new_event;
-	#endif
-
-	void ezWifi::begin() {
-		#ifdef M5EZ_WIFI_DEBUG
-			Serial.println("EZWIFI: Initialising");
-		#endif
-		WiFi.mode(WIFI_MODE_STA);
-		WiFi.setAutoConnect(false);		// We have our own multi-AP version of this
-		WiFi.setAutoReconnect(false);	// So we turn off the ESP32's versions
-		WiFi.setHostname("M5Stack");
-		ez.wifi.readFlash();
-		_state = EZWIFI_IDLE;
-		const uint8_t cutoffs[] = { 0, 20, 40, 70 };
-		ez.settings.menuObj.addItem("Wifi settings", ez.wifi.menu);
-		ez.header.insert(RIGHTMOST, "wifi", sizeof(cutoffs) * (ez.theme->signal_bar_width + ez.theme->signal_bar_gap) + 2 * ez.theme->header_hmargin, ez.wifi._drawWidget);
-		// For handling issue #50, when initial connection attempt fails in this specific mode but will succeed if tried again.
-		WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info){
-			if(WIFI_REASON_ASSOC_FAIL == info.disconnected.reason) {
-			#ifdef M5EZ_WIFI_DEBUG
-				Serial.println("EZWIFI: Special case: Disconnect w/ ASSOC_FAIL. Setting _state to EZWIFI_SCANNING;");
-			#endif
-			_state = EZWIFI_SCANNING;
-		}
-		}, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED);
-		ez.addEvent(ez.wifi.loop);
-	}
-
-	void ezWifi::_drawWidget(uint16_t x, uint16_t w) {
-		const uint8_t cutoffs[] = { 0, 20, 40, 70 };
-		uint8_t max_bars = sizeof(cutoffs);
-		uint8_t bars;
-		uint16_t left_offset = x + ez.theme->header_hmargin;
-		bars = 0;
-		if (WiFi.isConnected()) {
-			uint8_t signal = map(100 + WiFi.RSSI(), 5, 90, 0, 100);
-			for (uint8_t n = 0; n < sizeof(cutoffs); n++) {				// Determine how many bars signal is.
-				if (signal >= cutoffs[n]) bars = n + 1;
-			}
-		}
-		uint8_t top = ez.theme->header_height / 10;
-		uint8_t max_len = ez.theme->header_height * 0.8;
-		uint8_t this_len;
-		for (uint8_t n = 0; n < max_bars; n++) {
-			this_len = ((float) (n + 1) / max_bars) * max_len;
-			m5.lcd.fillRect(left_offset + n * (ez.theme->signal_bar_width + ez.theme->signal_bar_gap), top + max_len - this_len, ez.theme->signal_bar_width, this_len, (n + 1 <= bars ? ez.theme->header_fgcolor : ez.theme->header_bgcolor) );
-		}
-	}
-
-	void ezWifi::add(String ssid, String key){
-		WifiNetwork_t new_net;
-		new_net.SSID = ssid;
-		new_net.key = key;
-		networks.push_back(new_net);
-	}
-
-	bool ezWifi::remove(int8_t index) {
-		if (index < 0 || index >= networks.size()) return false;
-		networks.erase(networks.begin() + index);
-		return true;
-	}
-
-	bool ezWifi::remove(String ssid) { return remove(indexForSSID(ssid)); }
-
-	int8_t ezWifi::indexForSSID(String ssid) {
-		for (uint8_t n = 0; n < networks.size(); n++) {
-			if (networks[n].SSID == ssid) return n;
-		}
-		return -1;
-	}
-
-	void ezWifi::readFlash() {
-		Preferences prefs;
-		networks.clear();
-		prefs.begin("M5ez", true);	// true: read-only
-		autoConnect = prefs.getBool("autoconnect_on", true);
-		#ifdef M5EZ_WIFI_DEBUG
-			Serial.println("wifiReadFlash: Autoconnect is " + (String)(autoConnect ? "ON" : "OFF"));
-		#endif
-		WifiNetwork_t new_net;
-		String idx;
-		uint8_t index = 1;
-		while (true) {
-			idx = "SSID" + (String)index;
-			String ssid = prefs.getString(idx.c_str(), "");
-			idx = "key" + (String)index;
-			String key = prefs.getString(idx.c_str(), "");
-			if (ssid != "") {
-				new_net.SSID = ssid;
-				new_net.key = key;
-				networks.push_back(new_net);
-				#ifdef M5EZ_WIFI_DEBUG
-					Serial.println("wifiReadFlash: Read ssid:" + ssid + " key:" + key);
-				#endif
-				index++;
-			} else {
-				break;
-			}
-		}
-		prefs.end();
-	}
-
-	void ezWifi::writeFlash() {
-		Preferences prefs;
-		String idx;
-		uint8_t n = 1;
-		prefs.begin("M5ez", false);
-		// Remove unknown number of items from NVS, sequentially named SSID1 to SSIDN, and key1 to keyN where N
-		// is the total number of WiFi Networks stored (which may be different than networks.size() at this point.)
-		while (true) {
-			idx = "SSID" + (String)n;
-			if(!prefs.remove(idx.c_str())) break;
-			idx = "key" + (String)n;
-			prefs.remove(idx.c_str());
-			n++;
-		}
-		prefs.putBool("autoconnect_on", autoConnect);
-		#ifdef M5EZ_WIFI_DEBUG
-			Serial.println("wifiWriteFlash: Autoconnect is " + (String)(autoConnect ? "ON" : "OFF"));
-		#endif
-		for (n = 0; n < networks.size(); n++) {
-			idx = "SSID" + (String)(n + 1);
-			prefs.putString(idx.c_str(), networks[n].SSID);
-			if (networks[n].key != "") {
-				idx = "key" + (String)(n + 1);
-				prefs.putString(idx.c_str(), networks[n].key);
-				#ifdef M5EZ_WIFI_DEBUG
-					Serial.println("wifiWriteFlash: Wrote ssid:" + networks[n].SSID + " key:" + networks[n].key);
-				#endif
-			}
-		}
-		prefs.end();
-	}
-
-	void ezWifi::menu() {
-		_state = EZWIFI_AUTOCONNECT_DISABLED;
-		#ifdef M5EZ_WIFI_DEBUG
-			Serial.println("EZWIFI: Disabling autoconnect while in Wifi menu.");
-		#endif
-		ezMenu wifimain ("Wifi settings");
-		wifimain.txtSmall();
-		wifimain.addItem("onoff | Autoconnect\t" + (String)(autoConnect ? "ON" : "OFF"), NULL, _onOff);
-		wifimain.addItem("connection | " + (String)(WiFi.isConnected() ? "Connected: " + WiFi.SSID() : "Join a network"), NULL, _connection);
-		wifimain.addItem("Manage autoconnects", _manageAutoconnects);
-		wifimain.buttons("up#Back#select##down#");
-		wifimain.run();
-		_state = EZWIFI_IDLE;
-		#ifdef M5EZ_WIFI_DEBUG
-			Serial.println("EZWIFI: Enabling autoconnect exiting Wifi menu.");
-		#endif
-	}
-
-	bool ezWifi::_onOff(ezMenu* callingMenu) {
-		autoConnect = !autoConnect;
-		callingMenu->setCaption("onoff", "Autoconnect\t" + (String)(autoConnect ? "ON" : "OFF"));
-		ez.wifi.writeFlash();
-		return true;
-	}
-
-	void ezWifi::_manageAutoconnects() {
-		ezMenu autoconnect("Managing autoconnects");
-		if (!networks.size()) {
-			ez.msgBox("No autoconnects", "You have no saved autoconnect networks.", "OK");
-			return;
-		}
-		for (uint8_t n = 0; n < networks.size(); n++) {
-			autoconnect.addItem(networks[n].SSID, NULL, _autoconnectSelected);
-		}
-		autoconnect.txtSmall();
-		autoconnect.buttons("up#Back#Forget##down#");
-		autoconnect.run();
-	}
-
-	bool ezWifi::_autoconnectSelected(ezMenu* callingMenu) {
-		if (callingMenu->pickButton() == "Forget") {
-			if (ez.msgBox("Forgetting wifi network", "Are you sure you want | to forget wifi network | " + callingMenu->pickName() + " ?", "Yes##No") == "Yes") {
-				ez.wifi.remove(callingMenu->pick() - 1);
-				callingMenu->deleteItem(callingMenu->pick());
-				ez.wifi.writeFlash();
-			}
-		}
-		return false;
-	}
-
-	bool ezWifi::_connection(ezMenu* callingMenu) {
-		if (WiFi.isConnected()) {
-			const uint8_t tab = 140;
-			ez.screen.clear();
-			ez.header.show("Current wifi connection");
-			ez.canvas.font(&FreeSans9pt7b);
-			ez.canvas.lmargin(10);
-			ez.canvas.y(ez.canvas.top() + 5);
-			ez.canvas.print("SSID:"); ez.canvas.x(tab); ez.canvas.println(WiFi.SSID());
-			ez.canvas.print("Key:"); ez.canvas.x(tab); ez.canvas.println(WiFi.psk());
-			ez.canvas.print("My IP:"); ez.canvas.x(tab); ez.canvas.println(WiFi.localIP().toString());
-			ez.canvas.print("My MAC:"); ez.canvas.x(tab); ez.canvas.println(WiFi.macAddress());
-			ez.canvas.print("My hostname:"); ez.canvas.x(tab); ez.canvas.println(WiFi.getHostname());
-			ez.canvas.print("Router IP:"); ez.canvas.x(tab); ez.canvas.println(WiFi.gatewayIP().toString());
-			ez.canvas.print("Router BSSID:"); ez.canvas.x(tab); ez.canvas.println(WiFi.BSSIDstr());
-			ez.canvas.print("DNS IP:"); ez.canvas.x(tab); ez.canvas.println(WiFi.dnsIP(0).toString());
-			if (WiFi.dnsIP(1)) { ez.canvas.x(tab); ez.canvas.println(WiFi.dnsIP(1).toString()); }
-			String pressed = ez.buttons.wait("Back#Disconnect#");
-			if (pressed == "Back") return true;
-			if (pressed == "Disconnect") {
-				WiFi.disconnect();
-				while(WiFi.isConnected()) {}
-			}
-
-		} else {
-
-			String SSID = "", key = "";
-			ezMenu joinmenu("Joining a network");
-			joinmenu.txtSmall();
-			joinmenu.addItem("Scan and join");
-			joinmenu.addItem("SmartConfig");
-			#ifdef M5EZ_WPS
-				joinmenu.addItem("WPS Button");
-				joinmenu.addItem("WPS Pin Code");
-			#endif
-			joinmenu.buttons("up#Back#select##down#");
-			joinmenu.runOnce();
-
-			if (joinmenu.pickName() == "Scan and join") {
-				ez.msgBox("WiFi setup menu", "Scanning ...", "");
-				WiFi.disconnect();
-				WiFi._setStatus(WL_IDLE_STATUS);
-				delay(100);
-				int16_t n = WiFi.scanNetworks();
-				if (n == 0) {
-					ez.msgBox("WiFi setup menu", "No networks found", "OK");
-				} else {
-					ezMenu networks("Select your netork");
-					networks.txtSmall();
-					for (uint16_t i = 0; i < n; ++i) {
-						// No duplicates (multiple BSSIDs on same SSID)
-						// because we're only picking an SSID here
-						if (!networks.getItemNum(WiFi.SSID(i))) {
-							networks.addItem(WiFi.SSID(i));
-						}
-					}
-					networks.buttons("up#Back#select##down#");
-					if (networks.runOnce()) {
-						SSID = networks.pickName();
-						if ( WiFi.encryptionType(networks.pick() - 1) == WIFI_AUTH_OPEN) {
-							WiFi.mode(WIFI_MODE_STA);
-							WiFi.begin(SSID.c_str());
-						} else {
-							key = ez.textInput("Enter wifi password");
-							WiFi.mode(WIFI_MODE_STA);
-							WiFi.begin(SSID.c_str(), key.c_str());
-						}
-						ez.msgBox("WiFi setup menu", "Connecting ...", "Abort", false);
-						String button;
-						int16_t status;
-						while (button = ez.buttons.poll()) {
-							if (button == "Abort") {
-								WiFi.disconnect();
-								break;
-							}
-							status = WiFi.status();
-							if (status == WL_CONNECTED) {
-								break;
-							}
-							if (status == WL_CONNECT_FAILED || status == WL_NO_SSID_AVAIL) {
-								ez.msgBox("WiFi setup menu", "Connect failed. | | (Wrong password?)", "OK");
-								break;
-							}
-						}
-					}
-					WiFi.scanDelete();
-				}
-			}
-
-			if (joinmenu.pickName() == "SmartConfig") {
-				ez.msgBox("SmartConfig setup", "Waiting for SmartConfig", "Abort", false);
-				WiFi.mode(WIFI_MODE_STA);
-				WiFi.beginSmartConfig();
-				bool done_already = false;
-				while (!WiFi.isConnected()) {
-					if (ez.buttons.poll() == "Abort") {
-						WiFi.stopSmartConfig();
-						break;
-					}
-					if (WiFi.smartConfigDone() && !done_already) {
-						ez.msgBox("SmartConfig setup", "SmartConfig received | Connecting ...", "Abort", false);
-						done_already = true;
-					}
-				}
-			}
-
-			#ifdef M5EZ_WPS
-				if (joinmenu.pickName().substring(0,3) == "WPS") {
-					ez.msgBox("WPS setup", "Waiting for WPS", "Abort", false);
-					WiFi.mode(WIFI_MODE_STA);
-					static esp_wps_config_t config;
-					config.crypto_funcs = &g_wifi_default_wps_crypto_funcs;
-					strcpy(config.factory_info.manufacturer, "ESPRESSIF");
-					strcpy(config.factory_info.model_number, "ESP32");
-					strcpy(config.factory_info.model_name, "ESPRESSIF IOT");
-					strcpy(config.factory_info.device_name, "ESP STATION");
-					if (joinmenu.pickName() == "WPS Button") {
-						config.wps_type = WPS_TYPE_PBC;
-					} else {
-						config.wps_type = WPS_TYPE_PIN;
-					}
-					WiFi.onEvent(_WPShelper);
-					esp_wifi_wps_enable(&config);
-					esp_wifi_wps_start(0);
-
-					_WPS_new_event = false;
-					while (!WiFi.isConnected()) {
-						if (ez.buttons.poll() == "Abort") {
-							esp_wifi_wps_disable();
-							break;
-						}
-						if (_WPS_new_event) {
-							switch(_WPS_event) {
-								case SYSTEM_EVENT_STA_WPS_ER_SUCCESS:
-									ez.msgBox("WPS setup", "WPS successful | Connecting ...", "Abort", false);
-									esp_wifi_wps_disable();
-									delay(10);
-									WiFi.begin();
-									break;
-								case SYSTEM_EVENT_STA_WPS_ER_FAILED:
-								case SYSTEM_EVENT_STA_WPS_ER_TIMEOUT:
-									ez.msgBox("WPS setup", "WPS failed or timed out | Retrying ...", "Abort", false);
-									esp_wifi_wps_disable();
-									esp_wifi_wps_enable(&config);
-									esp_wifi_wps_start(0);
-									break;
-								case SYSTEM_EVENT_STA_WPS_ER_PIN:
-									ez.msgBox("WPS setup", "WPS PIN: " + _WPS_pin, "Abort", false);
-									break;
-								default:
-									break;
-							}
-							_WPS_new_event = false;
-						}
-					}
-				}
-			#endif
-
-			if (WiFi.isConnected()) _askAdd();
-		}
-		callingMenu->setCaption("connection", (String)(WiFi.isConnected() ? "Connected: " + WiFi.SSID() : "Join a network"));
-		return true;
-	}
-
-	#ifdef M5EZ_WPS
-		void ezWifi::_WPShelper(WiFiEvent_t event, system_event_info_t info) {
-			_WPS_event = event;
-			_WPS_new_event = true;
-			if (event == SYSTEM_EVENT_STA_WPS_ER_PIN) {
-				char wps_pin[9];
-				for (int8_t i = 0; i < 8; i++) {
-					wps_pin[i] = info.sta_er_pin.pin_code[i];
-				}
-				wps_pin[8] = '\0';
-				_WPS_pin = String(wps_pin);
-			}
-		}
-	#endif
-
-	void ezWifi::_askAdd() {
-		for (uint8_t n = 0; n < networks.size(); n++) {
-			if (networks[n].SSID == WiFi.SSID()) return;
-		}
-		if (ez.msgBox("Wifi settings", "Save this network | to your autoconnects?", "no##yes") == "yes") {
-			ez.wifi.add(WiFi.SSID(), WiFi.psk());
-			ez.wifi.writeFlash();
-		}
-	}
-
-	uint16_t ezWifi::loop() {
-		if (millis() > _widget_time + ez.theme->signal_interval) {
-			ez.header.draw("wifi");
-			_widget_time = millis();
-		}
-		if (WiFi.isConnected() && _state != EZWIFI_AUTOCONNECT_DISABLED && _state != EZWIFI_IDLE) {
-			_state = EZWIFI_IDLE;
-			#ifdef M5EZ_WIFI_DEBUG
-				Serial.println("EZWIFI: Connected, returning to IDLE state");
-			#endif
-		}
-		if (!autoConnect || WiFi.isConnected() || networks.size() == 0) return 250;
-		int8_t scanresult;
-		switch(_state) {
-			case EZWIFI_WAITING:
-				#ifdef M5EZ_WIFI_DEBUG
-					Serial.println("EZWIFI: State Machine: _state = EZWIFI_WAITING");
-				#endif
-				if (millis() < _wait_until) return 250;
-				// intentional fall-through
-			case EZWIFI_IDLE:
-				#ifdef M5EZ_WIFI_DEBUG
-					Serial.println("EZWIFI: State Machine: _state = EZWIFI_IDLE");
-					Serial.println("EZWIFI: Starting scan");
-				#endif
-				WiFi.mode(WIFI_MODE_STA);
-				WiFi.scanNetworks(true);
-				_current_from_scan = 0;
-				_state = EZWIFI_SCANNING;
-				_wait_until = millis() + 10000;
-				break;
-			case EZWIFI_SCANNING:
-				#ifdef M5EZ_WIFI_DEBUG
-					Serial.println("EZWIFI: State Machine: _state = EZWIFI_SCANNING");
-				#endif
-				scanresult = WiFi.scanComplete();
-				switch(scanresult) {
-					case WIFI_SCAN_RUNNING:
-						break;
-					case WIFI_SCAN_FAILED:
-						#ifdef M5EZ_WIFI_DEBUG
-							Serial.println("EZWIFI: Scan failed");
-						#endif
-						_state = EZWIFI_WAITING;
-						_wait_until = millis() + 60000;
-						WiFi.scanDelete();
-						return 250;
-					default:
-						#ifdef M5EZ_WIFI_DEBUG
-							Serial.println("EZWIFI: Scan got " + (String)scanresult + " networks");
-						#endif
-						for (uint8_t n = _current_from_scan; n < scanresult; n++) {
-							for (uint8_t m = 0; m < networks.size(); m++) {
-								String ssid = networks[m].SSID;
-								String key = networks[m].key;
-								if (ssid == WiFi.SSID(n)) {
-									#ifdef M5EZ_WIFI_DEBUG
-										Serial.println("EZWIFI: Match: " + WiFi.SSID(n) + ", connecting...");
-									#endif
-									WiFi.mode(WIFI_MODE_STA);
-									WiFi.begin(ssid.c_str(), key.c_str());
-									_state = EZWIFI_CONNECTING;
-									_wait_until = millis() + 7000;
-									return 250;
-								}
-							}
-						}
-						#ifdef M5EZ_WIFI_DEBUG
-							Serial.println("EZWIFI: No (further) matches, waiting...");
-						#endif
-						_state = EZWIFI_WAITING;
-						_wait_until = millis() + 60000;
-						WiFi.scanDelete();
-					//
-				}
-			case EZWIFI_CONNECTING:
-				#ifdef M5EZ_WIFI_DEBUG
-					Serial.println("EZWIFI: State Machine: _state = EZWIFI_CONNECTING");
-				#endif
-				if (millis() > _wait_until) {
-					#ifdef M5EZ_WIFI_DEBUG
-						Serial.println("EZWIFI: Connect timed out...");
-					#endif
-					WiFi.disconnect();
-					_current_from_scan++;
-					_state = EZWIFI_SCANNING;
-				}
-				break;
-			case EZWIFI_AUTOCONNECT_DISABLED:
-				#ifdef M5EZ_WIFI_DEBUG
-					Serial.println("EZWIFI: State Machine: _state = EZWIFI_AUTOCONNECT_DISABLED");
-				#endif
-				break;
-			default:
-				#ifdef M5EZ_WIFI_DEBUG
-					Serial.println("EZWIFI: State Machine: default case! _state = " + String(_state));
-				#endif
-				break;
-		}
-		return 250;
-	}
-
-	bool ezWifi::update(String url, const char* root_cert, ezProgressBar* pb /* = NULL */) {
-
-		_update_progressbar = pb;
-
-		if (!WiFi.isConnected()) {
-			_update_error = "No WiFi connection.";
-			return false;
-		}
-
-		if (!url.startsWith("https://")) {
-			_update_error = "URL must start with 'https://'";
-			return false;
-		}
-
-		url = url.substring(8);
-
-		String host, file;
-		uint16_t port;
-		int16_t first_slash_pos = url.indexOf("/");
-		if (first_slash_pos == -1) {
-			host = url;
-			file = "/";
-		} else {
-			host = url.substring(0, first_slash_pos);
-			file = url.substring(first_slash_pos);
-		}
-		int16_t colon = host.indexOf(":");
-
-		if (colon == -1) {
-			port = 443;
-		} else {
-			host = host.substring(0, colon);
-			port = host.substring(colon + 1).toInt();
-		}
-
-		WiFiClientSecure client;
-		client.setTimeout(20000);
-		client.setCACert(root_cert);
-
-		int contentLength = 0;
-
-		if (!client.connect(host.c_str(), port)) {
-			_update_error = "Connection to " + String(host) + " failed.";
-			return false;
-		}
-
-		client.print(String("GET ") + file + " HTTP/1.1\r\n" +
-			"Host: " + host + "\r\n" +
-			"Cache-Control: no-cache\r\n" +
-			"Connection: close\r\n\r\n");
-
-		unsigned long timeout = millis();
-		while (!client.available()) {
-			if (millis() - timeout > 10000) {
-				_update_error = "Client Timeout";
-				client.stop();
-				return false;
-			}
-		}
-
-		// Process header
-		while (client.available()) {
-			String line = client.readStringUntil('\n');
-			line.trim();
-			if (!line.length()) break; // empty line, assume headers done
-
-			if (line.startsWith("HTTP/1.1")) {
-				String http_response = line.substring(line.indexOf(" ") + 1);
-				http_response.trim();
-				if (http_response.indexOf("200") == -1) {
-					_update_error = "Got response: \"" + http_response + "\", must be 200";
-					return false;
-				}
-			}
-
-			if (line.startsWith("Content-Length: ")) {
-				contentLength = atoi(line.substring(  line.indexOf(":") + 1  ).c_str());
-				if (contentLength <= 0) {
-					_update_error = "Content-Length zero";
-					return false;
-				}
-			}
-
-			if (line.startsWith("Content-Type: ")) {
-				String contentType = line.substring(line.indexOf(":") + 1);
-				contentType.trim();
-				if (contentType != "application/octet-stream") {
-					_update_error = "Content-Type must be \"application/octet-stream\", got \"" + contentType + "\"";
-					return false;
-				}
-			}
-		}
-
-		// Process payload
-		Update.onProgress(_update_progress);
-
-		if (!Update.begin(contentLength)) {
-			_update_error = "Not enough space to begin OTA";
-			client.flush();
-			return false;
-		}
-
-		size_t written = Update.writeStream(client);
-
-		if (!Update.end()) {
-			_update_error = "Error: " + String(_update_err2str(Update.getError())) + " | (after " + String(written) + " of " + String(contentLength) + " bytes)";
-			return false;
-		}
-
-		if (!Update.isFinished()) {
-			_update_error = "Update not finished. Something went wrong.";
-			return false;
-		}
-
-		return true;
-
-	}
-
-	void ezWifi::_update_progress(int done, int total) {
-		if (ez.buttons.poll() != "") {
-			Update.abort();
-		} else {
-			if (total && _update_progressbar != NULL) {
-				_update_progressbar->value((done * 100) / total);
-	  		}
-	  	}
-	}
-
-	String ezWifi::updateError() { return _update_error; }
-
-	// Stupid Updater library only wants to print readable errors to a Stream object, 
-	// so we just copied its _err2str function. Bleh...
-	String ezWifi::_update_err2str(uint8_t _error) {
-		if(_error == UPDATE_ERROR_OK){
-			return ("No Error");
-		} else if(_error == UPDATE_ERROR_WRITE){
-			return ("Flash Write Failed");
-		} else if(_error == UPDATE_ERROR_ERASE){
-			return ("Flash Erase Failed");
-		} else if(_error == UPDATE_ERROR_READ){
-			return ("Flash Read Failed");
-		} else if(_error == UPDATE_ERROR_SPACE){
-			return ("Not Enough Space");
-		} else if(_error == UPDATE_ERROR_SIZE){
-			return ("Bad Size Given");
-		} else if(_error == UPDATE_ERROR_STREAM){
-			return ("Stream Read Timeout");
-		} else if(_error == UPDATE_ERROR_MD5){
-			return ("MD5 Check Failed");
-		} else if(_error == UPDATE_ERROR_MAGIC_BYTE){
-			return ("Wrong Magic Byte");
-		} else if(_error == UPDATE_ERROR_ACTIVATE){
-			return ("Could Not Activate The Firmware");
-		} else if(_error == UPDATE_ERROR_NO_PARTITION){
-			return ("Partition Could Not be Found");
-		} else if(_error == UPDATE_ERROR_BAD_ARGUMENT){
-			return ("Bad Argument");
-		} else if(_error == UPDATE_ERROR_ABORT){
-			return ("Aborted");
-		}
-		return ("UNKNOWN");
-	}
-
-
-#endif
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //   E Z
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1402,10 +723,6 @@ constexpr ezButtons& M5ez::b;
 ezSettings M5ez::settings;
 ezMenu* M5ez::_currentMenu = nullptr;
 bool M5ez::_in_event = false;
-#ifdef M5EZ_WIFI
-	ezWifi M5ez::wifi;
-	constexpr ezWifi& M5ez::w;
-#endif
 std::vector<event_t> M5ez::_events;
 std::vector<extension_t> M5ez::extensions;
 
@@ -1415,6 +732,7 @@ bool M5ez::_text_cursor_state;
 long  M5ez::_text_cursor_millis;
 
 void M5ez::begin() {
+	install("ezWifi", ezWifi::control);				// ezWifi has been converted to an extension
 	install("ezFACES", ezFACES::control);			// ezFACES has been converted to an extension
 	install("ezBacklight", ezBacklight::control);	// ezBacklight has been converted to an extension
 	install("ezClock", ezClock::control);			// ezClock has been converted to an extension
@@ -1492,7 +810,6 @@ static const char * _keydefs[] PROGMEM = {
 	"'#\"#`#@#%#/###Back",																//KB16
 	"<#>#{#}#[#]#(#)#Back",																//KB17
 	".#,#Del##Done#"																	//KB18
-	
 };
 
 // ez.msgBox
@@ -1505,10 +822,10 @@ String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, cons
 		ez.canvas.clear();
 	}
 	if (!font) font = ez.theme->msg_font;
-	if (color == NO_COLOR) color = ez.theme->msg_color;	
+	if (color == NO_COLOR) color = ez.theme->msg_color;
 	ez.buttons.show(buttons);
 	std::vector<line_t> lines;
-	msg.replace("|", (String)char(13));	
+	msg.replace("|", (String)char(13));
 	m5.lcd.setTextDatum(CC_DATUM);
 	m5.lcd.setTextColor(color);
 	ez.setFont(font);
@@ -1587,7 +904,6 @@ String M5ez::textInput(String header /* = "" */, String defaultText /* = "" */) 
 			text += key;
 			_drawTextInputBox(text);
 		}
-	
 		_textCursor();
 	}
 }
@@ -1616,7 +932,7 @@ void M5ez::_drawTextInputBox(String text) {
 	// chop off characters from the beginning of displayed string until it fits
 	while (true) {
 		text_w = M5.lcd.textWidth(disp_text);
-		if (text_w + _text_cursor_w > box_w) { 
+		if (text_w + _text_cursor_w > box_w) {
 			disp_text = disp_text.substring(1);
 		} else {
 			break;
@@ -1634,7 +950,7 @@ void M5ez::_drawTextInputBox(String text) {
 
 void M5ez::_textCursor() {
 	if (ez.theme->input_cursor_blink > 0) {
-		if (millis() - _text_cursor_millis > ez.theme->input_cursor_blink) { 
+		if (millis() - _text_cursor_millis > ez.theme->input_cursor_blink) {
 			_textCursor(!_text_cursor_state);
 		}
 	}
@@ -1803,7 +1119,7 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 			}
 			key = "";
 		}
-		
+
 		if (!readonly) {
 			if (key >= " " && key <= "~") {
 				if (cursor_pos == text.length()) {
@@ -1815,7 +1131,7 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 				_wrapLines(text, ez.canvas.width() - 2 * ez.theme->tb_hmargin, lines);
 				redraw = true;
 			}
-		} 
+		}
 	}
 }
 
@@ -1827,12 +1143,12 @@ void M5ez::_wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
 	int16_t newline = 0;
 	bool all_done = false;
 	line_t new_line;
-	
+
 	//If there are no return chars, it's either a single line,
 	//Or it's using linux/mac line endings which are a single char
 	char nlchar = 13;
 	if (text.indexOf(13)==-1) nlchar = 10;
-	
+
 	while (!all_done) {
 		cur_space = text.indexOf(" ", last_space + 1);
 		if (cur_space == -1) {
@@ -1873,17 +1189,17 @@ void M5ez::_wrapLines(String text, uint16_t width, std::vector<line_t>& lines) {
 					lines.push_back(new_line);
 				} else {
 					break;
-				}		
+				}
 			}
-		}	
-		
+		}
+
 		if (all_done && offset < text.length()) {
 			new_line.position = offset;
 			new_line.line = text.substring(offset);
 			lines.push_back(new_line);
 		}
-		
-	}		
+
+	}
 }
 
 void M5ez::_fitLines(String text, uint16_t max_width, uint16_t min_width, std::vector<line_t>& lines) {
@@ -1907,7 +1223,7 @@ String M5ez::rightOf(String input, String separator, bool trim /* = true */ ) {
 	String out = input.substring(sep_pos + 1);
 	if (trim) out.trim();
 	return out;
-}	
+}
 
 String M5ez::leftOf(String input, String separator, bool trim /* = true */ ) {
 	input.replace("\\" + separator, (String)char(255));		// allow for backslash escaping of the separator
@@ -1917,7 +1233,7 @@ String M5ez::leftOf(String input, String separator, bool trim /* = true */ ) {
 	String out = input.substring(0, sep_pos);
 	if (trim) out.trim();
 	return out;
-}	
+}
 
 int16_t M5ez::chopString(String input, String separator, std::vector<String>& chops, bool trim /* = true */) {
 	input.replace("\\" + separator, (String)char(255));		// allow for backslash escaping of the separator
@@ -1934,7 +1250,7 @@ int16_t M5ez::chopString(String input, String separator, std::vector<String>& ch
 		if (trim) chop.trim();
 		chops.push_back(chop);
 		offset = next_sep + 1;
-	}	
+	}
 	return chops.size();
 }
 
@@ -1986,7 +1302,7 @@ void M5ez::setFont(const GFXfont* font) {
 
 int16_t M5ez::fontHeight() { return m5.lcd.fontHeight(m5.lcd.textfont); }
 
-String M5ez::version() { return M5EZ_VERSION; } 
+String M5ez::version() { return M5EZ_VERSION; }
 
 bool M5ez::install(String name, extension_entry_t control) {
 	extension_t ext;
@@ -2115,7 +1431,7 @@ void ezMenu::setSortFunction(bool (*sortFunction)(const char* s1, const char* s2
 
 void ezMenu::buttons(String bttns) {
 	_buttons = bttns;
-}	
+}
 
 void ezMenu::upOnFirst(String nameAndCaption) {
 	_up_on_first = nameAndCaption;
@@ -2228,7 +1544,7 @@ int16_t ezMenu::_runTextOnce() {
 			ez.canvas.clear();
 			_drawItems();
 		}
-	}			
+	}
 }
 
 void ezMenu::_drawItems() {
@@ -2296,17 +1612,17 @@ int16_t ezMenu::_runImagesOnce() {
 	if (_img_background == NO_COLOR) _img_background = ez.theme->background;
 	ez.screen.clear(_img_background);
 	String tmp_buttons = _buttons;
-	tmp_buttons.replace("left", ""); 
+	tmp_buttons.replace("left", "");
 	tmp_buttons.replace("right", "");
 	ez.buttons.show(tmp_buttons);
 	ez.screen.clear(_img_background);
 	if (_header != "") ez.header.show(_header);
 	_drawImage(_items[_selected]);
-	_drawCaption();	
+	_drawCaption();
 	while (true) {
 		tmp_buttons = _buttons;
-		if (_selected <= 0) tmp_buttons.replace("left", ""); 
-		if (_selected >= _items.size() - 1) tmp_buttons.replace("right", ""); 
+		if (_selected <= 0) tmp_buttons.replace("left", "");
+		if (_selected >= _items.size() - 1) tmp_buttons.replace("right", "");
 		ez.buttons.show(tmp_buttons);
 		String name = ez.leftOf(_items[_selected].nameAndCaption, "|");
 		String pressed;
@@ -2347,7 +1663,7 @@ int16_t ezMenu::_runImagesOnce() {
 			}
 			return _selected + 1; 	// We return items starting at one, but work starting at zero internally
 		}
-	}			
+	}
 }
 
 void ezMenu::_drawImage(MenuItem_t &item) {
@@ -2454,7 +1770,7 @@ void ezMenu::_Arrows() {
 	} else {
 		fill_color = ez.screen.background();
 	}
-	m5.lcd.fillTriangle(l, top + height - 25, l + 10, top + height - 25, l + 5, top + height - 10, fill_color);		
+	m5.lcd.fillTriangle(l, top + height - 25, l + 10, top + height - 25, l + 5, top + height - 10, fill_color);
 }
 
 bool ezMenu::_sortWrapper(MenuItem_t& item1, MenuItem_t& item2) {
@@ -2510,7 +1826,7 @@ ezProgressBar::ezProgressBar(String header /* = "" */, String msg /* = "" */, St
 	if (header != "") ez.header.show(header);
 	ez.buttons.show(buttons);
 	std::vector<line_t> lines;
-	msg.replace("|", (String)char(13));	
+	msg.replace("|", (String)char(13));
 	m5.lcd.setTextDatum(CC_DATUM);
 	m5.lcd.setTextColor(color);
 	ez.setFont(font);
@@ -2546,7 +1862,6 @@ void ezProgressBar::value(float val) {
 		m5.lcd.drawFloat(val, 0, TFT_W / 2, _bar_y + ez.theme->progressbar_width / 2 - 1);
 	}
 }
-
 
 
 M5ez ez;

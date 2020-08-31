@@ -1,25 +1,12 @@
 #ifndef _M5EZ_H_
 #define _M5EZ_H_
 
-#define M5EZ_VERSION		"2.3.0"
-
-
-// Comment out the line below to disable WPS.
-#define M5EZ_WPS
-
-// Turn this off to compile without WiFi (no) OTA updates, no clock)
-#define M5EZ_WIFI
-
-// Have the autoconnect logic print debug messages on the serial port
-// #define M5EZ_WIFI_DEBUG
+#define M5EZ_VERSION		"2.4.0"
 
 // Compile in ezTime and create a settings menu for clock display
 #define M5EZ_CLOCK
 
 #include <vector>			// std::vector
-#ifdef M5EZ_WIFI
-	#include <WiFi.h>			// WiFiEvent_t, system_event_info_t
-#endif
 #include <M5Stack.h>		// GFXfont*
 
 // Special fake font pointers to access the older non FreeFonts in a unified way.
@@ -437,72 +424,6 @@ class ezSettings {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//   W I F I
-//
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef M5EZ_WIFI
-
-	enum WifiState_t {
-		EZWIFI_NOT_INIT,
-		EZWIFI_WAITING,
-		EZWIFI_IDLE,
-		EZWIFI_SCANNING,
-		EZWIFI_CONNECTING,
-		EZWIFI_AUTOCONNECT_DISABLED
-	};
-
-	struct WifiNetwork_t {
-		String SSID;
-		String key;
-	};
-
-	class ezWifi {
-		public:
-			static std::vector<WifiNetwork_t> networks;
-			static bool autoConnect;
-			static void begin();
-			static void add(String ssid, String key);
-			static bool remove(int8_t index);
-			static bool remove(String ssid);
-			static int8_t indexForSSID(String ssid);
-			static void readFlash();
-			static void writeFlash();
-			static void menu();
-			static uint16_t loop();
-			static bool update(String url, const char* root_cert, ezProgressBar* pb = NULL);
-			static String updateError();
-		private:
-			static WifiState_t _state;
-			static uint8_t _current_from_scan;
-			static uint32_t _wait_until, _widget_time;
-			static void _drawWidget(uint16_t x, uint16_t w);
-			static bool _onOff(ezMenu* callingMenu);
-			static void _manageAutoconnects();
-			static bool _autoconnectSelected(ezMenu* callingMenu);
-			static void _askAdd();
-			static bool _connection(ezMenu* callingMenu);
-			static void _update_progress(int done, int total);
-			static String _update_err2str(uint8_t _error);
-			static ezProgressBar* _update_progressbar;
-			static String _update_error;
-			#ifdef M5EZ_WPS
-				static void _WPShelper(WiFiEvent_t event, system_event_info_t info);
-				static WiFiEvent_t _WPS_event;
-				static String _WPS_pin;
-				static bool _WPS_new_event;
-			#endif
-		//
-	};
-
-#endif
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //   E Z
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -529,10 +450,6 @@ class M5ez {
 		static ezButtons buttons;
 		static constexpr ezButtons& b = buttons;
 		static ezSettings settings;
-		#ifdef M5EZ_WIFI
-			static ezWifi wifi;
-			static constexpr ezWifi& w = wifi;
-		#endif
 
 		static void begin();
 		static void yield();
