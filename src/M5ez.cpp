@@ -698,18 +698,16 @@ void ezSettings::begin() {
 	#endif
 	#ifdef M5EZ_FACES
 		ez.faces.begin();
-	#endif	
+	#endif
 	if (ez.themes.size() > 1) {
 		ez.settings.menuObj.addItem("Theme chooser", ez.theme->menu);
 	}
 	// Install all extensions
-	while(M5ez::extensions.size()) {
-		extension_entry_t func = M5ez::extensions.back();
-		M5ez::extensions.pop_back();
-		func();
+	for(int n = 0; n < M5ez::extensions.size(); n++) {
+		extension_t ext = M5ez::extensions[n];
+		ext.control(EXTENSION_CONTROL_START, nullptr);
 	}
 	ez.settings.menuObj.addItem("Factory defaults", ez.settings.defaults);
-	
 }
 
 void ezSettings::menu() {
@@ -1622,15 +1620,15 @@ bool M5ez::_in_event = false;
 #ifdef M5EZ_WIFI
 	ezWifi M5ez::wifi;
 	constexpr ezWifi& M5ez::w;
-#endif	
+#endif
 #ifdef M5EZ_BACKLIGHT
 	ezBacklight M5ez::backlight;
 #endif
 #ifdef M5EZ_FACES
 	ezFACES M5ez::faces;
-#endif	
+#endif
 std::vector<event_t> M5ez::_events;
-std::vector<extension_entry_t> M5ez::extensions;
+std::vector<extension_t> M5ez::extensions;
 
 // ez.textInput
 int16_t M5ez::_text_cursor_x, M5ez::_text_cursor_y, M5ez::_text_cursor_h, M5ez::_text_cursor_w;
@@ -1638,9 +1636,9 @@ bool M5ez::_text_cursor_state;
 long  M5ez::_text_cursor_millis;
 
 void M5ez::begin() {
-	install(ezClock::begin);	// ezClock has been converted to an extension
-	install(ezBattery::begin);	// ezBattery has been converted to an extension
-	install(ezBLE::begin);		// ezBLE has been converted to an extension
+	install("ezClock", ezClock::control);		// ezClock has been converted to an extension
+	install("ezBattery", ezBattery::control);	// ezBattery has been converted to an extension
+	install("ezBLE", ezBLE::control);			// ezBLE has been converted to an extension
 	m5.begin();
 	ezTheme::begin();
 	ez.screen.begin();
@@ -1665,12 +1663,15 @@ void M5ez::yield() {
 		}
 	}
 #ifdef M5EZ_CLOCK
-	events();		//TMP	
+	events();		//TMP
 #endif
 }
 
-bool M5ez::install(extension_entry_t begin) {
-	M5ez::extensions.push_back(begin);
+bool M5ez::install(String name, extension_entry_t control) {
+	extension_t ext;
+	ext.name = name;
+	ext.control = control;
+	extensions.push_back(ext);
 	return true;
 }
 

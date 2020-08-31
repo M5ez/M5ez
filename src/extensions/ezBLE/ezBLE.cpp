@@ -8,6 +8,21 @@
 #include "ezBLE.h"
 
 
+bool ezBLE::control(uint8_t command, void* /* reserved */) {
+    switch(command) {
+        case EXTENSION_CONTROL_PING:    return true;
+        case EXTENSION_CONTROL_START:
+            begin();
+            return true;
+        case EXTENSION_CONTROL_STOP:
+			disconnect();
+			return true;
+        case EXTENSION_CONTROL_QUERY_ENABLED:
+            return _on;
+	}
+    return false;
+}
+
 class M5ezClientCallback : public BLEClientCallbacks {
 	void onConnect(BLEClient*) {}
 	void onDisconnect(BLEClient*) {

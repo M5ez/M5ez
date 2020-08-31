@@ -5,6 +5,24 @@
 
 bool ezBattery::_on = false;
 
+bool ezBattery::control(uint8_t command, void* /* reserved */) {
+    switch(command) {
+        case EXTENSION_CONTROL_PING:    return true;
+        case EXTENSION_CONTROL_START:
+            begin();
+            return true;
+        case EXTENSION_CONTROL_STOP:
+            if(_on) {
+                _on = false;
+                _refresh();
+            }
+            return true;
+        case EXTENSION_CONTROL_QUERY_ENABLED:
+            return _on;
+    }
+    return false;
+}
+
 void ezBattery::begin() {
     Wire.begin();
     ezBattery::_readFlash();

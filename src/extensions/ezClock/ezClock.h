@@ -3,14 +3,14 @@
 
 class ezClock {
 	public:
-		static Timezone tz;
+		static bool control(uint8_t command, void* /* reserved */);
 		static void begin();
 		static void restart();
 		static void menu();
 		static uint16_t loop();
-		static void clear();
 		static void draw(uint16_t x, uint16_t w);
 		static bool waitForSync(const uint16_t timeout = 0);
+		static Timezone tz;
 	private:
 		static void _writePrefs();
 		static bool _on;

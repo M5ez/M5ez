@@ -11,6 +11,22 @@ uint8_t ScreenShotExtension::_fs;           // 0 for SPIFFS, 1 for SD, 2 for Ser
 String ScreenShotExtension::_fileName;      // May include a path, use %n format expression
 
 
+bool ScreenShotExtension::control(uint8_t command, void* /* reserved */) {
+    switch(command) {
+        case EXTENSION_CONTROL_PING:    return true;
+        case EXTENSION_CONTROL_START:
+            begin();
+            return true;
+        case EXTENSION_CONTROL_STOP:
+			_trigger = 0;
+			return true;
+        case EXTENSION_CONTROL_QUERY_ENABLED:
+            return _trigger != 0;
+	}
+
+    return false;
+}
+
 void ScreenShotExtension::begin() {
     _readPrefs();
 	ez.addEvent(loop);

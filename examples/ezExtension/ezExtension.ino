@@ -4,7 +4,8 @@
 ScreenShotExtension sce;
 
 void setup() {
-  ez.install(sce.begin);
+
+  ez.install("SnapShot", sce.control);
   ez.begin();
 }
 

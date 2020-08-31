@@ -57,12 +57,26 @@
 #define TFT_W		320
 #define TFT_H		240
 
+#define EXTENSION_CONTROL_PING			0	// Required (return true)
+#define EXTENSION_CONTROL_START			1	// Required
+#define EXTENSION_CONTROL_PAUSE			2	// Optional
+#define EXTENSION_CONTROL_RESUME		3	// Optional
+#define EXTENSION_CONTROL_STOP			4	// Recommended
+#define EXTENSION_CONTROL_QUERY_ENABLED	5	// Optional
+// EXTENSION_CONTROL_... 6 - 99 reserved. 100+ for specific extension use
+
 struct line_t {
 	int16_t position;
 	String line;
 };
 
-typedef	void(*extension_entry_t)();
+typedef	bool(*extension_entry_t)(uint8_t command, void* reserved);
+
+struct extension_t {
+	String name;
+	extension_entry_t control;
+};
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -590,7 +604,7 @@ class M5ez {
 
 		static void yield();
 
-		static bool install(extension_entry_t begin);
+		static bool install(String name, extension_entry_t control);
 		static void addEvent(uint16_t (*function)(), uint32_t when = 1);
 		static void removeEvent(uint16_t (*function)());
 		static void redraw();
@@ -620,7 +634,7 @@ class M5ez {
 		static int16_t fontHeight();
 
 		static String version();
-		static std::vector<extension_entry_t> extensions;
+		static std::vector<extension_t> extensions;
 
 	private:
 		static std::vector<event_t> _events;
