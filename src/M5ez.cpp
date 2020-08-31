@@ -1318,6 +1318,22 @@ bool M5ez::extensionControl(String name, uint8_t command, void* user) {
 	return false;
 }
 
+bool M5ez::install(String name, extension_entry_t control) {
+	extension_t ext;
+	ext.name = name;
+	ext.control = control;
+	extensions.push_back(ext);
+	return true;
+}
+
+bool M5ez::extensionControl(String name, uint8_t command, void* user) {
+	for(int n = 0; n < extensions.size(); n++) {
+		if(extensions[n].name == name)
+			return extensions[n].control(command, user);
+	}
+	return false;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
