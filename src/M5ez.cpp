@@ -717,6 +717,12 @@ void ezSettings::begin() {
 	if (ez.themes.size() > 1) {
 		ez.settings.menuObj.addItem("Theme chooser", ez.theme->menu);
 	}
+	// Install all extensions
+	while(M5ez::extensions.size()) {
+		extension_entry_t func = M5ez::extensions.back();
+		M5ez::extensions.pop_back();
+		func();
+	}
 	ez.settings.menuObj.addItem("Factory defaults", ez.settings.defaults);
 	
 }
@@ -2162,6 +2168,7 @@ bool M5ez::_in_event = false;
 	ezFACES M5ez::faces;
 #endif	
 std::vector<event_t> M5ez::_events;
+std::vector<extension_entry_t> M5ez::extensions;
 
 // ez.textInput
 int16_t M5ez::_text_cursor_x, M5ez::_text_cursor_y, M5ez::_text_cursor_h, M5ez::_text_cursor_w;
@@ -2195,6 +2202,11 @@ void M5ez::yield() {
 #ifdef M5EZ_CLOCK
 	events();		//TMP	
 #endif
+}
+
+bool M5ez::install(extension_entry_t begin) {
+	M5ez::extensions.push_back(begin);
+	return true;
 }
 
 void M5ez::addEvent(uint16_t (*function)(), uint32_t when /* = 1 */) {

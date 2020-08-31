@@ -67,6 +67,7 @@ struct line_t {
 	String line;
 };
 
+typedef	void(*extension_entry_t)();
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -693,7 +694,8 @@ class M5ez {
 		static void begin();
 
 		static void yield();
-		
+
+		static bool install(extension_entry_t begin);
 		static void addEvent(uint16_t (*function)(), uint32_t when = 1);
 		static void removeEvent(uint16_t (*function)());
 		static void redraw();
@@ -723,6 +725,7 @@ class M5ez {
 		static int16_t fontHeight();
 		
 		static String version();
+		static std::vector<extension_entry_t> extensions;
 
 	private:
 		static std::vector<event_t> _events;
