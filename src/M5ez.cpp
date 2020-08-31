@@ -12,6 +12,7 @@
 	#include <Update.h>
 #endif //M5EZ_WIFI
 
+#include "./extensions/ezFACES/ezFACES.h"
 #include "./extensions/ezBacklight/ezBacklight.h"
 #include "./extensions/ezClock/ezClock.h"
 #include "./extensions/ezBattery/ezBattery.h"
@@ -692,9 +693,6 @@ void ezSettings::begin() {
 	#ifdef M5EZ_WIFI
 		ez.wifi.begin();
 	#endif
-	#ifdef M5EZ_FACES
-		ez.faces.begin();
-	#endif
 	if (ez.themes.size() > 1) {
 		ez.settings.menuObj.addItem("Theme chooser", ez.theme->menu);
 	}
@@ -720,79 +718,6 @@ void ezSettings::defaults() {
 	}
 }
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//   F A C E S
-//
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef M5EZ_FACES
-
-	bool ezFACES::_on;
-
-	void ezFACES::begin() {
-		Preferences prefs;
-		prefs.begin("M5ez", true);	// read-only
-		_on = prefs.getBool("faces_on", false);
-		prefs.end();
-		if (_on) {
-			Wire.begin();
-			pinMode(5, INPUT);
-			digitalWrite(5,HIGH);
-			Wire.flush();
-		}
-		ez.settings.menuObj.addItem("FACES keyboard", ez.faces.menu);
-	}
-	
-	void ezFACES::menu() {
-		bool start_state = _on;
-		while (true) {
-			ezMenu facesmenu ("FACES keyboard");
-			facesmenu.txtSmall();
-			facesmenu.buttons("up#Back#select##down#");
-			facesmenu.addItem("on|FACES keyboard\t" + (String)(_on ? "attached" : "not attached"));
-			switch (facesmenu.runOnce()) {
-				case 1:
-					_on = !_on;
-					if (_on) {
-						pinMode(5, INPUT);
-						digitalWrite(5,HIGH);
-						Wire.flush();
-					}
-					break;
-				case 0:
-					if (_on != start_state) {
-						Preferences prefs;
-						prefs.begin("M5ez");
-						prefs.putBool("faces_on", _on);
-						prefs.end();
-					}
-					return;
-				//
-			}
-		}
-	}
-
-	String ezFACES::poll() {
-		if (digitalRead(5) == LOW) {
-			Wire.requestFrom(0x88, 1);
-			String out = "";
-			while (Wire.available()) {
-				out += (char) Wire.read();
-			}
-			ez.extensionControl("ezBacklight", EXTENSION_CONTROL_PING, nullptr);
-			return out;
-		}
-		return "";
-	}
-
-	bool ezFACES::on() {
-		return _on;
-	}
-
-#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1481,9 +1406,6 @@ bool M5ez::_in_event = false;
 	ezWifi M5ez::wifi;
 	constexpr ezWifi& M5ez::w;
 #endif
-#ifdef M5EZ_FACES
-	ezFACES M5ez::faces;
-#endif
 std::vector<event_t> M5ez::_events;
 std::vector<extension_t> M5ez::extensions;
 
@@ -1493,6 +1415,7 @@ bool M5ez::_text_cursor_state;
 long  M5ez::_text_cursor_millis;
 
 void M5ez::begin() {
+	install("ezFACES", ezFACES::control);			// ezFACES has been converted to an extension
 	install("ezBacklight", ezBacklight::control);	// ezBacklight has been converted to an extension
 	install("ezClock", ezClock::control);			// ezClock has been converted to an extension
 	install("ezBattery", ezBattery::control);		// ezBattery has been converted to an extension
@@ -1610,12 +1533,10 @@ String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, cons
 String M5ez::textInput(String header /* = "" */, String defaultText /* = "" */) {
 
 	int16_t current_kb = 0, prev_kb = 0, locked_kb = 0;
-	#ifdef M5EZ_FACES
-		if (ez.faces.on()) {
-			current_kb = locked_kb = prev_kb = ez.theme->input_faces_btns;
-			ez.faces.poll(); 	// flush key buffer in FACES
-		}
-	#endif
+	if(ez.extensionControl("ezFACES", EXTENSION_CONTROL_QUERY_ENABLED, nullptr)) {
+		current_kb = locked_kb = prev_kb = ez.theme->input_faces_btns;
+		ez.extensionControl("ezFACES", EXTENSION_CONTROL_FACES_POLL, nullptr);	// flush key buffer in FACES
+	}
 	String tmpstr;
 	String text = defaultText;
 	ez.screen.clear();
@@ -1626,9 +1547,9 @@ String M5ez::textInput(String header /* = "" */, String defaultText /* = "" */) 
 
 	while (true) {
 		key = ez.buttons.poll();
-		#ifdef M5EZ_FACES
-			if (ez.faces.on() && key == "") key = ez.faces.poll();
-		#endif
+		if(ez.extensionControl("ezFACES", EXTENSION_CONTROL_QUERY_ENABLED, nullptr)) {
+			ez.extensionControl("ezFACES", EXTENSION_CONTROL_FACES_POLL, (void*)&key);
+		}
 		if (key == "Done" || key == (String)char(13)) return text;
 		if (key.substring(0, 2) == "KB") {
 			prev_kb = current_kb;
@@ -1729,13 +1650,12 @@ void M5ez::_textCursor(bool state) {
 String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonly /*= false*/, String buttons /*= "up#Done#down"*/, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
 	if (!font) font = ez.theme->tb_font;
 	if (color == NO_COLOR) color = ez.theme->tb_color;
-	#ifdef M5EZ_FACES
-		if (ez.faces.on()) {
-			ez.faces.poll(); 	// flush key buffer in FACES
-		} else {
-			readonly = true;
-		}
-	#endif
+	if(ez.extensionControl("ezFACES", EXTENSION_CONTROL_QUERY_ENABLED, nullptr)) {
+		ez.extensionControl("ezFACES", EXTENSION_CONTROL_FACES_POLL, nullptr);	// flush key buffer in FACES
+	}
+	else {
+		readonly = true;
+	}
 	std::vector<line_t> lines;
 	ez.screen.clear();
 	uint16_t cursor_pos = text.length();
@@ -1745,7 +1665,7 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 	int8_t per_line_h = ez.fontHeight();
 	String tmp_buttons = buttons;
 	tmp_buttons.replace("up", "");
-	tmp_buttons.replace("down", "");	
+	tmp_buttons.replace("down", "");
 	ez.buttons.show(tmp_buttons); 	//we need to draw the buttons here to make sure ez.canvas.height() is correct
 	uint8_t lines_per_screen = (ez.canvas.height()) / per_line_h;
 	uint8_t remainder = (ez.canvas.height()) % per_line_h;
@@ -1818,9 +1738,10 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 			}
 		}
 		String key = ez.buttons.poll();
-		#ifdef M5EZ_FACES
-			if (ez.faces.on() && key == "") key = ez.faces.poll();
-		#endif
+
+		if(ez.extensionControl("ezFACES", EXTENSION_CONTROL_QUERY_ENABLED, nullptr)) {
+			ez.extensionControl("ezFACES", EXTENSION_CONTROL_FACES_POLL, (void*)&key);
+		}
 		if (key == "down") {
 			offset += lines_per_screen;
 			ez.canvas.clear();

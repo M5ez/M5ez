@@ -1,7 +1,7 @@
 #pragma once
 
 // Coupling:
-// Indicate activity to the ezBacklight extension by calling ezBacklight::control(EXTENSION_CONTROL_PING, nullptr)
+// Indicate activity to the ezBacklight extension by calling ez.extensionControl("ezBacklight", EXTENSION_CONTROL_PING, nullptr)
 
 class ezBacklight {
 	public:
