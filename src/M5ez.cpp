@@ -12,6 +12,7 @@
 	#include <Update.h>
 #endif //M5EZ_WIFI
 
+#include "./extensions/ezBacklight/ezBacklight.h"
 #include "./extensions/ezClock/ezClock.h"
 #include "./extensions/ezBattery/ezBattery.h"
 #include "./extensions/ezBLE/ezBLE.h"
@@ -659,12 +660,10 @@ String ezButtons::poll() {
 
 	if (m5.BtnA.isReleased() && m5.BtnB.isReleased() && m5.BtnC.isReleased() ) {
 		_key_release_wait = false;
-	}		
+	}
 
 	if (keystr == "~") keystr = "";
-	#ifdef M5EZ_BACKLIGHT
-		if (keystr != "") ez.backlight.activity();
-	#endif
+	if (keystr != "") ez.extensionControl("ezBacklight", EXTENSION_CONTROL_PING, nullptr);
 	return keystr;
 }
 
@@ -693,9 +692,6 @@ void ezSettings::begin() {
 	#ifdef M5EZ_WIFI
 		ez.wifi.begin();
 	#endif
-	#ifdef M5EZ_BACKLIGHT
-		ez.backlight.begin();
-	#endif
 	#ifdef M5EZ_FACES
 		ez.faces.begin();
 	#endif
@@ -723,140 +719,6 @@ void ezSettings::defaults() {
 		ESP.restart();
 	}
 }
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//   B A C K L I G H T
-//
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef M5EZ_BACKLIGHT
-	uint8_t ezBacklight::_brightness;
-	uint8_t ezBacklight::_inactivity;
-	uint32_t ezBacklight::_last_activity;
-	bool ezBacklight::_backlight_off = false;
-
-	void ezBacklight::begin() {
-		ez.addEvent(ez.backlight.loop);
-		ez.settings.menuObj.addItem("Backlight settings", ez.backlight.menu);
-		Preferences prefs;
-		prefs.begin("M5ez", true);	// read-only
-		_brightness = prefs.getUChar("brightness", 128);
-		_inactivity = prefs.getUChar("inactivity", NEVER);
-		prefs.end();
-		m5.lcd.setBrightness(_brightness);
-	}
-
-	void ezBacklight::menu() {
-		uint8_t start_brightness = _brightness;
-		uint8_t start_inactivity = _inactivity;
-		ezMenu blmenu("Backlight settings");
-		blmenu.txtSmall();
-		blmenu.buttons("up#Back#select##down#");
-		blmenu.addItem("Backlight brightness");
-		blmenu.addItem("Inactivity timeout");
-		while(true) {
-			switch (blmenu.runOnce()) {
-				case 1:	
-					{
-						ezProgressBar bl ("Backlight brightness", "Set brightness", "left#ok#right");
-						while (true) {
-							String b = ez.buttons.poll();
-							if (b == "right" && _brightness <= 240) _brightness += 16;
-							if (!_brightness) _brightness = 255;
-							if (b == "left" && _brightness > 16) _brightness -= 16;
-							if (_brightness == 239) _brightness = 240;
-							bl.value((float)(_brightness / 2.55));
-							m5.lcd.setBrightness(_brightness);
-							if (b == "ok") break;
-						}
-					}
-					break;
-				case 2:
-					{
-						String disp_val;
-						while (true) {
-							if (!_inactivity) {
-								disp_val = "Backlight will not turn off";
-							} else if (_inactivity == 1) {
-								disp_val = "Backlight will turn off after 30 seconds of inactivity";
-							} else if (_inactivity == 2) {
-								disp_val = "Backlight will turn off after a minute of inactivity";
-							} else {
-								disp_val = "Backlight will turn off after " + String(_inactivity / 2) + ((_inactivity % 2) ? ".5 " : "") + " minutes of inactivity";
-							}
-							ez.msgBox("Inactivity timeout", disp_val, "-#--#ok##+#++", false);
-							String b = ez.buttons.wait();
-							if (b == "-" && _inactivity) _inactivity--;
-							if (b == "+" && _inactivity < 254) _inactivity++;
-							if (b == "--") {
-								if (_inactivity < 20) {
-									_inactivity = 0;
-								} else {
-									_inactivity -= 20;
-								}
-							}
-							if (b == "++") {
-								if (_inactivity > 234) {
-									_inactivity = 254;
-								} else {
-									_inactivity += 20;
-								}
-							}
-							if (b == "ok") break;
-						}
-					}
-					break;
-				case 0:
-					if (_brightness != start_brightness || _inactivity != start_inactivity) {
-						Preferences prefs;
-						prefs.begin("M5ez");
-						prefs.putUChar("brightness", _brightness);
-						prefs.putUChar("inactivity", _inactivity);
-						prefs.end();
-					}
-					return;
-				//
-			}
-		}
-	}
-	
-	void ezBacklight::inactivity(uint8_t half_minutes) {
-		if (half_minutes == USER_SET) {
-			Preferences prefs;
-			prefs.begin("M5ez", true);
-			_inactivity = prefs.getUShort("inactivity", 0);
-			prefs.end();
-		} else {
-			_inactivity = half_minutes;
-		}
-	}
-	
-	void ezBacklight::activity() {
-		_last_activity = millis();
-	}
-	
-	uint16_t ezBacklight::loop() {
-		if (!_backlight_off && _inactivity) {
-			if (millis() > _last_activity + 30000 * _inactivity) {
-				_backlight_off = true;
-				m5.lcd.setBrightness(0);
-				while (true) {
-					if (m5.BtnA.wasPressed() || m5.BtnB.wasPressed() || m5.BtnC.wasPressed()) break;
-					ez.yield();
-					delay(10);
-				}
-				ez.buttons.releaseWait();	// Make sure the key pressed to wake display gets ignored
-				m5.lcd.setBrightness(_brightness);
-				activity();
-				_backlight_off = false;
-			}
-		}
-		return 1000;
-	}
-#endif
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -920,9 +782,7 @@ void ezSettings::defaults() {
 			while (Wire.available()) {
 				out += (char) Wire.read();
 			}
-			#ifdef M5EZ_BACKLIGHT
-				ez.backlight.activity();
-			#endif
+			ez.extensionControl("ezBacklight", EXTENSION_CONTROL_PING, nullptr);
 			return out;
 		}
 		return "";
@@ -1621,9 +1481,6 @@ bool M5ez::_in_event = false;
 	ezWifi M5ez::wifi;
 	constexpr ezWifi& M5ez::w;
 #endif
-#ifdef M5EZ_BACKLIGHT
-	ezBacklight M5ez::backlight;
-#endif
 #ifdef M5EZ_FACES
 	ezFACES M5ez::faces;
 #endif
@@ -1636,9 +1493,10 @@ bool M5ez::_text_cursor_state;
 long  M5ez::_text_cursor_millis;
 
 void M5ez::begin() {
-	install("ezClock", ezClock::control);		// ezClock has been converted to an extension
-	install("ezBattery", ezBattery::control);	// ezBattery has been converted to an extension
-	install("ezBLE", ezBLE::control);			// ezBLE has been converted to an extension
+	install("ezBacklight", ezBacklight::control);	// ezBacklight has been converted to an extension
+	install("ezClock", ezClock::control);			// ezClock has been converted to an extension
+	install("ezBattery", ezBattery::control);		// ezBattery has been converted to an extension
+	install("ezBLE", ezBLE::control);				// ezBLE has been converted to an extension
 	m5.begin();
 	ezTheme::begin();
 	ez.screen.begin();
@@ -1665,14 +1523,6 @@ void M5ez::yield() {
 #ifdef M5EZ_CLOCK
 	events();		//TMP
 #endif
-}
-
-bool M5ez::install(String name, extension_entry_t control) {
-	extension_t ext;
-	ext.name = name;
-	ext.control = control;
-	extensions.push_back(ext);
-	return true;
 }
 
 void M5ez::addEvent(uint16_t (*function)(), uint32_t when /* = 1 */) {
@@ -2216,6 +2066,22 @@ void M5ez::setFont(const GFXfont* font) {
 int16_t M5ez::fontHeight() { return m5.lcd.fontHeight(m5.lcd.textfont); }
 
 String M5ez::version() { return M5EZ_VERSION; } 
+
+bool M5ez::install(String name, extension_entry_t control) {
+	extension_t ext;
+	ext.name = name;
+	ext.control = control;
+	extensions.push_back(ext);
+	return true;
+}
+
+bool M5ez::extensionControl(String name, uint8_t command, void* user) {
+	for(int n = 0; n < extensions.size(); n++) {
+		if(extensions[n].name == name)
+			return extensions[n].control(command, user);
+	}
+	return false;
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

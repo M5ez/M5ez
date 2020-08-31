@@ -11,9 +11,10 @@ bool ezClock::_am_pm;
 String ezClock::_datetime;
 bool ezClock::_starting = true;
 
-bool ezClock::control(uint8_t command, void* /* reserved */) {
+bool ezClock::control(uint8_t command, void* /* user */) {
     switch(command) {
-        case EXTENSION_CONTROL_PING:    return true;
+        case EXTENSION_CONTROL_PING:
+			return true;
         case EXTENSION_CONTROL_START:
             begin();
             return true;

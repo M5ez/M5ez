@@ -3,7 +3,7 @@
 
 class ezClock {
 	public:
-		static bool control(uint8_t command, void* /* reserved */);
+		static bool control(uint8_t command, void* /* user */);
 		static void begin();
 		static void restart();
 		static void menu();

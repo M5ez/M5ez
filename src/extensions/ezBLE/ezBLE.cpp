@@ -8,9 +8,10 @@
 #include "ezBLE.h"
 
 
-bool ezBLE::control(uint8_t command, void* /* reserved */) {
+bool ezBLE::control(uint8_t command, void* /* user */) {
     switch(command) {
-        case EXTENSION_CONTROL_PING:    return true;
+        case EXTENSION_CONTROL_PING:
+			return true;
         case EXTENSION_CONTROL_START:
             begin();
             return true;

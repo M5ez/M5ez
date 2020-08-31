@@ -10,17 +10,8 @@
 // Turn this off to compile without WiFi (no) OTA updates, no clock)
 #define M5EZ_WIFI
 
-// Turn this off if you don't have a battery attached
-#define M5EZ_BATTERY
-
-// Turn this off to compile without BLE (Bluetooth Low Energy)
-#define M5EZ_BLE
-
 // Have the autoconnect logic print debug messages on the serial port
 // #define M5EZ_WIFI_DEBUG
-
-// Determines whether the backlight is settable
-#define M5EZ_BACKLIGHT
 
 // Compile in ezTime and create a settings menu for clock display
 #define M5EZ_CLOCK
@@ -70,7 +61,7 @@ struct line_t {
 	String line;
 };
 
-typedef	bool(*extension_entry_t)(uint8_t command, void* reserved);
+typedef	bool(*extension_entry_t)(uint8_t command, void* user);
 
 struct extension_t {
 	String name;
@@ -449,33 +440,6 @@ class ezSettings {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//   B A C K L I G H T
-//
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef M5EZ_BACKLIGHT
-	#define NEVER		0
-	#define USER_SET	255
-	class ezBacklight {
-		public:
-			static void begin();
-			static void menu();
-			static void inactivity(uint8_t half_minutes);
-			static void activity();
-			static uint16_t loop();
-		private:
-			static uint8_t _brightness;
-			static uint8_t _inactivity;
-			static uint32_t _last_activity;
-			static bool _backlight_off;
-		//
-	};
-#endif
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //   F A C E S
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -593,18 +557,13 @@ class M5ez {
 			static ezWifi wifi;
 			static constexpr ezWifi& w = wifi;
 		#endif
-		#ifdef M5EZ_BACKLIGHT
-			static ezBacklight backlight;
-		#endif
 		#ifdef M5EZ_FACES
 			static ezFACES faces;
 		#endif
 
 		static void begin();
-
 		static void yield();
 
-		static bool install(String name, extension_entry_t control);
 		static void addEvent(uint16_t (*function)(), uint32_t when = 1);
 		static void removeEvent(uint16_t (*function)());
 		static void redraw();
@@ -634,6 +593,9 @@ class M5ez {
 		static int16_t fontHeight();
 
 		static String version();
+
+		static bool install(String name, extension_entry_t control);
+		static bool extensionControl(String name, uint8_t command, void* user);
 		static std::vector<extension_t> extensions;
 
 	private:

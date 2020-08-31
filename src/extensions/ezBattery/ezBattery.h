@@ -2,7 +2,7 @@
 
 class ezBattery {
 	public:
-		static bool control(uint8_t command, void* /* reserved */);
+		static bool control(uint8_t command, void* /* user */);
 		static void begin();
 		static void menu();
 		static uint16_t loop();
