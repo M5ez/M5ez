@@ -14,10 +14,7 @@
 #define M5EZ_BATTERY
 
 // Turn this off to compile without BLE (Bluetooth Low Energy)
-// #define M5EZ_BLE
-#ifdef M5EZ_BLE
-	#define M5EZ_BLE_DEVICE_NAME "M5ez"
-#endif
+#define M5EZ_BLE
 
 // Have the autoconnect logic print debug messages on the serial port
 // #define M5EZ_WIFI_DEBUG
@@ -91,72 +88,72 @@ class ezTheme {
 		uint8_t header_hmargin = 5;
 		uint8_t header_tmargin = 3;
 		uint16_t header_bgcolor = TFT_BLUE;
-		uint16_t header_fgcolor = TFT_WHITE;					
+		uint16_t header_fgcolor = TFT_WHITE;
 
-		const GFXfont* print_font = mono6x8;					
-		uint16_t print_color = foreground;					
-		
+		const GFXfont* print_font = mono6x8;
+		uint16_t print_color = foreground;
+
 		const GFXfont* clock_font = mono12x16;
 
 		uint16_t longpress_time = 250;							//milliseconds
 
-		uint8_t button_height = 19;								
-		const GFXfont* button_font = &FreeSans9pt7b;			
-		uint8_t button_tmargin = 1;								
-		uint8_t button_hmargin = 5;								
-		uint8_t button_gap = 3;									
-		uint8_t button_radius = 8;								
-		uint16_t button_bgcolor_b = TFT_BLUE;					
-		uint16_t button_bgcolor_t = TFT_PURPLE;					
-		uint16_t button_fgcolor = TFT_WHITE;					
-		uint16_t button_longcolor = TFT_CYAN;					
+		uint8_t button_height = 19;
+		const GFXfont* button_font = &FreeSans9pt7b;
+		uint8_t button_tmargin = 1;
+		uint8_t button_hmargin = 5;
+		uint8_t button_gap = 3;
+		uint8_t button_radius = 8;
+		uint16_t button_bgcolor_b = TFT_BLUE;
+		uint16_t button_bgcolor_t = TFT_PURPLE;
+		uint16_t button_fgcolor = TFT_WHITE;
+		uint16_t button_longcolor = TFT_CYAN;
 
 		uint8_t input_top = 50;									// pixels below ez.canvas.top()
 		uint8_t input_hmargin = 10;								// The distance between text box and edge of screen
 		uint8_t input_vmargin = 10;								// Vertical margin _inside_ the text box
-		const GFXfont* input_font = &FreeMonoBold12pt7b;		
+		const GFXfont* input_font = &FreeMonoBold12pt7b;
 		const GFXfont* input_keylock_font = &FreeSansBold9pt7b;
-		uint16_t input_bgcolor = TFT_BLACK;						
-		uint16_t input_fgcolor = TFT_GREEN;						
+		uint16_t input_bgcolor = TFT_BLACK;
+		uint16_t input_fgcolor = TFT_GREEN;
 		uint16_t input_cursor_blink = 500;						// milliseconds
-		uint8_t input_faces_btns = 18;							
+		uint8_t input_faces_btns = 18;
 
-		const GFXfont* tb_font = &FreeSans9pt7b;				
-		uint16_t tb_color = foreground;							
+		const GFXfont* tb_font = &FreeSans9pt7b;
+		uint16_t tb_color = foreground;
 		uint8_t tb_hmargin = 5;
 
-		uint8_t menu_lmargin = 20;								
+		uint8_t menu_lmargin = 20;
 		uint8_t menu_rmargin = 10;
-		uint8_t menu_arrows_lmargin = 5;							
-		uint16_t menu_item_color = foreground;					
-		uint16_t menu_sel_bgcolor = foreground;					
-		uint16_t menu_sel_fgcolor = background;					
-		const GFXfont* menu_big_font = &FreeSans12pt7b;			
-		const GFXfont* menu_small_font = &FreeSans9pt7b;		
-		uint8_t menu_item_hmargin = 10;							
+		uint8_t menu_arrows_lmargin = 5;
+		uint16_t menu_item_color = foreground;
+		uint16_t menu_sel_bgcolor = foreground;
+		uint16_t menu_sel_fgcolor = background;
+		const GFXfont* menu_big_font = &FreeSans12pt7b;
+		const GFXfont* menu_small_font = &FreeSans9pt7b;
+		uint8_t menu_item_hmargin = 10;
 		uint8_t menu_item_radius = 8;
 
-		const GFXfont* msg_font = &FreeSans12pt7b;				
-		uint16_t msg_color = foreground;						
-		uint8_t msg_hmargin = 20;								
+		const GFXfont* msg_font = &FreeSans12pt7b;
+		uint16_t msg_color = foreground;
+		uint8_t msg_hmargin = 20;
 
-		uint8_t progressbar_line_width = 4;						
-		uint8_t progressbar_width = 25;							
-		uint16_t progressbar_color = foreground;				
+		uint8_t progressbar_line_width = 4;
+		uint8_t progressbar_width = 25;
+		uint16_t progressbar_color = foreground;
 		uint16_t progressbar_val_color = TFT_DARKGREY;
 
-		uint16_t signal_interval = 2000;						
-		uint8_t signal_bar_width = 4;							
+		uint16_t signal_interval = 2000;
+		uint8_t signal_bar_width = 4;
 		uint8_t signal_bar_gap = 2;
 
 		uint8_t battery_bar_width = 26;
 		uint8_t battery_bar_gap = 2;
-		uint32_t battery_0_fgcolor = TFT_RED; 
+		uint32_t battery_0_fgcolor = TFT_RED;
 		uint32_t battery_25_fgcolor = TFT_ORANGE;
 		uint32_t battery_50_fgcolor = TFT_YELLOW;
 		uint32_t battery_75_fgcolor = TFT_GREENYELLOW;
 		uint32_t battery_100_fgcolor = TFT_GREEN;
-	//						
+	//
 };
 
 
@@ -192,7 +189,7 @@ struct header_widget_t {
 	uint16_t x;
 	uint16_t w;
 	void (*function)(uint16_t x, uint16_t w);
-};	
+};
 #define LEFTMOST		0
 #define RIGHTMOST		255
 
@@ -231,7 +228,7 @@ struct print_t {
 	uint16_t x;
 	int16_t y;
 	String text;
-};	
+};
 
 class ezCanvas : public Print {
 	friend class ezHeader;
@@ -249,7 +246,7 @@ class ezCanvas : public Print {
 		static bool scroll();
 		static void scroll(bool s);
 		static bool wrap();
-		static void wrap(bool w);		
+		static void wrap(bool w);
 		static uint16_t lmargin();
 		static void lmargin(uint16_t newmargin);
 		static void font(const GFXfont* font);
@@ -261,7 +258,7 @@ class ezCanvas : public Print {
 		static void x(uint16_t newx);
 		static uint8_t y();
 		static void y(uint8_t newy);
-		virtual size_t write(uint8_t c);						// These three are used to inherint print and println from Print class
+		virtual size_t write(uint8_t c);						// These three are used to inherit print and println from Print class
 		virtual size_t write(const char *str);
 		virtual size_t write(const uint8_t *buffer, size_t size);
 		static uint16_t loop();
@@ -295,7 +292,7 @@ class ezButtons {
 		static void clear(bool wipe = true);
 		static void releaseWait();
 		static String poll();
-		static String wait(String Buttons = ""); 
+		static String wait(String Buttons = "");
 	private:
 		static String _btn_a_s, _btn_a_l;
 		static String _btn_b_s, _btn_b_l;
@@ -345,7 +342,7 @@ class ezMenu {
 		void txtFont(const GFXfont* font);
 		void imgBackground(uint16_t color);
 		void imgFromTop(int16_t offset);
-		void imgCaptionFont(const GFXfont* font);	
+		void imgCaptionFont(const GFXfont* font);
 		void imgCaptionLocation(uint8_t datum);
 		void imgCaptionColor(uint16_t color);
 		void imgCaptionMargins(int16_t hmargin, int16_t vmargin);
@@ -580,66 +577,6 @@ class ezSettings {
 #endif
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//   B L E
-//
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef M5EZ_BLE
-
-	class ezBLE {
-		public:
-			static void begin();
-			static void readFlash();
-			static void writeFlash();
-			static void menu();
-			static void disconnect();
-			static class BLEClient* getClient(uint16_t index);
-			static uint16_t getClientCount();
-		private:
-			static const std::vector<std::pair<uint16_t, String>> _gattUuids;
-			static bool _on;
-			static bool _initialized;
-			static std::vector<class BLEClient*> _clients;
-			static bool _scan(ezMenu* callingMenu);
-			static void _connect(class BLEAdvertisedDevice& device);
-			static bool _listClients(ezMenu* callingMenu);
-			static bool _showClient(class BLEClient* client);
-			static void _cleanup();
-			static void _refresh();
-			friend class M5ezClientCallback;
-	};
-
-#endif
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//   B A T T E R Y
-//
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef M5EZ_BATTERY
-
-	class ezBattery {
-		public:
-			static void begin();
-			static void readFlash();
-			static void writeFlash();
-			static void menu();
-			static uint16_t loop();
-			static uint8_t getTransformedBatteryLevel();
-			static uint32_t getBatteryBarColor(uint8_t batteryLevel);
-		private:
-			static bool _on;
-			static void _refresh();
-			static void _drawWidget(uint16_t x, uint16_t w);
-	};
-
-#endif
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -675,12 +612,6 @@ class M5ez {
 			static ezWifi wifi;
 			static constexpr ezWifi& w = wifi;
 		#endif
-		#ifdef M5EZ_BLE
-			static ezBLE ble;
-		#endif
-		#ifdef M5EZ_BATTERY
-			static ezBattery battery;
-		#endif
 		#ifdef M5EZ_BACKLIGHT
 			static ezBacklight backlight;
 		#endif
@@ -689,8 +620,8 @@ class M5ez {
 		#endif
 		#ifdef M5EZ_FACES
 			static ezFACES faces;
-		#endif	
-		
+		#endif
+
 		static void begin();
 
 		static void yield();
@@ -707,10 +638,10 @@ class M5ez {
 
 		// ez.textInput
 		static String textInput(String header = "", String defaultText = "");
-		
+
 		//ez.textBox
 		static String textBox(String header = "", String text = "", bool readonly = false, String buttons = "up#Done#down", const GFXfont* font = NULL, uint16_t color = NO_COLOR);
-			
+
 		// Generic String object helper functions
 		static String rightOf(String input, String separator, bool trim = true);
 		static String leftOf(String input, String separator, bool trim = true);
@@ -719,11 +650,11 @@ class M5ez {
 		static int16_t charsFit(String input, int16_t cutoff);
 		static String clipString(String input, int16_t cutoff, bool dots = true);
 		static bool isBackExitOrDone(String str);
-		
+
 		// m5.lcd wrappers that make fonts easier
 		static void setFont(const GFXfont* font);
 		static int16_t fontHeight();
-		
+
 		static String version();
 		static std::vector<extension_entry_t> extensions;
 

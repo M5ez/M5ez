@@ -16,12 +16,9 @@
 	#include <ezTime.h>
 #endif
 
-#ifdef M5EZ_BLE
-	#include <BLEDevice.h>
-	#include <BLEUtils.h>
-	#include <BLEScan.h>
-	#include <BLEAdvertisedDevice.h>
-#endif
+#include "./extensions/ezBattery/ezBattery.h"
+#include "./extensions/ezBLE/ezBLE.h"
+
 
 #include <algorithm>
 
@@ -699,12 +696,6 @@ void ezSettings::begin() {
 	#ifdef M5EZ_WIFI
 		ez.wifi.begin();
 	#endif
-	#ifdef M5EZ_BLE
-		ez.ble.begin();
-	#endif
-	#ifdef M5EZ_BATTERY
-		ez.battery.begin();
-	#endif
 	#ifdef M5EZ_CLOCK
 		ez.clock.begin();
 	#endif
@@ -1080,7 +1071,7 @@ void ezSettings::defaults() {
 	String ezFACES::poll() {
 		if (digitalRead(5) == LOW) {
 			Wire.requestFrom(0x88, 1);
-			String out = "";   
+			String out = "";
 			while (Wire.available()) {
 				out += (char) Wire.read();
 			}
@@ -1091,7 +1082,7 @@ void ezSettings::defaults() {
 		}
 		return "";
 	}
-	
+
 	bool ezFACES::on() {
 		return _on;
 	}
@@ -1760,373 +1751,6 @@ void ezSettings::defaults() {
 #endif
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//   B L E
-//
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef M5EZ_BLE
-
-	class M5ezClientCallback : public BLEClientCallbacks {
-		void onConnect(BLEClient*) {}
-		void onDisconnect(BLEClient*) {
-			ez.ble._cleanup();
-		}
-	} _bleClientCallback;
-
-	// https://www.bluetooth.com/specifications/gatt/services/
-	const std::vector<std::pair<uint16_t, String>> ezBLE::_gattUuids = {
-		{ 0x1800, "Generic Access" }, 
-		{ 0x1811, "Alert Notification Service" }, 
-		{ 0x1815, "Automation IO" }, 
-		{ 0x180F, "Battery Service" }, 
-		{ 0x183B, "Binary Sensor" }, 
-		{ 0x1810, "Blood Pressure" }, 
-		{ 0x181B, "Body Composition" }, 
-		{ 0x181E, "Bond Management Service" }, 
-		{ 0x181F, "Continuous Glucose Monitoring" }, 
-		{ 0x1805, "Current Time Service" }, 
-		{ 0x1818, "Cycling Power" }, 
-		{ 0x1816, "Cycling Speed and Cadence" }, 
-		{ 0x180A, "Device Information" }, 
-		{ 0x183C, "Emergency Configuration" }, 
-		{ 0x181A, "Environmental Sensing" }, 
-		{ 0x1826, "Fitness Machine" }, 
-		{ 0x1801, "Generic Attribute" }, 
-		{ 0x1808, "Glucose" }, 
-		{ 0x1809, "Health Thermometer" }, 
-		{ 0x180D, "Heart Rate" }, 
-		{ 0x1823, "HTTP Proxy" }, 
-		{ 0x1812, "Human Interface Device" }, 
-		{ 0x1802, "Immediate Alert" }, 
-		{ 0x1821, "Indoor Positioning" }, 
-		{ 0x183A, "Insulin Delivery" }, 
-		{ 0x1820, "Internet Protocol Support Service" }, 
-		{ 0x1803, "Link Loss" }, 
-		{ 0x1819, "Location and Navigation" }, 
-		{ 0x1827, "Mesh Provisioning Service" }, 
-		{ 0x1828, "Mesh Proxy Service" }, 
-		{ 0x1807, "Next DST Change Service" }, 
-		{ 0x1825, "Object Transfer Service" }, 
-		{ 0x180E, "Phone Alert Status Service" }, 
-		{ 0x1822, "Pulse Oximeter Service" }, 
-		{ 0x1829, "Reconnection Configuration" }, 
-		{ 0x1806, "Reference Time Update Service" }, 
-		{ 0x1814, "Running Speed and Cadence" }, 
-		{ 0x1813, "Scan Parameters" }, 
-		{ 0x1824, "Transport Discovery" }, 
-		{ 0x1804, "Tx Power" }, 
-		{ 0x181C, "User Data" }, 
-		{ 0x181D, "Weight Scale" }, 
-	};
-
-	bool ezBLE::_on = false;
-	bool ezBLE::_initialized = false;
-	std::vector<BLEClient*> ezBLE::_clients;
-
-	void ezBLE::begin() {
-		ez.ble.readFlash();
-		ez.settings.menuObj.addItem("BLE settings", ez.ble.menu);
-		if (_on) {
-			_refresh();
-		}
-	}
-
-	void ezBLE::readFlash() {
-		Preferences prefs;
-		prefs.begin("M5ez", true);	// true: read-only
-		_on = prefs.getBool("ble_on", false);
-		prefs.end();
-	}
-
-	void ezBLE::writeFlash() {
-		Preferences prefs;
-		prefs.begin("M5ez");
-		prefs.putBool("ble_on", _on);
-		prefs.end();
-	}
-
-	void ezBLE::menu() {
-		bool on_orig = _on;
-		while(true) {
-			ezMenu blemenu("BLE Settings");
-			blemenu.txtSmall();
-			blemenu.addItem("on|Turn On\t" + (String)(_on ? "on" : "off"));
-			if (_on) {
-				blemenu.addItem("Scan and connect", NULL, _scan);
-				blemenu.addItem("Clients", NULL, _listClients);
-			}
-			blemenu.buttons("up#Back#select##down#");
-			switch (blemenu.runOnce()) {
-				case 1:
-					_on = !_on;
-					_refresh();
-					break;
-				case 0:
-					if (_on != on_orig) {
-						writeFlash();
-					}
-					return;
-			}
-		}
-	}
-
-	void ezBLE::disconnect() {
-		for (auto& client : _clients) {
-			if (client->isConnected())
-				client->disconnect();
-		}
-		_clients.clear();
-	}
-
-	BLEClient* ezBLE::getClient(uint16_t index) {
-		if (index >= _clients.size())
-			return nullptr;
-		return _clients[index];
-	}
-
-	uint16_t ezBLE::getClientCount() {
-		return static_cast<uint16_t>(_clients.size());
-	}
-
-	bool ezBLE::_scan(ezMenu* callingMenu) {
-		BLEScan* bleScan = BLEDevice::getScan(); //create new scan
-		bleScan->setActiveScan(true); //active scan uses more power, but get results faster
-		bleScan->setInterval(100);
-		bleScan->setWindow(99);  // less or equal setInterval value
-		ez.msgBox("Bluetooth", "Scanning ...", "");
-		BLEScanResults foundDevices = bleScan->start(5, false);
-		ezMenu devicesmenu("Found " + String(foundDevices.getCount()) + " devices");
-		devicesmenu.txtSmall();
-		for (int i = 0; i < foundDevices.getCount(); i++) {
-			const char* name = nullptr;
-			if (foundDevices.getDevice(i).getName().size() == 0)
-				name = foundDevices.getDevice(i).getAddress().toString().c_str();
-			else
-				name = foundDevices.getDevice(i).getName().c_str();
-			devicesmenu.addItem(name);
-		}
-		devicesmenu.buttons("up#Back#select##down#");
-		if (devicesmenu.runOnce()) {
-			BLEAdvertisedDevice device = foundDevices.getDevice(devicesmenu.pick() - 1);
-			_connect(device);
-		}
-		bleScan->clearResults();
-		return true;
-	}
-
-	void ezBLE::_connect(class BLEAdvertisedDevice& device) {
-		ez.msgBox("Bluetooth", "Connecting ...", "");
-		BLEClient* client = BLEDevice::createClient();
-		client->setClientCallbacks(&_bleClientCallback);
-		if (client->connect(&device)) {
-			_clients.push_back(client);
-			ez.msgBox("Bluetooth", "Device connected.");
-		} else {
-			delete client;
-			ez.msgBox("Bluetooth", "Connection failed!");
-		}
-	}
-
-	bool ezBLE::_listClients(ezMenu* callingMenu) {
-		ezMenu clientsmenu("Clients");
-		clientsmenu.txtSmall();
-		for (auto& client : _clients) {
-			clientsmenu.addItem(client->getPeerAddress().toString().c_str());
-		}
-		clientsmenu.buttons("up#Back#select##down#");
-		while (clientsmenu.runOnce()) {
-			if (!_showClient(_clients[clientsmenu.pick() - 1]))
-				return false;
-		}
-		return true;
-	}
-
-	bool ezBLE::_showClient(BLEClient* client) {
-		ezMenu clientmenu(String(client->getPeerAddress().toString().c_str()));
-		clientmenu.txtSmall();
-		clientmenu.buttons("up#Back#select##down#");
-		auto& services = *client->getServices();
-		for (auto& service : services) {
-			bool found = false;
-			for (auto& pair : _gattUuids) {
-				if (BLEUUID(pair.first).equals(service.second->getUUID())) {
-					clientmenu.addItem(pair.second);
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-				clientmenu.addItem(service.first.c_str());
-		}
-		clientmenu.addItem("Disconnect");
-		while (clientmenu.runOnce()) {
-			if (clientmenu.pickName() == "Disconnect") {
-				client->disconnect();
-				return false;
-			}
-		}
-		return true;
-	}
-
-	void ezBLE::_cleanup() {
-		if (_clients.size() > 0) {
-			_clients.erase(std::remove_if(_clients.begin(), _clients.end(), [](BLEClient* client) {
-				bool shouldRemove = !client->isConnected();
-				if (shouldRemove)
-					delete client;
-				return shouldRemove;
-			}), _clients.end());
-		}
-	}
-
-	void ezBLE::_refresh() {
-		if (_on) {
-			if (!_initialized) {
-				_initialized = true;
-				BLEDevice::init(M5EZ_BLE_DEVICE_NAME);
-			}
-		} else {
-			disconnect();
-			if (_initialized) {
-				_initialized = false;
-				_cleanup();
-				BLEDevice::deinit(false);
-			}
-		}
-	}
-
-#endif
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//   B A T T E R Y
-//
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef M5EZ_BATTERY
-	bool ezBattery::_on = false;
-
-	void ezBattery::begin() {
-		Wire.begin();
-		ez.battery.readFlash();
-		ez.settings.menuObj.addItem("Battery settings", ez.battery.menu);
-		if (_on) {
-			_refresh();
-		}
-	}
-
-	void ezBattery::readFlash() {
-		Preferences prefs;
-		prefs.begin("M5ez", true);	// true: read-only
-		_on = prefs.getBool("battery_icon_on", false);
-		prefs.end();
-	}
-
-	void ezBattery::writeFlash() {
-		Preferences prefs;
-		prefs.begin("M5ez");
-		prefs.putBool("battery_icon_on", _on);
-		prefs.end();
-	}
-
-	void ezBattery::menu() {
-		bool on_orig = _on;
-		while(true) {
-			ezMenu clockmenu("Battery settings");
-			clockmenu.txtSmall();
-			clockmenu.buttons("up#Back#select##down#");
-			clockmenu.addItem("on|Display battery\t" + (String)(_on ? "on" : "off"));
-			switch (clockmenu.runOnce()) {
-				case 1:
-					_on = !_on;
-					_refresh();
-					break;
-				case 0:
-					if (_on != on_orig) {
-						writeFlash();
-					}
-					return;
-			}
-		}
-	}
-
-	uint16_t ezBattery::loop() {
-		if (!_on) return 0;
-		ez.header.draw("battery");
-		return 5000;
-	}
-
-	//Transform the M5Stack built in battery level into an internal format.
-	// From [100, 75, 50, 25, 0] to [4, 3, 2, 1, 0]
-	uint8_t ezBattery::getTransformedBatteryLevel()
-	{
-		switch (m5.Power.getBatteryLevel()) 
-		{
-			case 100:
-				return 4;
-			case 75:
-				return 3;
-			case 50:
-				return 2;
-			case 25:
-				return 1;
-			default:
-				return 0;
-		}
-	}
-
-	//Return the theme based battery bar color according to its level
-	uint32_t ezBattery::getBatteryBarColor(uint8_t batteryLevel)
-	{
-		switch (batteryLevel) {
-			case 0:
-				return ez.theme->battery_0_fgcolor;				
-			case 1:
-				return ez.theme->battery_25_fgcolor;				
-			case 2:
-				return ez.theme->battery_50_fgcolor;				
-			case 3:
-				return ez.theme->battery_75_fgcolor;				
-			case 4:
-				return ez.theme->battery_100_fgcolor;
-			default:
-				return ez.theme->header_fgcolor;	
-		}
-	}
-
-	void ezBattery::_refresh() {
-		if (_on) {
-			ez.header.insert(RIGHTMOST, "battery", ez.theme->battery_bar_width + 2 * ez.theme->header_hmargin, ez.battery._drawWidget);
-			ez.addEvent(ez.battery.loop);
-		} else {
-			ez.header.remove("battery");
-			ez.removeEvent(ez.battery.loop);
-		}
-	}
-
-	void ezBattery::_drawWidget(uint16_t x, uint16_t w) {
-		uint8_t currentBatteryLevel = getTransformedBatteryLevel();
-		uint16_t left_offset = x + ez.theme->header_hmargin;
-		uint8_t top = ez.theme->header_height / 10;
-		uint8_t height = ez.theme->header_height * 0.8;
-		m5.lcd.fillRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, ez.theme->header_bgcolor);
-		m5.lcd.drawRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, ez.theme->header_fgcolor);
-		uint8_t bar_width = (ez.theme->battery_bar_width - ez.theme->battery_bar_gap * 5) / 4.0;
-		uint8_t bar_height = height - ez.theme->battery_bar_gap * 2;
-		left_offset += ez.theme->battery_bar_gap;
-		for (uint8_t n = 0; n < currentBatteryLevel; n++) {
-			m5.lcd.fillRect(left_offset + n * (bar_width + ez.theme->battery_bar_gap), top + ez.theme->battery_bar_gap, 
-				bar_width, bar_height, getBatteryBarColor(currentBatteryLevel));
-		}
-	}
-
-#endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2152,12 +1776,6 @@ bool M5ez::_in_event = false;
 	ezWifi M5ez::wifi;
 	constexpr ezWifi& M5ez::w;
 #endif	
-#ifdef M5EZ_BLE
-	ezBLE M5ez::ble;
-#endif
-#ifdef M5EZ_BATTERY
-	ezBattery M5ez::battery;
-#endif
 #ifdef M5EZ_BACKLIGHT
 	ezBacklight M5ez::backlight;
 #endif
@@ -2176,6 +1794,8 @@ bool M5ez::_text_cursor_state;
 long  M5ez::_text_cursor_millis;
 
 void M5ez::begin() {
+	install(ezBattery::begin);	// ezBattery has been converted to an extension
+	install(ezBLE::begin);		// ezBLE has been converted to an extension
 	m5.begin();
 	ezTheme::begin();
 	ez.screen.begin();
