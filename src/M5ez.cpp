@@ -681,9 +681,8 @@ void ezSettings::begin() {
 		ez.settings.menuObj.addItem("Theme chooser", ez.theme->menu);
 	}
 	// Install all extensions
-	for(int n = 0; n < M5ez::extensions.size(); n++) {
-		extension_t ext = M5ez::extensions[n];
-		ext.control(EXTENSION_CONTROL_START, nullptr);
+	for(auto& ext : M5ez::extensions) { 
+    	ext.control(EXTENSION_CONTROL_START, nullptr);
 	}
 	ez.settings.menuObj.addItem("Factory defaults", ez.settings.defaults);
 }
@@ -724,7 +723,9 @@ ezSettings M5ez::settings;
 ezMenu* M5ez::_currentMenu = nullptr;
 bool M5ez::_in_event = false;
 std::vector<event_t> M5ez::_events;
-std::vector<extension_t> M5ez::extensions;
+std::vector<extension_t> M5ez::extensions = { {"ezWifi", ezWifi::control}, {"ezFACES", ezFACES::control},
+											{"ezBacklight", ezBacklight::control}, {"ezClock", ezClock::control},
+											{"ezBattery", ezBattery::control}, {"ezBLE", ezBLE::control} };
 
 // ez.textInput
 int16_t M5ez::_text_cursor_x, M5ez::_text_cursor_y, M5ez::_text_cursor_h, M5ez::_text_cursor_w;
@@ -732,12 +733,6 @@ bool M5ez::_text_cursor_state;
 long  M5ez::_text_cursor_millis;
 
 void M5ez::begin() {
-	install("ezWifi", ezWifi::control);				// ezWifi has been converted to an extension
-	install("ezFACES", ezFACES::control);			// ezFACES has been converted to an extension
-	install("ezBacklight", ezBacklight::control);	// ezBacklight has been converted to an extension
-	install("ezClock", ezClock::control);			// ezClock has been converted to an extension
-	install("ezBattery", ezBattery::control);		// ezBattery has been converted to an extension
-	install("ezBLE", ezBLE::control);				// ezBLE has been converted to an extension
 	m5.begin();
 	ezTheme::begin();
 	ez.screen.begin();
@@ -1311,25 +1306,9 @@ bool M5ez::install(String name, extension_entry_t control) {
 }
 
 bool M5ez::extensionControl(String name, uint8_t command, void* user) {
-	for(int n = 0; n < extensions.size(); n++) {
-		if(extensions[n].name == name)
-			return extensions[n].control(command, user);
-	}
-	return false;
-}
-
-bool M5ez::install(String name, extension_entry_t control) {
-	extension_t ext;
-	ext.name = name;
-	ext.control = control;
-	extensions.push_back(ext);
-	return true;
-}
-
-bool M5ez::extensionControl(String name, uint8_t command, void* user) {
-	for(int n = 0; n < extensions.size(); n++) {
-		if(extensions[n].name == name)
-			return extensions[n].control(command, user);
+	for(auto& ext : M5ez::extensions) {
+		if(ext.name == name)
+    		return ext.control(command, user);
 	}
 	return false;
 }
