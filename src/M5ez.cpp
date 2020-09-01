@@ -372,21 +372,21 @@ uint16_t ezCanvas::loop() {
 
 
 void ezCanvas::_print(String text) {
- 	ez.setFont(_font);
- 	m5.lcd.setTextDatum(TL_DATUM);
+	ez.setFont(_font);
+	m5.lcd.setTextDatum(TL_DATUM);
 	m5.lcd.setTextColor(_color, ez.theme->background);
- 	uint8_t h = ez.fontHeight();
- 	if (_y + h > _bottom) {
- 		if (!_scroll) return;
- 		if (!_next_scroll) _next_scroll = millis() + 200;
- 	}
- 	int16_t crlf = text.indexOf("\r\n");
- 	String remainder = "";
- 	if (crlf != -1) {
- 		remainder = text.substring(crlf + 2);
- 		text = text.substring(0,crlf);
- 	}
- 	if (_x + m5.lcd.textWidth(text) <= _right) {
+	uint8_t h = ez.fontHeight();
+	if (_y + h > _bottom) {
+		if (!_scroll) return;
+		if (!_next_scroll) _next_scroll = millis() + 200;
+	}
+	int16_t crlf = text.indexOf("\r\n");
+	String remainder = "";
+	if (crlf != -1) {
+		remainder = text.substring(crlf + 2);
+		text = text.substring(0,crlf);
+	}
+	if (_x + m5.lcd.textWidth(text) <= _right) {
 		if (text != "") _putString(text);
 	} else {
 		for (uint16_t n = 0; n < text.length(); n++) {
@@ -682,7 +682,7 @@ void ezSettings::begin() {
 	}
 	// Install all extensions
 	for(auto& ext : M5ez::extensions) { 
-    	ext.control(EXTENSION_CONTROL_START, nullptr);
+		ext.control(EXTENSION_CONTROL_START, nullptr);
 	}
 	ez.settings.menuObj.addItem("Factory defaults", ez.settings.defaults);
 }
@@ -1282,10 +1282,10 @@ void M5ez::setFont(const GFXfont* font) {
 	long ptrAsInt = (long) font;
 	int16_t size = 1;
 	if (ptrAsInt <= 16) {
- 		if (ptrAsInt > 8) {
- 			ptrAsInt -= 8;
- 			size++;
- 		}
+		if (ptrAsInt > 8) {
+			ptrAsInt -= 8;
+			size++;
+		}
 		m5.lcd.setTextFont(ptrAsInt);
 	} else {
 		m5.lcd.setFreeFont(font);
@@ -1308,7 +1308,7 @@ bool M5ez::install(String name, extension_entry_t control) {
 bool M5ez::extensionControl(String name, uint8_t command, void* user) {
 	for(auto& ext : M5ez::extensions) {
 		if(ext.name == name)
-    		return ext.control(command, user);
+			return ext.control(command, user);
 	}
 	return false;
 }

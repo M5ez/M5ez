@@ -27,14 +27,14 @@ bool ezWifi::autoConnect;
 
 
 bool ezWifi::control(uint8_t command, void* /* user */) {
-    switch(command) {
-        case EXTENSION_CONTROL_PING:
-            return true;
-        case EXTENSION_CONTROL_START:
-            begin();
-            return true;
-    }
-    return false;
+	switch(command) {
+		case EXTENSION_CONTROL_PING:
+			return true;
+		case EXTENSION_CONTROL_START:
+			begin();
+			return true;
+	}
+	return false;
 }
 
 

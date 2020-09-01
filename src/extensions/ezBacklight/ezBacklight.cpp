@@ -13,15 +13,15 @@ bool ezBacklight::_backlight_off = false;
 
 
 bool ezBacklight::control(uint8_t command, void* /* user */) {
-    switch(command) {
-        case EXTENSION_CONTROL_PING:
+	switch(command) {
+		case EXTENSION_CONTROL_PING:
 			activity();
 			return true;
-        case EXTENSION_CONTROL_START:
-            begin();
-            return true;
-    }
-    return false;
+		case EXTENSION_CONTROL_START:
+			begin();
+			return true;
+	}
+	return false;
 }
 
 void ezBacklight::begin() {
@@ -104,7 +104,6 @@ void ezBacklight::menu() {
 					prefs.end();
 				}
 				return;
-			//
 		}
 	}
 }

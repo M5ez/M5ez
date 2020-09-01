@@ -5,10 +5,10 @@ ScreenShotExtension sce;
 
 void setup() {
 
-  ez.install("SnapShot", sce.control);
-  ez.begin();
+ez.install("SnapShot", sce.control);
+ez.begin();
 }
 
 void loop() {
-  ez.settings.menu();
+ez.settings.menu();
 }

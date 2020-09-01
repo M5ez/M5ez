@@ -12,19 +12,19 @@ String ezClock::_datetime;
 bool ezClock::_starting = true;
 
 bool ezClock::control(uint8_t command, void* /* user */) {
-    switch(command) {
-        case EXTENSION_CONTROL_PING:
+	switch(command) {
+		case EXTENSION_CONTROL_PING:
 			return true;
-        case EXTENSION_CONTROL_START:
-            begin();
-            return true;
-        case EXTENSION_CONTROL_STOP:
+		case EXTENSION_CONTROL_START:
+			begin();
+			return true;
+		case EXTENSION_CONTROL_STOP:
 			_on = false;
 			return true;
-        case EXTENSION_CONTROL_QUERY_ENABLED:
-            return _on;
+		case EXTENSION_CONTROL_QUERY_ENABLED:
+			return _on;
 	}
-    return false;
+	return false;
 }
 
 void ezClock::begin() {
