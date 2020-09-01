@@ -2,12 +2,12 @@
 
 #include <Preferences.h>
 
-#include "./extensions/ezWifi/ezWifi.h"
-#include "./extensions/ezFACES/ezFACES.h"
-#include "./extensions/ezBacklight/ezBacklight.h"
-#include "./extensions/ezClock/ezClock.h"
-#include "./extensions/ezBattery/ezBattery.h"
-#include "./extensions/ezBLE/ezBLE.h"
+#include "extensions/ezWifi/ezWifi.h"
+#include "extensions/ezFACES/ezFACES.h"
+#include "extensions/ezBacklight/ezBacklight.h"
+#include "extensions/ezClock/ezClock.h"
+#include "extensions/ezBattery/ezBattery.h"
+#include "extensions/ezBLE/ezBLE.h"
 
 
 #include <algorithm>
