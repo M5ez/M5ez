@@ -4,10 +4,10 @@
 ScreenShotExtension sce;
 
 void setup() {
-	ez.uninstall("ezBLE");
-	ez.uninstall("ezFACES");
+	ez.remove("ezBLE");
+	ez.remove("ezFACES");
 	ez.begin();
-	ez.install("SnapShot", sce.control);
+	ez.add("SnapShot", sce.entry);
 }
 
 void loop() {

@@ -11,17 +11,17 @@ uint8_t ScreenShotExtension::_fs;           // 0 for SPIFFS, 1 for SD, 2 for Ser
 String ScreenShotExtension::_fileName;      // May include a path, use %n format expression
 
 
-bool ScreenShotExtension::control(uint8_t command, void* /* user */) {
+bool ScreenShotExtension::entry(uint8_t command, void* /* user */) {
 	switch(command) {
-		case EXTENSION_CONTROL_PING:
+		case FEATURE_MSG_PING:
 			return true;
-		case EXTENSION_CONTROL_START:
+		case FEATURE_MSG_START:
 			begin();
 			return true;
-		case EXTENSION_CONTROL_STOP:
+		case FEATURE_MSG_STOP:
 			_trigger = 0;
 			return true;
-		case EXTENSION_CONTROL_QUERY_ENABLED:
+		case FEATURE_MSG_QUERY_ENABLED:
 			return _trigger != 0;
 	}
 
@@ -29,6 +29,7 @@ bool ScreenShotExtension::control(uint8_t command, void* /* user */) {
 }
 
 void ScreenShotExtension::begin() {
+	Serial.println("ScreenShotExtension::begin()");
 	_readPrefs();
 	ez.addEvent(loop);
 	ez.settings.menuObj.addItem(_name, menu);
@@ -78,6 +79,28 @@ void ScreenShotExtension::menu() {
 
 uint16_t ScreenShotExtension::loop() {
 	return 1000;
+}
+
+
+void ScreenShotExtension::_readPrefs() {
+	Preferences prefs;
+	prefs.begin("M5ez", true);	// read-only
+	_trigger = prefs.getChar("x_ss_trigger", 0);
+	_extension = prefs.getChar("x_ss_extension", 0);
+	_fs = prefs.getChar("x_ss_fs", 1);
+	_fileName = prefs.getString("x_ss_filename", "/ss/ss_%00n");
+	prefs.end();
+}
+
+
+void ScreenShotExtension::_writePrefs() {
+	Preferences prefs;
+	prefs.begin("M5ez", false);	// read-write
+	prefs.putChar("x_ss_trigger", _trigger);
+	prefs.putChar("x_ss_extension", _extension);
+	prefs.getChar("x_ss_fs", _fs);
+	prefs.putString("x_ss_filename", _fileName);
+	prefs.end();
 }
 
 
