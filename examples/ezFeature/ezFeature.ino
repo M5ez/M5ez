@@ -1,13 +1,13 @@
 #include <M5ez.h>
-#include "ScreenShotExtension.h"
+#include "ScreenShotFeature.h"
 
-ScreenShotExtension sce;
+ScreenShotFeature ss;
 
 void setup() {
 	ez.remove("ezBLE");
 	ez.remove("ezFACES");
 	ez.begin();
-	ez.add("SnapShot", sce.entry);
+	ez.add("ScreenShot", ss.entry);
 }
 
 void loop() {

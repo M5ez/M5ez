@@ -1,7 +1,7 @@
 #pragma once
 #include <M5ez.h>
 
-class ScreenShotExtension {
+class ScreenShotFeature {
 	public:
 		static bool entry(uint8_t command, void* /* user */);
 		static void begin();

@@ -1,17 +1,17 @@
 #include <Preferences.h>
-#include "ScreenShotExtension.h"
+#include "ScreenShotFeature.h"
 
-const String ScreenShotExtension::_name = "Screen Shot";
-const String ScreenShotExtension::_triggers[] = { "None", "A", "B", "C", "Shake", "ezNow" };
-const String ScreenShotExtension::_extensions[] = { "jpg", "png" };
-const String ScreenShotExtension::_fileSystems[] = { "SPIFFS", "SD" };
-uint8_t ScreenShotExtension::_trigger;      // index into _triggers
-uint8_t ScreenShotExtension::_extension;    // index into _extensions
-uint8_t ScreenShotExtension::_fs;           // 0 for SPIFFS, 1 for SD, 2 for Serial, 3 for Serial2
-String ScreenShotExtension::_fileName;      // May include a path, use %n format expression
+const String ScreenShotFeature::_name = "Screen Shot";
+const String ScreenShotFeature::_triggers[] = { "None", "A", "B", "C", "Shake", "ezNow" };
+const String ScreenShotFeature::_extensions[] = { "jpg", "png" };
+const String ScreenShotFeature::_fileSystems[] = { "SPIFFS", "SD" };
+uint8_t ScreenShotFeature::_trigger;      // index into _triggers
+uint8_t ScreenShotFeature::_extension;    // index into _extensions
+uint8_t ScreenShotFeature::_fs;           // 0 for SPIFFS, 1 for SD, 2 for Serial, 3 for Serial2
+String ScreenShotFeature::_fileName;      // May include a path, use %n format expression
 
 
-bool ScreenShotExtension::entry(uint8_t command, void* /* user */) {
+bool ScreenShotFeature::entry(uint8_t command, void* /* user */) {
 	switch(command) {
 		case FEATURE_MSG_PING:
 			return true;
@@ -28,15 +28,14 @@ bool ScreenShotExtension::entry(uint8_t command, void* /* user */) {
 	return false;
 }
 
-void ScreenShotExtension::begin() {
-	Serial.println("ScreenShotExtension::begin()");
+void ScreenShotFeature::begin() {
 	_readPrefs();
 	ez.addEvent(loop);
 	ez.settings.menuObj.addItem(_name, menu);
 }
 
 
-void ScreenShotExtension::menu() {
+void ScreenShotFeature::menu() {
 	bool updated = false;
 	ezMenu menu(_name);
 	menu.txtSmall();
@@ -77,12 +76,12 @@ void ScreenShotExtension::menu() {
 }
 
 
-uint16_t ScreenShotExtension::loop() {
+uint16_t ScreenShotFeature::loop() {
 	return 1000;
 }
 
 
-void ScreenShotExtension::_readPrefs() {
+void ScreenShotFeature::_readPrefs() {
 	Preferences prefs;
 	prefs.begin("M5ez", true);	// read-only
 	_trigger = prefs.getChar("x_ss_trigger", 0);
@@ -93,29 +92,7 @@ void ScreenShotExtension::_readPrefs() {
 }
 
 
-void ScreenShotExtension::_writePrefs() {
-	Preferences prefs;
-	prefs.begin("M5ez", false);	// read-write
-	prefs.putChar("x_ss_trigger", _trigger);
-	prefs.putChar("x_ss_extension", _extension);
-	prefs.getChar("x_ss_fs", _fs);
-	prefs.putString("x_ss_filename", _fileName);
-	prefs.end();
-}
-
-
-void ScreenShotExtension::_readPrefs() {
-	Preferences prefs;
-	prefs.begin("M5ez", true);	// read-only
-	_trigger = prefs.getChar("x_ss_trigger", 0);
-	_extension = prefs.getChar("x_ss_extension", 0);
-	_fs = prefs.getChar("x_ss_fs", 1);
-	_fileName = prefs.getString("x_ss_filename", "/ss/ss_%00n");
-	prefs.end();
-}
-
-
-void ScreenShotExtension::_writePrefs() {
+void ScreenShotFeature::_writePrefs() {
 	Preferences prefs;
 	prefs.begin("M5ez", false);	// read-write
 	prefs.putChar("x_ss_trigger", _trigger);
