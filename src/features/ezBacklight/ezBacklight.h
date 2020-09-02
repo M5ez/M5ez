@@ -1,11 +1,11 @@
 #pragma once
 
 // Coupling:
-// Indicate activity to the ezBacklight extension by calling ez.extensionControl("ezBacklight", EXTENSION_CONTROL_PING, nullptr)
+// Indicate activity to the ezBacklight feature by calling ez.tell("ezBacklight", FEATURE_MSG_PING, nullptr)
 
 class ezBacklight {
 	public:
-		static bool control(uint8_t command, void* /* user */);
+		static bool entry(uint8_t command, void* user);
 		static void begin();
 		static void menu();
 		static void inactivity(uint8_t half_minutes);

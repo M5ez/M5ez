@@ -12,12 +12,12 @@ uint32_t ezBacklight::_last_activity;
 bool ezBacklight::_backlight_off = false;
 
 
-bool ezBacklight::control(uint8_t command, void* /* user */) {
+bool ezBacklight::entry(uint8_t command, void* /* user */) {
 	switch(command) {
-		case EXTENSION_CONTROL_PING:
+		case FEATURE_MSG_PING:
 			activity();
 			return true;
-		case EXTENSION_CONTROL_START:
+		case FEATURE_MSG_START:
 			begin();
 			return true;
 	}

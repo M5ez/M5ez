@@ -7,17 +7,17 @@
 #include "ezBLE.h"
 
 
-bool ezBLE::control(uint8_t command, void* /* user */) {
+bool ezBLE::entry(uint8_t command, void* /* user */) {
 	switch(command) {
-		case EXTENSION_CONTROL_PING:
+		case FEATURE_MSG_PING:
 			return true;
-		case EXTENSION_CONTROL_START:
+		case FEATURE_MSG_START:
 			begin();
 			return true;
-		case EXTENSION_CONTROL_STOP:
+		case FEATURE_MSG_STOP:
 			disconnect();
 			return true;
-		case EXTENSION_CONTROL_QUERY_ENABLED:
+		case FEATURE_MSG_QUERY_ENABLED:
 			return _on;
 	}
 	return false;

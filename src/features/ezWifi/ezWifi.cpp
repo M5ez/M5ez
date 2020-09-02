@@ -26,11 +26,11 @@ bool ezWifi::autoConnect;
 #endif
 
 
-bool ezWifi::control(uint8_t command, void* /* user */) {
+bool ezWifi::entry(uint8_t command, void* /* user */) {
 	switch(command) {
-		case EXTENSION_CONTROL_PING:
+		case FEATURE_MSG_PING:
 			return true;
-		case EXTENSION_CONTROL_START:
+		case FEATURE_MSG_START:
 			begin();
 			return true;
 	}

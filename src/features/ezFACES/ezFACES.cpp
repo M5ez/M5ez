@@ -5,16 +5,16 @@
 
 bool ezFACES::_on;
 
-bool ezFACES::control(uint8_t command, void* user) {
+bool ezFACES::entry(uint8_t command, void* user) {
     switch(command) {
-        case EXTENSION_CONTROL_PING:
+        case FEATURE_MSG_PING:
 			return true;
-        case EXTENSION_CONTROL_START:
+        case FEATURE_MSG_START:
             begin();
             return true;
-		case EXTENSION_CONTROL_QUERY_ENABLED:
+		case FEATURE_MSG_QUERY_ENABLED:
 			return on();
-		case EXTENSION_CONTROL_FACES_POLL:
+		case FEATURE_MSG_FACES_POLL:
 			if(nullptr == user) {
 				poll();
 				return true;
@@ -78,7 +78,7 @@ String ezFACES::poll() {
 		while (Wire.available()) {
 			out += (char) Wire.read();
 		}
-		ez.extensionControl("ezBacklight", EXTENSION_CONTROL_PING, nullptr);
+		ez.tell("ezBacklight", FEATURE_MSG_PING, nullptr);
 		return out;
 	}
 	return "";

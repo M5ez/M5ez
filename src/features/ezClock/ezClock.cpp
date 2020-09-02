@@ -11,19 +11,19 @@ bool ezClock::_am_pm;
 String ezClock::_datetime;
 bool ezClock::_starting = true;
 
-bool ezClock::control(uint8_t command, void* /* user */) {
+bool ezClock::entry(uint8_t command, void* /* user */) {
 	switch(command) {
-		case EXTENSION_CONTROL_PING:
+		case FEATURE_MSG_PING:
 			return true;
-		case EXTENSION_CONTROL_START:
+		case FEATURE_MSG_START:
 			begin();
 			return true;
-		case EXTENSION_CONTROL_STOP:
+		case FEATURE_MSG_STOP:
 			_on = false;
 			return true;
-		case EXTENSION_CONTROL_QUERY_ENABLED:
+		case FEATURE_MSG_QUERY_ENABLED:
 			return _on;
-		case EXTENSION_CONTROL_CLOCK_EVENTS:
+		case FEATURE_MSG_CLOCK_EVENTS:
 			events();	// ezTime.events(), updated from M5ez::yield()
 			return true;
 	}
@@ -147,7 +147,7 @@ void ezClock::_writePrefs() {
 
 bool ezClock::waitForSync(const uint16_t timeout /* = 0 */) {
 	unsigned long start = millis();
-	ez.msgBox("Clock sync", "Waiting for clock synchronisation", "", false);	
+	ez.msgBox("Clock sync", "Waiting for clock synchronisation", "", false);
 	while (ezt::timeStatus() != timeSet) {
 		if ( timeout && (millis() - start) / 1000 > timeout ) return false;
 		delay(25);

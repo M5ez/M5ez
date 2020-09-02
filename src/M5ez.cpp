@@ -2,24 +2,24 @@
 #include <Preferences.h>
 #include <M5ez.h>
 
-// Conditionally included "standard extensions"
-#ifdef EXTENSION_INSTALL_EZWIFI
-	#include "extensions/ezWifi/ezWifi.h"
+// Conditionally included "standard features"
+#ifdef FEATURE_INSTALL_EZWIFI
+	#include "features/ezWifi/ezWifi.h"
 #endif
-#ifdef EXTENSION_INSTALL_EZFACES
-	#include "extensions/ezFACES/ezFACES.h"
+#ifdef FEATURE_INSTALL_EZFACES
+	#include "features/ezFACES/ezFACES.h"
 #endif
-#ifdef EXTENSION_INSTALL_EZBACKLIGHT
-	#include "extensions/ezBacklight/ezBacklight.h"
+#ifdef FEATURE_INSTALL_EZBACKLIGHT
+	#include "features/ezBacklight/ezBacklight.h"
 #endif
-#ifdef EXTENSION_INSTALL_EZCLOCK
-	#include "extensions/ezClock/ezClock.h"
+#ifdef FEATURE_INSTALL_EZCLOCK
+	#include "features/ezClock/ezClock.h"
 #endif
-#ifdef EXTENSION_INSTALL_EZBATTERY
-	#include "extensions/ezBattery/ezBattery.h"
+#ifdef FEATURE_INSTALL_EZBATTERY
+	#include "features/ezBattery/ezBattery.h"
 #endif
-#ifdef EXTENSION_INSTALL_EZBLE
-	#include "extensions/ezBLE/ezBLE.h"
+#ifdef FEATURE_INSTALL_EZBLE
+	#include "features/ezBLE/ezBLE.h"
 #endif
 
 
@@ -661,7 +661,7 @@ String ezButtons::poll() {
 	}
 
 	if (keystr == "~") keystr = "";
-	if (keystr != "") ez.extensionControl("ezBacklight", EXTENSION_CONTROL_PING, nullptr);
+	if (keystr != "") ez.tell("ezBacklight", FEATURE_MSG_PING, nullptr);
 	return keystr;
 }
 
@@ -690,9 +690,9 @@ void ezSettings::begin() {
 	if (ez.themes.size() > 1) {
 		ez.settings.menuObj.addItem("Theme chooser", ez.theme->menu);
 	}
-	// Install all extensions
-	for(auto& ext : M5ez::extensions) { 
-		ext.control(EXTENSION_CONTROL_START, nullptr);
+	// Install all features
+	for(auto& feature : M5ez::features) {
+		feature.entry(FEATURE_MSG_START, nullptr);
 	}
 	ez.settings.menuObj.addItem("Factory defaults", ez.settings.defaults);
 }
@@ -733,24 +733,24 @@ ezSettings M5ez::settings;
 ezMenu* M5ez::_currentMenu = nullptr;
 bool M5ez::_in_event = false;
 std::vector<event_t> M5ez::_events;
-std::vector<extension_t> M5ez::extensions = {
-#ifdef EXTENSION_INSTALL_EZWIFI
-	{"ezWifi", ezWifi::control},
+std::vector<feature_t> M5ez::features = {
+#ifdef FEATURE_INSTALL_EZWIFI
+	{"ezWifi", ezWifi::entry},
 #endif
-#ifdef EXTENSION_INSTALL_EZFACES
-	{"ezFACES", ezFACES::control},
+#ifdef FEATURE_INSTALL_EZFACES
+	{"ezFACES", ezFACES::entry},
 #endif
-#ifdef EXTENSION_INSTALL_EZBACKLIGHT
-	{"ezBacklight", ezBacklight::control},
+#ifdef FEATURE_INSTALL_EZBACKLIGHT
+	{"ezBacklight", ezBacklight::entry},
 #endif
-#ifdef EXTENSION_INSTALL_EZCLOCK
-	{"ezClock", ezClock::control},
+#ifdef FEATURE_INSTALL_EZCLOCK
+	{"ezClock", ezClock::entry},
 #endif
-#ifdef EXTENSION_INSTALL_EZBATTERY
-	{"ezBattery", ezBattery::control},
+#ifdef FEATURE_INSTALL_EZBATTERY
+	{"ezBattery", ezBattery::entry},
 #endif
-#ifdef EXTENSION_INSTALL_EZBLE
-	{"ezBLE", ezBLE::control},
+#ifdef FEATURE_INSTALL_EZBLE
+	{"ezBLE", ezBLE::entry},
 #endif
 };
 
@@ -785,7 +785,7 @@ void M5ez::yield() {
 			}
 		}
 	}
-	ez.extensionControl("ezClock", EXTENSION_CONTROL_CLOCK_EVENTS, nullptr);
+	ez.tell("ezClock", FEATURE_MSG_CLOCK_EVENTS, nullptr);
 }
 
 void M5ez::addEvent(uint16_t (*function)(), uint32_t when /* = 1 */) {
@@ -872,9 +872,9 @@ String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, cons
 String M5ez::textInput(String header /* = "" */, String defaultText /* = "" */) {
 
 	int16_t current_kb = 0, prev_kb = 0, locked_kb = 0;
-	if(ez.extensionControl("ezFACES", EXTENSION_CONTROL_QUERY_ENABLED, nullptr)) {
+	if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED, nullptr)) {
 		current_kb = locked_kb = prev_kb = ez.theme->input_faces_btns;
-		ez.extensionControl("ezFACES", EXTENSION_CONTROL_FACES_POLL, nullptr);	// flush key buffer in FACES
+		ez.tell("ezFACES", FEATURE_MSG_FACES_POLL, nullptr);	// flush key buffer in FACES
 	}
 	String tmpstr;
 	String text = defaultText;
@@ -886,8 +886,8 @@ String M5ez::textInput(String header /* = "" */, String defaultText /* = "" */) 
 
 	while (true) {
 		key = ez.buttons.poll();
-		if(ez.extensionControl("ezFACES", EXTENSION_CONTROL_QUERY_ENABLED, nullptr)) {
-			ez.extensionControl("ezFACES", EXTENSION_CONTROL_FACES_POLL, (void*)&key);
+		if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED, nullptr)) {
+			ez.tell("ezFACES", FEATURE_MSG_FACES_POLL, (void*)&key);
 		}
 		if (key == "Done" || key == (String)char(13)) return text;
 		if (key.substring(0, 2) == "KB") {
@@ -988,8 +988,8 @@ void M5ez::_textCursor(bool state) {
 String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonly /*= false*/, String buttons /*= "up#Done#down"*/, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
 	if (!font) font = ez.theme->tb_font;
 	if (color == NO_COLOR) color = ez.theme->tb_color;
-	if(ez.extensionControl("ezFACES", EXTENSION_CONTROL_QUERY_ENABLED, nullptr)) {
-		ez.extensionControl("ezFACES", EXTENSION_CONTROL_FACES_POLL, nullptr);	// flush key buffer in FACES
+	if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED, nullptr)) {
+		ez.tell("ezFACES", FEATURE_MSG_FACES_POLL, nullptr);	// flush key buffer in FACES
 	}
 	else {
 		readonly = true;
@@ -1077,8 +1077,8 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 		}
 		String key = ez.buttons.poll();
 
-		if(ez.extensionControl("ezFACES", EXTENSION_CONTROL_QUERY_ENABLED, nullptr)) {
-			ez.extensionControl("ezFACES", EXTENSION_CONTROL_FACES_POLL, (void*)&key);
+		if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED, nullptr)) {
+			ez.tell("ezFACES", FEATURE_MSG_FACES_POLL, (void*)&key);
 		}
 		if (key == "down") {
 			offset += lines_per_screen;
@@ -1326,38 +1326,38 @@ int16_t M5ez::fontHeight() { return m5.lcd.fontHeight(m5.lcd.textfont); }
 
 String M5ez::version() { return M5EZ_VERSION; }
 
-bool M5ez::install(String name, extension_entry_t control) {
-	extension_t ext;
-	ext.name = name;
-	ext.control = control;
-	extensions.push_back(ext);
+bool M5ez::add(String name, feature_entry_t entry) {
+	feature_t feature;
+	feature.name = name;
+	feature.entry = entry;
+	features.push_back(feature);
 	if(_begun) {
 		// If ez.begin() has already been called, do not postpone start
-		control(EXTENSION_CONTROL_START, nullptr);
+		entry(FEATURE_MSG_START, nullptr);
 	}
 	return true;
 }
 
-bool M5ez::uninstall(String name) {
-	auto i = std::begin(extensions);
-	while(i != std::end(extensions)) {
-		if(i->name == name) {
+bool M5ez::remove(String name) {
+	auto feature = std::begin(features);
+	while(feature != std::end(features)) {
+		if(feature->name == name) {
 			if(_begun) {
-				// If ez.begin() has been called, ext was started.
-				i->control(EXTENSION_CONTROL_STOP, nullptr);
+				// If ez.begin() has been called, feature was started.
+				feature->entry(FEATURE_MSG_STOP, nullptr);
 			}
-			extensions.erase(i);
+			features.erase(feature);
 			return true;
 		}
-		++i;
+		++feature;
 	}
 	return false;
 }
 
-bool M5ez::extensionControl(String name, uint8_t command, void* user) {
-	for(auto& ext : extensions) {
-		if(ext.name == name)
-			return ext.control(command, user);
+bool M5ez::tell(String name, uint8_t command, void* user) {
+	for(auto& feature : features) {
+		if(feature.name == name)
+			return feature.entry(command, user);
 	}
 	return false;
 }

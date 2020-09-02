@@ -29,22 +29,22 @@
 #define TFT_W		320
 #define TFT_H		240
 
-#define EXTENSION_CONTROL_PING			0	// Required (return true)
-#define EXTENSION_CONTROL_START			1	// Required
-#define EXTENSION_CONTROL_PAUSE			2	// Optional
-#define EXTENSION_CONTROL_RESUME		3	// Optional
-#define EXTENSION_CONTROL_STOP			4	// Recommended
-#define EXTENSION_CONTROL_QUERY_ENABLED	5	// Optional
-#define EXTENSION_CONTROL_FACES_POLL	10	// Defined in extensions/ezFACES
-#define EXTENSION_CONTROL_CLOCK_EVENTS	11	// Defined in extensions/ezClock
-// EXTENSION_CONTROL_... 6 - 99 reserved. 100+ for specific extension use
+#define FEATURE_MSG_PING			0	// Required (return true)
+#define FEATURE_MSG_START			1	// Required
+#define FEATURE_MSG_PAUSE			2	// Optional
+#define FEATURE_MSG_RESUME			3	// Optional
+#define FEATURE_MSG_STOP			4	// Recommended
+#define FEATURE_MSG_QUERY_ENABLED	5	// Optional
+#define FEATURE_MSG_FACES_POLL		10	// Defined in features/ezFACES
+#define FEATURE_MSG_CLOCK_EVENTS	11	// Defined in features/ezClock
+// FEATURE_... 6 - 99 reserved. 100+ for specific feature use
 
-#define EXTENSION_INSTALL_EZWIFI			// Enable built-in extension
-#define EXTENSION_INSTALL_EZFACES			// Enable built-in extension
-#define EXTENSION_INSTALL_EZBACKLIGHT		// Enable built-in extension ezBacklight
-#define EXTENSION_INSTALL_EZCLOCK			// Enable built-in extension
-#define EXTENSION_INSTALL_EZBATTERY			// Enable built-in extension
-#define EXTENSION_INSTALL_EZBLE				// Enable built-in extension
+#define FEATURE_INSTALL_EZWIFI			// Enable built-in feature ezWifi
+#define FEATURE_INSTALL_EZFACES			// Enable built-in feature ezFACES
+#define FEATURE_INSTALL_EZBACKLIGHT		// Enable built-in feature ezBacklight
+#define FEATURE_INSTALL_EZCLOCK			// Enable built-in feature ezClock
+#define FEATURE_INSTALL_EZBATTERY		// Enable built-in feature ezBattery
+#define FEATURE_INSTALL_EZBLE			// Enable built-in feature ezBLE
 
 
 struct line_t {
@@ -52,11 +52,11 @@ struct line_t {
 	String line;
 };
 
-typedef	bool(*extension_entry_t)(uint8_t command, void* user);
+typedef	bool(*feature_entry_t)(uint8_t command, void* user);
 
-struct extension_t {
+struct feature_t {
 	String name;
-	extension_entry_t control;
+	feature_entry_t entry;
 };
 
 
@@ -491,10 +491,11 @@ class M5ez {
 
 		static String version();
 
-		static bool install(String name, extension_entry_t control);
-		static bool uninstall(String name);
-		static bool extensionControl(String name, uint8_t command, void* user);
-		static std::vector<extension_t> extensions;
+		// Installable feature control
+		static bool add(String name, feature_entry_t entry);
+		static bool remove(String name);
+		static bool tell(String name, uint8_t command, void* user);
+		static std::vector<feature_t> features;
 
 	private:
 		static bool _begun;

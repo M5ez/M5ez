@@ -4,7 +4,7 @@
 
 class ezBLE {
 	public:
-		static bool control(uint8_t command, void* /* user */);
+		static bool entry(uint8_t command, void* /* user */);
 		static void begin();
 		static void menu();
 		static void disconnect();
