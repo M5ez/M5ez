@@ -758,12 +758,14 @@ std::vector<extension_t> M5ez::extensions = {
 int16_t M5ez::_text_cursor_x, M5ez::_text_cursor_y, M5ez::_text_cursor_h, M5ez::_text_cursor_w;
 bool M5ez::_text_cursor_state;
 long  M5ez::_text_cursor_millis;
+bool M5ez::_begun = false;
 
 void M5ez::begin() {
 	m5.begin();
 	ezTheme::begin();
 	ez.screen.begin();
 	ez.settings.begin();
+	_begun = true;
 }
 
 void M5ez::yield() {
@@ -1329,11 +1331,31 @@ bool M5ez::install(String name, extension_entry_t control) {
 	ext.name = name;
 	ext.control = control;
 	extensions.push_back(ext);
+	if(_begun) {
+		// If ez.begin() has already been called, do not postpone start
+		control(EXTENSION_CONTROL_START, nullptr);
+	}
 	return true;
 }
 
+bool M5ez::uninstall(String name) {
+	auto i = std::begin(extensions);
+	while(i != std::end(extensions)) {
+		if(i->name == name) {
+			if(_begun) {
+				// If ez.begin() has been called, ext was started.
+				i->control(EXTENSION_CONTROL_STOP, nullptr);
+			}
+			extensions.erase(i);
+			return true;
+		}
+		++i;
+	}
+	return false;
+}
+
 bool M5ez::extensionControl(String name, uint8_t command, void* user) {
-	for(auto& ext : M5ez::extensions) {
+	for(auto& ext : extensions) {
 		if(ext.name == name)
 			return ext.control(command, user);
 	}

@@ -492,10 +492,12 @@ class M5ez {
 		static String version();
 
 		static bool install(String name, extension_entry_t control);
+		static bool uninstall(String name);
 		static bool extensionControl(String name, uint8_t command, void* user);
 		static std::vector<extension_t> extensions;
 
 	private:
+		static bool _begun;
 		static std::vector<event_t> _events;
 		static bool _redraw;
 		static ezMenu* _currentMenu;
