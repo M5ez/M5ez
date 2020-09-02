@@ -29,6 +29,7 @@
 #define TFT_W		320
 #define TFT_H		240
 
+// Feature messages, used in ez.tell() and feature.entry()
 #define FEATURE_MSG_PING			0	// Required (return true)
 #define FEATURE_MSG_START			1	// Required
 #define FEATURE_MSG_PAUSE			2	// Optional
@@ -45,6 +46,27 @@
 #define FEATURE_INSTALL_EZCLOCK			// Enable built-in feature ezClock
 #define FEATURE_INSTALL_EZBATTERY		// Enable built-in feature ezBattery
 #define FEATURE_INSTALL_EZBLE			// Enable built-in feature ezBLE
+
+// For compatability defines in M5ez object
+#ifdef FEATURE_INSTALL_EZWIFI
+	class ezWifi;
+#endif
+#ifdef FEATURE_INSTALL_EZFACES
+	class ezFACES;
+#endif
+#ifdef FEATURE_INSTALL_EZBACKLIGHT
+	class ezBacklight;
+#endif
+#ifdef FEATURE_INSTALL_EZCLOCK
+	class ezClock;
+#endif
+#ifdef FEATURE_INSTALL_EZBATTERY
+	class ezBattery;
+#endif
+#ifdef FEATURE_INSTALL_EZBLE
+	class ezBLE;
+#endif
+
 
 
 struct line_t {
@@ -494,8 +516,28 @@ class M5ez {
 		// Installable feature control
 		static bool add(String name, feature_entry_t entry);
 		static bool remove(String name);
-		static bool tell(String name, uint8_t command, void* user);
+		static bool tell(String name, uint8_t command, void* user = nullptr);
 		static std::vector<feature_t> features;
+
+		// Compatability defines:
+		#ifdef FEATURE_INSTALL_EZWIFI
+			static ezWifi	wifi;
+		#endif
+		#ifdef FEATURE_INSTALL_EZFACES
+			static ezFACES	faces;
+		#endif
+		#ifdef FEATURE_INSTALL_EZBACKLIGHT
+			static ezBacklight	backlight;
+		#endif
+		#ifdef FEATURE_INSTALL_EZCLOCK
+			static ezClock clock;
+		#endif
+		#ifdef FEATURE_INSTALL_EZBATTERY
+			static ezBattery battery;
+		#endif
+		#ifdef FEATURE_INSTALL_EZBLE
+			static ezBLE ble;
+		#endif
 
 	private:
 		static bool _begun;
@@ -518,6 +560,27 @@ class M5ez {
 		static void _fitLines(String text, uint16_t max_width, uint16_t min_width, std::vector<line_t>& lines);
 	//
 };
+
+// Conditionally included "standard features"
+#ifdef FEATURE_INSTALL_EZWIFI
+	#include "features/ezWifi/ezWifi.h"
+#endif
+#ifdef FEATURE_INSTALL_EZFACES
+	#include "features/ezFACES/ezFACES.h"
+#endif
+#ifdef FEATURE_INSTALL_EZBACKLIGHT
+	#include "features/ezBacklight/ezBacklight.h"
+#endif
+#ifdef FEATURE_INSTALL_EZCLOCK
+	#include "features/ezClock/ezClock.h"
+#endif
+#ifdef FEATURE_INSTALL_EZBATTERY
+	#include "features/ezBattery/ezBattery.h"
+#endif
+#ifdef FEATURE_INSTALL_EZBLE
+	#include "features/ezBLE/ezBLE.h"
+#endif
+
 
 extern M5ez ez;
 

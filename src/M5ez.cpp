@@ -2,26 +2,6 @@
 #include <Preferences.h>
 #include <M5ez.h>
 
-// Conditionally included "standard features"
-#ifdef FEATURE_INSTALL_EZWIFI
-	#include "features/ezWifi/ezWifi.h"
-#endif
-#ifdef FEATURE_INSTALL_EZFACES
-	#include "features/ezFACES/ezFACES.h"
-#endif
-#ifdef FEATURE_INSTALL_EZBACKLIGHT
-	#include "features/ezBacklight/ezBacklight.h"
-#endif
-#ifdef FEATURE_INSTALL_EZCLOCK
-	#include "features/ezClock/ezClock.h"
-#endif
-#ifdef FEATURE_INSTALL_EZBATTERY
-	#include "features/ezBattery/ezBattery.h"
-#endif
-#ifdef FEATURE_INSTALL_EZBLE
-	#include "features/ezBLE/ezBLE.h"
-#endif
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -661,7 +641,7 @@ String ezButtons::poll() {
 	}
 
 	if (keystr == "~") keystr = "";
-	if (keystr != "") ez.tell("ezBacklight", FEATURE_MSG_PING, nullptr);
+	if (keystr != "") ez.tell("ezBacklight", FEATURE_MSG_PING);
 	return keystr;
 }
 
@@ -754,6 +734,27 @@ std::vector<feature_t> M5ez::features = {
 #endif
 };
 
+// Compatability initialization
+#ifdef FEATURE_INSTALL_EZWIFI
+	ezWifi M5ez::wifi;
+#endif
+#ifdef FEATURE_INSTALL_EZFACES
+	ezFACES M5ez::faces;
+#endif
+#ifdef FEATURE_INSTALL_EZBACKLIGHT
+	ezBacklight M5ez::backlight;
+#endif
+#ifdef FEATURE_INSTALL_EZCLOCK
+	ezClock M5ez::clock;
+#endif
+#ifdef FEATURE_INSTALL_EZBATTERY
+	ezBattery M5ez::battery;
+#endif
+#ifdef FEATURE_INSTALL_EZBLE
+	ezBLE M5ez::ble;
+#endif
+
+
 // ez.textInput
 int16_t M5ez::_text_cursor_x, M5ez::_text_cursor_y, M5ez::_text_cursor_h, M5ez::_text_cursor_w;
 bool M5ez::_text_cursor_state;
@@ -785,7 +786,7 @@ void M5ez::yield() {
 			}
 		}
 	}
-	ez.tell("ezClock", FEATURE_MSG_CLOCK_EVENTS, nullptr);
+	ez.tell("ezClock", FEATURE_MSG_CLOCK_EVENTS);
 }
 
 void M5ez::addEvent(uint16_t (*function)(), uint32_t when /* = 1 */) {
@@ -872,9 +873,9 @@ String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, cons
 String M5ez::textInput(String header /* = "" */, String defaultText /* = "" */) {
 
 	int16_t current_kb = 0, prev_kb = 0, locked_kb = 0;
-	if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED, nullptr)) {
+	if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED)) {
 		current_kb = locked_kb = prev_kb = ez.theme->input_faces_btns;
-		ez.tell("ezFACES", FEATURE_MSG_FACES_POLL, nullptr);	// flush key buffer in FACES
+		ez.tell("ezFACES", FEATURE_MSG_FACES_POLL);	// flush key buffer in FACES
 	}
 	String tmpstr;
 	String text = defaultText;
@@ -886,7 +887,7 @@ String M5ez::textInput(String header /* = "" */, String defaultText /* = "" */) 
 
 	while (true) {
 		key = ez.buttons.poll();
-		if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED, nullptr)) {
+		if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED)) {
 			ez.tell("ezFACES", FEATURE_MSG_FACES_POLL, (void*)&key);
 		}
 		if (key == "Done" || key == (String)char(13)) return text;
@@ -988,8 +989,8 @@ void M5ez::_textCursor(bool state) {
 String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonly /*= false*/, String buttons /*= "up#Done#down"*/, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
 	if (!font) font = ez.theme->tb_font;
 	if (color == NO_COLOR) color = ez.theme->tb_color;
-	if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED, nullptr)) {
-		ez.tell("ezFACES", FEATURE_MSG_FACES_POLL, nullptr);	// flush key buffer in FACES
+	if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED)) {
+		ez.tell("ezFACES", FEATURE_MSG_FACES_POLL);	// flush key buffer in FACES
 	}
 	else {
 		readonly = true;
@@ -1077,7 +1078,7 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 		}
 		String key = ez.buttons.poll();
 
-		if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED, nullptr)) {
+		if(ez.tell("ezFACES", FEATURE_MSG_QUERY_ENABLED)) {
 			ez.tell("ezFACES", FEATURE_MSG_FACES_POLL, (void*)&key);
 		}
 		if (key == "down") {
