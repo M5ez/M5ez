@@ -1,4 +1,3 @@
-
 #include <Preferences.h>
 #include <BLEDevice.h>
 #include <BLEUtils.h>

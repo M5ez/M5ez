@@ -1,6 +1,12 @@
 #pragma once
 #include <ezTime.h>
 
+// Coupling:
+// ezClock (actually ezTime) exposes one function that M5ez calls from yield: events().
+// It's implemented with control(EXTENSION_CONTROL_CLOCK_EVENTS, nullptr)
+
+#define EXTENSION_CONTROL_CLOCK_EVENTS	11
+
 class ezClock {
 	public:
 		static bool control(uint8_t command, void* /* user */);

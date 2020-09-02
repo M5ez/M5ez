@@ -23,6 +23,9 @@ bool ezClock::control(uint8_t command, void* /* user */) {
 			return true;
 		case EXTENSION_CONTROL_QUERY_ENABLED:
 			return _on;
+		case EXTENSION_CONTROL_CLOCK_EVENTS:
+			events();	// ezTime.events(), updated from M5ez::yield()
+			return true;
 	}
 	return false;
 }

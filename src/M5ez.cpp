@@ -1,16 +1,26 @@
+#include <algorithm>
+#include <Preferences.h>
 #include <M5ez.h>
 
-#include <Preferences.h>
-
-#include "extensions/ezWifi/ezWifi.h"
-#include "extensions/ezFACES/ezFACES.h"
-#include "extensions/ezBacklight/ezBacklight.h"
-#include "extensions/ezClock/ezClock.h"
-#include "extensions/ezBattery/ezBattery.h"
-#include "extensions/ezBLE/ezBLE.h"
-
-
-#include <algorithm>
+// Conditionally included "standard extensions"
+#ifdef EXTENSION_INSTALL_EZWIFI
+	#include "extensions/ezWifi/ezWifi.h"
+#endif
+#ifdef EXTENSION_INSTALL_EZFACES
+	#include "extensions/ezFACES/ezFACES.h"
+#endif
+#ifdef EXTENSION_INSTALL_EZBACKLIGHT
+	#include "extensions/ezBacklight/ezBacklight.h"
+#endif
+#ifdef EXTENSION_INSTALL_EZCLOCK
+	#include "extensions/ezClock/ezClock.h"
+#endif
+#ifdef EXTENSION_INSTALL_EZBATTERY
+	#include "extensions/ezBattery/ezBattery.h"
+#endif
+#ifdef EXTENSION_INSTALL_EZBLE
+	#include "extensions/ezBLE/ezBLE.h"
+#endif
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -723,9 +733,26 @@ ezSettings M5ez::settings;
 ezMenu* M5ez::_currentMenu = nullptr;
 bool M5ez::_in_event = false;
 std::vector<event_t> M5ez::_events;
-std::vector<extension_t> M5ez::extensions = { {"ezWifi", ezWifi::control}, {"ezFACES", ezFACES::control},
-											{"ezBacklight", ezBacklight::control}, {"ezClock", ezClock::control},
-											{"ezBattery", ezBattery::control}, {"ezBLE", ezBLE::control} };
+std::vector<extension_t> M5ez::extensions = {
+#ifdef EXTENSION_INSTALL_EZWIFI
+	{"ezWifi", ezWifi::control},
+#endif
+#ifdef EXTENSION_INSTALL_EZFACES
+	{"ezFACES", ezFACES::control},
+#endif
+#ifdef EXTENSION_INSTALL_EZBACKLIGHT
+	{"ezBacklight", ezBacklight::control},
+#endif
+#ifdef EXTENSION_INSTALL_EZCLOCK
+	{"ezClock", ezClock::control},
+#endif
+#ifdef EXTENSION_INSTALL_EZBATTERY
+	{"ezBattery", ezBattery::control},
+#endif
+#ifdef EXTENSION_INSTALL_EZBLE
+	{"ezBLE", ezBLE::control},
+#endif
+};
 
 // ez.textInput
 int16_t M5ez::_text_cursor_x, M5ez::_text_cursor_y, M5ez::_text_cursor_h, M5ez::_text_cursor_w;
@@ -756,7 +783,7 @@ void M5ez::yield() {
 			}
 		}
 	}
-	events();		// This was #ifdef M5EZ_CLOCK, with a comment: TMP
+	ez.extensionControl("ezClock", EXTENSION_CONTROL_CLOCK_EVENTS, nullptr);
 }
 
 void M5ez::addEvent(uint16_t (*function)(), uint32_t when /* = 1 */) {

@@ -35,7 +35,17 @@
 #define EXTENSION_CONTROL_RESUME		3	// Optional
 #define EXTENSION_CONTROL_STOP			4	// Recommended
 #define EXTENSION_CONTROL_QUERY_ENABLED	5	// Optional
+#define EXTENSION_CONTROL_FACES_POLL	10	// Defined in extensions/ezFACES
+#define EXTENSION_CONTROL_CLOCK_EVENTS	11	// Defined in extensions/ezClock
 // EXTENSION_CONTROL_... 6 - 99 reserved. 100+ for specific extension use
+
+#define EXTENSION_INSTALL_EZWIFI			// Enable built-in extension
+#define EXTENSION_INSTALL_EZFACES			// Enable built-in extension
+#define EXTENSION_INSTALL_EZBACKLIGHT		// Enable built-in extension ezBacklight
+#define EXTENSION_INSTALL_EZCLOCK			// Enable built-in extension
+#define EXTENSION_INSTALL_EZBATTERY			// Enable built-in extension
+#define EXTENSION_INSTALL_EZBLE				// Enable built-in extension
+
 
 struct line_t {
 	int16_t position;
