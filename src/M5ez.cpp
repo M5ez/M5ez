@@ -2004,6 +2004,8 @@ void ezSettings::defaults() {
 
 #ifdef M5EZ_BATTERY
 	bool ezBattery::_on = false;
+	#define BATTERY_CHARGING_OFF (255)
+	uint8_t ezBattery::_numChargingBars = BATTERY_CHARGING_OFF;
 
 	void ezBattery::begin() {
 		Wire.begin();
@@ -2052,7 +2054,7 @@ void ezSettings::defaults() {
 	uint16_t ezBattery::loop() {
 		if (!_on) return 0;
 		ez.header.draw("battery");
-		return 5000;
+		return (_numChargingBars != BATTERY_CHARGING_OFF ? 1000 : 5000);
 	}
 
 	//Transform the M5Stack built in battery level into an internal format.
@@ -2105,6 +2107,15 @@ void ezSettings::defaults() {
 
 	void ezBattery::_drawWidget(uint16_t x, uint16_t w) {
 		uint8_t currentBatteryLevel = getTransformedBatteryLevel();
+		if((M5.Power.isChargeFull() == false) && (M5.Power.isCharging() == true)) {
+			if(_numChargingBars < currentBatteryLevel) {
+				_numChargingBars++;
+			} else {
+				_numChargingBars = 0;
+			}
+		} else {
+			_numChargingBars = BATTERY_CHARGING_OFF;
+		}
 		uint16_t left_offset = x + ez.theme->header_hmargin;
 		uint8_t top = ez.theme->header_height / 10;
 		uint8_t height = ez.theme->header_height * 0.8;
@@ -2113,7 +2124,7 @@ void ezSettings::defaults() {
 		uint8_t bar_width = (ez.theme->battery_bar_width - ez.theme->battery_bar_gap * 5) / 4.0;
 		uint8_t bar_height = height - ez.theme->battery_bar_gap * 2;
 		left_offset += ez.theme->battery_bar_gap;
-		for (uint8_t n = 0; n < currentBatteryLevel; n++) {
+		for (uint8_t n = 0; n < (_numChargingBars != BATTERY_CHARGING_OFF ? _numChargingBars : currentBatteryLevel); n++) {
 			m5.lcd.fillRect(left_offset + n * (bar_width + ez.theme->battery_bar_gap), top + ez.theme->battery_bar_gap, 
 				bar_width, bar_height, getBatteryBarColor(currentBatteryLevel));
 		}

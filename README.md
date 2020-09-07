@@ -998,7 +998,7 @@ BLE, short for [Bluetooth Low Energy](https://en.wikipedia.org/wiki/Bluetooth_Lo
 
 ### Battery
 
-The battery menu allows you to selectively show a battery level icon in the header bar. But due to [hardware limitations](https://github.com/m5stack/M5Stack/issues/74) it can only show four different battery levels. You can access its menu from `ez.battery.menu`.
+The battery menu allows you to selectively show a battery level icon in the header bar. But due to [hardware limitations](https://github.com/m5stack/M5Stack/issues/74) it can only show four different battery levels. You can access its menu from `ez.battery.menu`. The battery level icon is animated while charging via USB.
 
 &nbsp;
 
