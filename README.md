@@ -2,6 +2,8 @@
 
 >*M5ez (pronounced "M5 easy") is a complete interface builder library for the M5Stack ESP32 system. It allows even novice programmers to create good looking interfaces. It comes with menus as text or as images, message boxes, very flexible button setup (including different length presses and multi-button functions), 3-button text input (you have to see it to believe it) and built-in Wifi support. Now you can concentrate on what your program does, and let M5ez worry about everything else.*
 
+![M5EzBuild](https://github.com/M5ez/M5ez/workflows/M5EzBuild/badge.svg?branch=master)
+
 *written by Rop Gonggrijp, with help and contributions from many others*
 
 [![](images/M5ez.png)](https://youtu.be/132gvdlwKZw)
@@ -362,7 +364,7 @@ The font and color options allow you to use something other than the default (th
 
 ## ezProgressBar
 
-**`class ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR)`**
+**`class ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR, bool show_val = false, uint16_t val_color = PROGRESSBAR_VAL_COLOR)`**
 
 ![](images/ezProgressBar.png)
 
