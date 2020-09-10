@@ -3,7 +3,7 @@
 
 class ScreenShotFeature {
 	public:
-		static bool entry(uint8_t command, void* /* user */);
+		static bool entry(uint8_t command, void* user);
 		static void begin();
 		static void menu();
 		static uint16_t loop();
