@@ -636,6 +636,7 @@ class ezSettings {
 			static bool _on;
 			static void _refresh();
 			static void _drawWidget(uint16_t x, uint16_t w);
+			static uint8_t _numChargingBars;
 	};
 
 #endif
