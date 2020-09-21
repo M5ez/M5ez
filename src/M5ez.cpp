@@ -1,4 +1,5 @@
 #include <M5ez.h>
+#include <SPIFFS.h>
 
 #include <Preferences.h>
 
@@ -88,26 +89,57 @@ void ezTheme::menu() {
 //   S C R E E N
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static void drawBackground(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 uint16_t ezScreen::_background; 
+String ezScreen::_background_img; 
 
 void ezScreen::begin() {
 	_background = ez.theme->background;
+	_background_img = ez.theme->background_img;
+
 	ez.header.begin();
 	ez.canvas.begin();
 	ez.buttons.begin();
 }
 
 uint16_t ezScreen::background() { return _background; }
+String * ezScreen::background_img() { return &_background_img; }
 
-void ezScreen::clear() { clear(ez.theme->background); }
+void ezScreen::clear() { 
+
+	clear(ez.theme->background_img,ez.theme->background); 
+}
+
+extern bool bgcacheinvalid;
+
+void ezScreen::clear(String image) {
+	_background_img = image;
+	ez.header.clear(false);
+	ez.buttons.clear(false);
+	ez.canvas.reset();
+	bgcacheinvalid=true;
+	drawBackground(0, 0, TFT_W, TFT_H);
+}
+
+void ezScreen::clear(String image,uint16_t color) {
+	_background_img = image;
+	_background = color;
+
+	ez.header.clear(false);
+	ez.buttons.clear(false);
+	ez.canvas.reset();
+	bgcacheinvalid=true;
+	drawBackground(0, 0, TFT_W, TFT_H);
+}
 
 void ezScreen::clear(uint16_t color) {
 	_background = color;
 	ez.header.clear(false);
 	ez.buttons.clear(false);
 	ez.canvas.reset();
-	m5.lcd.fillRect(0, 0, TFT_W, TFT_H, color);
+	//Clear bg cache here too?
+	drawBackground(0, 0, TFT_W, TFT_H);
 }
 
 
@@ -249,6 +281,118 @@ bool ezCanvas::_wrap, ezCanvas::_scroll;
 std::vector<print_t> ezCanvas::_printed;
 uint32_t ezCanvas::_next_scroll;
 
+
+
+/*cache for BG data.
+In reality, it's going to only be 5k or so before it's better quality than the tiny screen.
+This is an acceptable amount of RAM as far as I'm concerned.
+
+I'm a little worried about read disturb errors if we just read with no attempt at caching.
+*/
+static uint8_t * bgcache=0;
+static int bgcachelen;
+bool bgcacheinvalid=true;
+
+/*Draw a patch of whatever the "background" should be
+over the slected rectangle. This is the actual back-most background
+meant to show behind menus and text boxes.
+*/
+static void drawBackground(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+{
+
+	if(bgcacheinvalid)
+	{
+		if(bgcache)
+		{
+			free(bgcache);
+			bgcache=0;
+		}
+	}
+	bgcacheinvalid =false;
+	if(*ez.screen.background_img() =="")
+	{
+		if(bgcache)
+		{
+			free(bgcache);
+			bgcache=0;
+		}
+ 		m5.lcd.fillRect(x, y, w, h, ez.screen.background());
+	
+	}
+	else
+	{  
+		fs::FS *filesystem;
+		char offset = 0;
+
+		//Fill the cache if needed
+		if(bgcache==0)
+		{
+			//Select a filesystem, because Arduino doesn't give a unified view.
+			if(ez.screen.background_img()->startsWith("/sd/"))
+				{
+					offset = 3;
+					filesystem=&SD;
+				}
+			else if(ez.screen.background_img()->startsWith("/spiffs/"))
+				{
+					offset =7;
+					filesystem=&SPIFFS;
+				}
+				
+				if(filesystem->exists(ez.screen.background_img()->c_str()+offset))
+				{
+					//Offset is fir skipping the filesystem part, we get that by
+					//choosing objects... sigh.
+					File f =filesystem->open(ez.screen.background_img()->c_str()+offset);
+					//Don't load huge files and crash
+					//Prefer PSRAM
+					bgcache = (uint8_t*)ps_malloc(f.size());
+					if(bgcache==0)
+					{
+						//Size limit 48k with no PSRAM
+						//Anything more is just too likely to run out
+						//and crash
+						if(f.size()<48000L)
+							{			
+								//Fallback
+								bgcache = (uint8_t*)malloc(f.size());
+							}
+		
+							else
+							{
+								Serial.println(F("BG too big"));
+							}	
+
+					}
+					if(bgcache)
+					{
+						f.readBytes((char*)bgcache, bgcachelen);
+						bgcachelen=f.size();
+					}
+					else
+					{
+						Serial.println(F("can't malloc for background image cache"));
+					}
+				
+					f.close();
+				}
+		}
+
+		if(bgcache)
+		{
+			//Interpret literally as a string
+			M5.Lcd.drawJpg(bgcache, bgcachelen, x, y,w,h,x,y,JPEG_DIV_NONE);
+		}
+		//Fallback to solid color
+		else
+		{
+			m5.lcd.fillRect(x, y, w, h, ez.screen.background());
+		}
+
+		
+	}
+}
+
 void ezCanvas::begin() {
 	_left = 0;
 	_right = TFT_W - 1;
@@ -269,7 +413,7 @@ void ezCanvas::reset() {
 }
 
 void ezCanvas::clear() {
-	m5.lcd.fillRect(left(), top(), width(), height(), ez.screen.background());
+	drawBackground(left(), top(), width(), height());
 	_x = _lmargin;
 	_y = 0;
 	_printed.clear();
@@ -363,7 +507,7 @@ uint16_t ezCanvas::loop() {
 		for (uint16_t n = 0; n < _printed.size(); n++) {
 			_printed[n].y -= scroll_by;
 		}
-		m5.lcd.fillRect(left(), top(), width(), height(), ez.screen.background());
+		drawBackground(left(), top(), width(), height());
 		// m5.lcd.fillRect(0, 0, 320, 240, ez.screen.background());
 		for (uint16_t n = 0; n < _printed.size(); n++) {
 			if (_printed[n].y >= _top) {
@@ -504,7 +648,7 @@ void ezButtons::_drawButtons(String btn_a_s, String btn_a_l, String btn_b_s, Str
 	if (btn_a_s != "" || btn_a_l != "" || btn_b_s != "" || btn_b_l != "" || btn_c_s != "" || btn_c_l != "") {
 		if (!_lower_button_row) {
 			// If the lower button row wasn't there before, clear the area first
-			m5.lcd.fillRect(0, TFT_H - ez.theme->button_height - ez.theme->button_gap, TFT_W, ez.theme->button_height + ez.theme->button_gap, ez.screen.background());
+			drawBackground(0, TFT_H - ez.theme->button_height - ez.theme->button_gap, TFT_W, ez.theme->button_height + ez.theme->button_gap);
 		}
 		// Then draw the three buttons there. (drawButton erases single buttons if unused.)
 		if (_btn_a_s != btn_a_s || _btn_a_l != btn_a_l) {
@@ -2409,6 +2553,9 @@ void M5ez::_textCursor(bool state) {
 	_text_cursor_millis = millis();
 }
 
+
+
+
 String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonly /*= false*/, String buttons /*= "up#Done#down"*/, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
 	if (!font) font = ez.theme->tb_font;
 	if (color == NO_COLOR) color = ez.theme->tb_color;
@@ -2442,7 +2589,7 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 	int16_t cursor_y = 0;
 	while (true) {
 		if (redraw) {
-			if (!readonly && cursor_x && cursor_y) m5.lcd.fillRect(cursor_x, cursor_y, cursor_width, cursor_height, ez.screen.background());		//Remove current cursor
+			if (!readonly && cursor_x && cursor_y) drawBackground(cursor_x, cursor_y, cursor_width, cursor_height);		//Remove current cursor
 			cursor_x = cursor_y = 0;
 			tmp_buttons = buttons;
 			if (offset >= lines.size() - lines_per_screen) {
@@ -2454,7 +2601,17 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 			}
 			ez.buttons.show(tmp_buttons);
 			ez.setFont(font);
-			m5.lcd.setTextColor(color, ez.screen.background());
+
+			//I don't think I can draw without a highlight for editable text.
+			//But I can for
+			if(readonly)
+			{
+				m5.lcd.setTextColor(color);
+			}
+			else
+			{
+				m5.lcd.setTextColor(color, ez.screen.background());
+			}
 			m5.lcd.setTextDatum(TL_DATUM);
 			uint16_t x, y;
 			int16_t sol, eol;
@@ -2485,7 +2642,7 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 					} else {
 						x += m5.lcd.drawString(this_line, x, y);
 					}
-					m5.lcd.fillRect(x, y, ez.canvas.width() - x, per_line_h, ez.screen.background());
+					drawBackground(x, y, ez.canvas.width() - x, per_line_h);
 				}
 				redraw = false;
 			}
@@ -2493,7 +2650,7 @@ String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonl
 		if (!readonly && cursor_x && cursor_y && millis() - cursor_time > ez.theme->input_cursor_blink) {
 			cursor_time = millis();
 			if (cursor_state) {
-				m5.lcd.fillRect(cursor_x, cursor_y, cursor_width, cursor_height, ez.screen.background());
+				drawBackground(cursor_x, cursor_y, cursor_width, cursor_height);
 				cursor_state = false;
 			} else {
 				m5.lcd.fillRect(cursor_x, cursor_y, cursor_width, cursor_height, color);
@@ -3007,7 +3164,14 @@ void ezMenu::_drawItem(int16_t n, String text, bool selected) {
 		m5.lcd.setTextColor(ez.theme->menu_item_color);
 	}
 	text = ez.clipString(text, TFT_W - ez.theme->menu_lmargin - 2 * ez.theme->menu_item_hmargin - ez.theme->menu_rmargin);
-	m5.lcd.fillRoundRect(ez.theme->menu_lmargin, top_item_h + n * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h, ez.theme->menu_item_radius, fill_color);
+	if(!selected)
+	{
+		drawBackground(ez.theme->menu_lmargin, top_item_h + n * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h);
+	}
+	else
+	{
+		m5.lcd.fillRoundRect(ez.theme->menu_lmargin, top_item_h + n * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h, ez.theme->menu_item_radius, fill_color);
+	}
 	m5.lcd.drawString(ez.leftOf(text, "\t"), ez.theme->menu_lmargin + ez.theme->menu_item_hmargin, top_item_h + _per_item_h / 2 + n * _per_item_h - 2);
 	if (text.indexOf("\t") != -1) {
 		m5.lcd.setTextDatum(CR_DATUM);
