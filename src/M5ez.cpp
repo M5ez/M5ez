@@ -866,6 +866,7 @@ void ezSettings::defaults() {
 #else // M5EZ_LIGHT_SLEEP
 				// Disconnect WiFi
 				WiFi.disconnect();
+				WiFi.mode(WIFI_MODE_NULL);
 				// Deactivate LCD
 				m5.lcd.setBrightness(0);
 				m5.lcd.sleep();
