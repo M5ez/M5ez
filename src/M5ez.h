@@ -458,6 +458,10 @@ class ezSettings {
 			static uint8_t _inactivity;
 			static uint32_t _last_activity;
 			static bool _backlight_off;
+			static bool _inactive;
+			static uint32_t _ButA_LastChg;
+			static uint32_t _ButB_LastChg;
+			static uint32_t _ButC_LastChg;
 		//
 	};
 #endif
@@ -632,7 +636,9 @@ class ezSettings {
 			static uint16_t loop();
 			static uint8_t getTransformedBatteryLevel();
 			static uint32_t getBatteryBarColor(uint8_t batteryLevel);
+			static void adaptChargeMode();
 		private:
+			static bool _canControl;
 			static bool _on;
 			static void _refresh();
 			static void _drawWidget(uint16_t x, uint16_t w);
