@@ -863,8 +863,9 @@ void ezSettings::defaults() {
 				_ButA_LastChg = M5.BtnA.lastChange();
 				_ButB_LastChg = M5.BtnB.lastChange();
 				_ButC_LastChg = M5.BtnC.lastChange();
-
+			}
 		}
+
 		if (_backlight_off || _inactive) {
 			ez.yield();
 			if (_ButA_LastChg != M5.BtnA.lastChange() || _ButB_LastChg != M5.BtnB.lastChange() || _ButC_LastChg != M5.BtnC.lastChange()) {
