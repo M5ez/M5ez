@@ -2,11 +2,13 @@
 
 >*M5ez (pronounced "M5 easy") is a complete interface builder library for the M5Stack ESP32 system. It allows even novice programmers to create good looking interfaces. It comes with menus as text or as images, message boxes, very flexible button setup (including different length presses and multi-button functions), 3-button text input (you have to see it to believe it) and built-in Wifi support. Now you can concentrate on what your program does, and let M5ez worry about everything else.*
 
-*written by Rop Gonggrijp*
+![M5EzBuild](https://github.com/M5ez/M5ez/workflows/M5EzBuild/badge.svg?branch=master)
+
+*written by Rop Gonggrijp, with help and contributions from many others*
 
 [![](images/M5ez.png)](https://youtu.be/132gvdlwKZw)
 
-## introduction
+## Introduction
 
 The M5Stack is a small computer that is a tinkerer's dream. It is based on Espressif's ESP32 chip (with WiFi and Bluetooth), it has a 320x240 pixel color screen, three buttons, a speaker, an SD slot and it allows you to stack boards below it, each in their own plastic enclosure. The makers sell boards for GSM, GPS and LoRa (LOng RAnge radio) as well as a motor controller board and an empty experimenter board. The Chinese operation that makes them appears to sell a lot of them and I could get mine off of Amazon in a week. If you like to build things that you can hold in your hand and not just write code for yet another naked-looking board plugged into your USB port, this thing is your friend.
 
@@ -16,7 +18,19 @@ Making something that looks good and allows users to interact with it is not sim
 
 In the budding M5Stack community, there have been some initiatives to make it easier to create user interfaces. Most notably a M5Stack forum user named Calin make something called "M5Stack MultiApp" which allows more easy integration of multiple existing programs into one app. His work serves as an inspiration for my work. But as much as you could have multiple programs have a common user interface, creating the programs still was nowhere near simple enough.
 
-Enter M5ez, my contribution to making programming on the M5Stack *a lot* easier. I hope you'll enjoy programming with this.
+Enter M5ez, our contribution to making programming on the M5Stack *a lot* easier. We hope you'll enjoy programming with this.
+
+### Other products by M5
+
+M5 is not only making the M5stack anymore. There's now an M5Stick that is an even smaller ESP32 system with a smaller screen, there's the M5 Atom which has no screen and just LEDs, and soon there will be an M5stack Core2 which has a capacitive touch screen. We plan to support some of these devices, the stick support will be rolled out soon.
+
+### Alternatives
+
+#### UiFlow
+
+Since writing M5ez, there has been another interface toolkit for the M5Stack, called UiFlow. It uses a web-and-cloud-based IDE that can be seen as "blocky" symbols or as python and creates micropython code. UiFlow supports a lot of the hardware sold in conjunction with the M5Stack and is very much geared towards learning and education.
+
+That said, building the functionality that comes "packaged" with M5ez would take quite a bit of work with UiFlow. If you have existing things that run on Arduino, like programming in C and/or with the Arduino IDE, then M5ez might be the better choice. Also it is generally easier to create consistent and visually pleasing interfaces in M5ez, and complex things can take surprisingly little work.
 
 &nbsp;
 
@@ -32,82 +46,31 @@ M5ez is an Arduino library. To start using it with the Arduino IDE:
 
 in File -> Examples you will now see an M5ez heading down under "Examples from custom libraries"
 
-You'll have your first application on the screen in no time. You can also start with one of the sketches below in the "Menus" section of the documentation.
-
-> *If you do not want M5ez to depend on the ezTime library, simply comment out the `#define M5EZ_CLOCK` line in the `M5ez.h` file in M5ez's library's directory.*
+You'll have your first application on the screen in no time. You can also start with one of the sketches below in the "Menus" section of the documentation. In fact we strongly recommend that you play around with the M5ez demo application, since it is a comprehensive showcase of M5ez's functionality that will give you a good feel for what you can and cannot do with M5ez.
 
 &nbsp;
 
 ### If you get `fatal error: ezTime.h: No such file or directory`
 
-You need to install two libraries:M5ez and ezTime (see above). 
+Note that it says above that you need to install two libraries: *M5ez* and *ezTime*.
 
 > Alternatively, you can install M5ez without the time library (and without the on-screen clock), by commenting out `#define M5EZ_CLOCK` in file `m5ez.h` in the M5ez library directory.
 
-### If you get a WPS error: outdated ESP32 Arduino platform support
-
-By default, M5ez supports "WPS pushbutton" and "WPS pincode" as ways to connect to Wifi. If you run into an error saying ...
-
-```
-Documents\Arduino\libraries\M5ez-master\src\M5ez.cpp:1319:19:
-error: 'struct esp_wps_config_t' has no member named 'factory_info'
-```
-
-... it means your ESP32 library is out of date. Espressif (the ESP32 people) changed how WPS is done in late June 2018. If this happens to you and you would like to have WPS, simply follow the instructions [here](https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/boards_manager.md) to make sure you have the latest ESP32 Arduino support and the problem should go away.
-
-> *Alternatively, if you do not plan to use WPS, you can also comment out `#define M5EZ_WPS` in the `M5ez.h` file in the library's directory.**
-
 &nbsp;
 
-## M5ez 2.0 
+## Structure of documentation
 
-> *You can skip this section if you have never worked with M5ez 1.x*
+You've now seen the [Introduction](https://github.com/M5ez/M5ez#introduction) and [Getting Started](https://github.com/M5ez/M5ez#getting-started) sections of the manual. Below is the [User Manual](https://github.com/M5ez/M5ez#m5ez-user-manual) which lists all the functions of M5ez in detail. At the end there's a [Table of Contents](https://github.com/M5ez/M5ez#table-of-contents) which may be of help finding something.
 
-### What's new in M5ez 2.x ?
+### Tech Notes
 
-* Many user-selectable settings, including backlight, clock/timezone, FACES keyboard, etc.
-* Theme values can be changed at runtime, multiple thmes can be loaded; a theme chooser then shows up in the settings
-* Header can have user-defined widgets (internally used for clock and wifi signal display)
-* The canvas now inherits from the Print class, so everything print and println could do, you can now also do on the canvas.
-* The canvas scrolls (if you want it to)
-* you can create your own events that get ran in the M5ez button wait loops
-* Many bugs got fixed
-* Code is a lot cleaner now, easier to add things without the sometimes ad-hoc and organically grown constructs of M5ez 1.x
-
-However, all of this comes with some changes to the names of common functions in M5ez. Generally things are more consistent now, but that does mean they are different: your M5ez 1.x code will not run without modifications. I am not planning an M5ez 3.0 at this time, so expect no further modifications to be needed to existing code for a while.
-
-### Converting code from M5ez 1.x to 2.x
-
-To convert code form 1.x to 2.x, first remove the `m5.begin()` at the start of your code, and replace it by `ez.begin()`. Then it is recommended you replace the following functions:
-
-| M5ez 1.x |    | M5ez 2.x |
-|:---------|:--:|:---------|
-| `ez.clearScreen()` | **&mdash;>** | `ez.screen.clear()`
-| `ez.background()` | **&mdash;>** | `ez.screen.background()`
-| `ez.drawHeader(` | **&mdash;>** | `ez.header.show(`
-| `ez.removeHeader()` | **&mdash;>** | `ez.header.hide()`
-| `ez.clearCanvas()` | **&mdash;>** | `ez.canvas.clear()`
-| `ez.canvasTop()` | **&mdash;>** | `ez.canvas.top()`
-| `ez.canvasBottom()` | **&mdash;>** | `ez.canvas.bottom()`
-| `ez.canvasLeft()` | **&mdash;>** | `ez.canvas.left()`
-| `ez.canvasRight()` | **&mdash;>** | `ez.canvas.right()`
-| `ez.canvasWidth()` | **&mdash;>** | `ez.canvas.width()`
-| `ez.canvasHeight()` | **&mdash;>** | `ez.canvas.height()`
-| `ez.print(` | **&mdash;>** | `ez.canvas.print(`
-| `ez.println(` | **&mdash;>** | `ez.canvas.println(`
-| `ez.drawButtons(` | **&mdash;>** | `ez.buttons.show(`
-| `ez.getButtons(` | **&mdash;>** | `ez.buttons.poll(`
-| `ez.waitForButtons(` | **&mdash;>** | `ez.buttons.wait(`
-
-Then, check all your print functions: they no longer support the setting of font, location or color in the statement itself: these need to be done with `ez.canvas.font`, `ez.canvas.color` etc. (Print is much nicer now because the canvas object inherited from the Print class, and because the canvas can scroll now.)
-
-Then simply fix any remaining problems by first fixing any compiler complaints with this document in hand, and then walk through all of your program's functionality to see if everything works as expected.
+Separate from this document, there is a directory [tech_notes](https://github.com/M5ez/M5ez/tree/master/tech_notes) where we keep useful technical notes that may be a bit too obscure or in-depth for a general user manual.
 
 &nbsp;
 
 # M5ez User Manual
 
-M5ez is a complete system for building appliance-grade interfaces for the M5Stack. It comes with a lot of the common functionality built-in that a programmer would otherwise have to create. While it is very easy to create functional programs &mdash; just have a look at the examples that come with the library &mdash; the entire library can be a bit overwhelming because of how much it offers. The following is a reference for programmers that want to get the most out of M5ez. It is certainly not necessary to know or fully understand every function, but at some point you probably want to go through this document very quickly to see what M5ez can do for you. 
+M5ez is a complete system for building appliance-grade interfaces for the M5Stack. It comes with a lot of the common functionality built-in that a programmer would otherwise have to create. While it is very easy to create functional programs &mdash; just have a look at the examples that come with the library &mdash; the entire library can be a bit overwhelming because of how much it offers. The following is a reference for programmers that want to get the most out of M5ez. It is certainly not necessary to know or fully understand every function, but at some point you probably want to go through this document very quickly to see what M5ez can do for you.
 
 If you feel anything is still unclear after reading this document, please file an issue in the repository. I take documentation seriously &mdash; if something is not clear in here, it is as much a bug as something that's wrong with the software itself. Pull requests for typos etc. gladly accepted.
 
@@ -165,9 +128,9 @@ The clock and WiFi signal strength displayed in the M5ez header are "widgets". Y
 
 `void ez.header.draw(String name = "")`
 
-`ez.header.insert` lets you add your own header widget. The header widget positions start at 0 (the leftmost widget), and `position` specifies t the left of which widget to insert the new one. `name` is just a name you use to refer to your widget. The names `title`, `clock` and `wifi` are reserved for use by M5ez. 
+`ez.header.insert` lets you add your own header widget. The header widget positions start at 0 (the leftmost widget), and `position` specifies t the left of which widget to insert the new one. `name` is just a name you use to refer to your widget. The names `title`, `clock` and `wifi` are reserved for use by M5ez.
 
-Exactly one widget can be specified as `leftover`, meaning it gets all the pixels not claimed by any other widgets. By default, this is the widget called "title" that holds the header title. All other widgets must have a width in pixels specified. 
+Exactly one widget can be specified as `leftover`, meaning it gets all the pixels not claimed by any other widgets. By default, this is the widget called "title" that holds the header title. All other widgets must have a width in pixels specified.
 
 `function` refers to the name of the function that draws your widget. It must be a function that returns nothing (`void`) and that takes two `uint16_t` arguments: the x position and width of your widget. This function will be called by the header code whenever the header is redrawn. But you can also force a redraw with `ez.header.draw`. For instance: the clock code calls for the `clock` widget to be redrawn every minute, for instance. Note that you would never call your widget draw function directly, because your code doesn't know where all the widgets are within the header. You would only ever call it indirectly using `ez.header.draw("your_widget_name")`, which will then see if the header is currently displayed, and if so lookup x position and width and call your draw function.
 
@@ -185,7 +148,7 @@ The "canvas" is M5ez's name for the area between the header and buttons. So if t
 
 `void ez.canvas.clear()`
 
-Clears the canvas area to the current background color &mdash; either the default from the theme or the one specified in the most recent `ez.screen.clear` command. Sets x and y positions for the the next print command to the top left (repecting the currently set left margin). 
+Clears the canvas area to the current background color &mdash; either the default from the theme or the one specified in the most recent `ez.screen.clear` command. Sets x and y positions for the the next print command to the top left (respecting the currently set left margin).
 
 `void ez.canvas.reset()`
 
@@ -245,15 +208,15 @@ size_t ez.canvas.println(void);
 
 `void ez.canvas.scroll(bool s)`
 
-If you turn on scrolling with `ez.canvas.scroll(true)`, M5ez will store what has been printed to the screen, so the contents of the screen can scroll. Note that when the canvas starts scrolling, only the contents placed there with the print functions from above will scroll, everything else will be wiped. So if, for example, you have drawn something with `m5.lcs.fillRect`, it will be gone once you print beyond the last line. 
+If you turn on scrolling with `ez.canvas.scroll(true)`, M5ez will store what has been printed to the screen, so the contents of the screen can scroll. Note that when the canvas starts scrolling, only the contents placed there with the print functions from above will scroll, everything else will be wiped. So if, for example, you have drawn something with `m5.lcs.fillRect`, it will be gone once you print beyond the last line.
 
 You can turn scrolling off with `ez.canvas.scroll(false)`, and you can ask what the present scroll status is with `ez.canvas.scroll()`.
 
->Note on scrolling: for scrolling to work, everything that is printed to the screen is kept in memory. It is only forgotten if it scrolls off the screen or if you clear the canvas or screen. What that means is that if you turn scrolling on and then print and overwrite something lots of times, evetually the memory will fill up and your application will crash. 
+>Note on scrolling: for scrolling to work, everything that is printed to the screen is kept in memory. It is only forgotten if it scrolls off the screen or if you clear the canvas or screen. What that means is that if you turn scrolling on and then print and overwrite something lots of times, eventually the memory will fill up and your application will crash.
 
 `bool ez.canvas.wrap()`
 
-`void ez.canvas.wrap(bool w)`	
+`void ez.canvas.wrap(bool w)`
 
 `wrap` determines whether the excess from the print functions that doesn't fit the current line is wrapped to the next line.
 
@@ -295,7 +258,7 @@ There are only three buttons on the M5Stack. To make sure we can make good use o
 
 Because there are multiple functions that get told what buttons are going to be displayed, it would get a little hairy to give each of these function 18 possible arguments for the key names and captions. So for your convenience, all the keys you want displayed and detected are specified as one string. The different key names and captions are separated with hashes. You can specify one key name like `OK`, which means you will only use the middle button, it will say OK on it and it will also return the string "OK" to your code.
 
-If you specify three keys, like `yes # no # maybe` you will get three buttons with only one function per button. If you specify six keys, they will be the short and long presses for each key. If you specify nine, the last three will specify the AB, BC and AC button-combi functions respectively. Specifying any other number of keys does not work, so the string should always contain one, three, six or nine parts, separated by hashes.
+If you specify three keys, like `yes # no # maybe` you will get three buttons with only one function per button. If you specify six keys, they will be the short and long presses for each key. If you specify nine, the last three will specify the AB, BC and AC button-combo functions respectively. Specifying any other number of keys does not work, so the string should always contain one, three, six or nine parts, separated by hashes.
 
 ![](images/buttons2.png)
 
@@ -303,7 +266,7 @@ The captions on the key can differ from the name. To specify this, specify a nam
 
 If your button is captioned `up`, `down`, `left` or `right`, the caption is replaced by a triangle pointing in that direction.
 
-If a button has only one function, (no long press defined), the caption will be printed in the middle. If there is a short and a long press defined, they will be printed on the left and right, the right in cyan (in the default theme) to signify that it needs a longer press. 
+If a button has only one function, (no long press defined), the caption will be printed in the middle. If there is a short and a long press defined, they will be printed on the left and right, the right in cyan (in the default theme) to signify that it needs a longer press.
 
 *In some cases it may be necessary to define only a long or only a short press action explicitly. In that case, defining a the key with the placeholder "~" will make sure its function is not interpreted. Take the key definition string `~ # up # select # # right # down`: this defines the leftmost key to have the 'up' function, but only with a long press, a short press is ignored. The caption prints on the right side of the button and not in the middle. (One might use this to signify that the user got to the left edge of something she's navigating, not causing the 'up' function to trigger when she keeps pressing short before realising she's at the left edge.)*
 
@@ -317,21 +280,21 @@ This hides the buttons, growing the canvas to cover the area where the buttons w
 
 `String ez.buttons.poll()`
 
-If you call `ez.buttons.poll`, it will return the name of the key pressed since you last called it, or the empty string is nothing was pressed. This function is where everyone's M5ez programs will spends most of their time: waiting for the user to make things continue. If your code is waiting in a loop that inlcudes `ez.buttons.poll`, clock and WiFi signal updating, as well as execution of user-registered functions (see below) will continue.
+If you call `ez.buttons.poll`, it will return the name of the key pressed since you last called it, or the empty string is nothing was pressed. This function is where everyone's M5ez programs will spends most of their time: waiting for the user to make things continue. If your code is waiting in a loop that includes `ez.buttons.poll`, clock and WiFi signal updating, as well as execution of user-registered functions (see below) will continue.
 
 `String ez.buttons.wait()`
 
- `ez.buttons.wait` does the same thing as `ez.buttons.poll()` except it does not return if nothing is pressed. If you call it with no arguments, it assumes the buttons have already been drawn with `ez.drawButtons`. (And if not your program is stuck.) 
- 
+ `ez.buttons.wait` does the same thing as `ez.buttons.poll()` except it does not return if nothing is pressed. If you call it with no arguments, it assumes the buttons have already been drawn with `ez.drawButtons`. (And if not your program is stuck.)
+
 `String ez.buttons.wait(String buttons)`
-  
+
 You can specify the keys to be drawn straight into `ez.buttons.wait` for simple usages. For instance `ez.buttons.wait("OK")` will display a single "OK" on the center button and return "OK" when it is pressed. (But given that you are not interested in the return value in this case, you can just specify that as a statement.)
 
 &nbsp;
 
 ## Scheduling tasks within M5ez
 
-Now that we're dealing with waiting for keypresses, this is a good moment to talk about scheduling, yielding and such. As discussed above, a typical program written with M5ez will spend most of its time waiting for keys to be pressed. But some things need to continue to happen while that happening: the clock and the wifi signal indicator need to update, for instance.
+Now that we're dealing with waiting for key presses, this is a good moment to talk about scheduling, yielding and such. As discussed above, a typical program written with M5ez will spend most of its time waiting for keys to be pressed. But some things need to continue to happen while that happening: the clock and the wifi signal indicator need to update, for instance.
 
 ### Yield
 
@@ -349,6 +312,8 @@ With `addevent` you can register a function of your own to be executed periodica
 
 The value returned by your function is the number of milliseconds to wait before calling the function again. So a function that only needs to run once every second would simply return 1000. If your function returns 0, the event is deleted and not executed any further.
 
+> Note: These events are meant for things that need to happen frequently. The next event cannot be more than 65 seconds out as the period between them is a 16-bit unsigned integer. If you use M5ez with ezTime, you can use [ezTime's events](https://github.com/ropg/ezTime#events) for things that need to happen with more time between them.
+
 As the name implies, `ez.removeEvent` also removes your function from the loop.
 
 #### Redrawing after an event
@@ -357,7 +322,21 @@ As the name implies, `ez.removeEvent` also removes your function from the loop.
 
 Sometimes code executed in an event will have changed the contents of the screen. The running menu knows nothing about this, and so when your event ends, it will not refresh the screen. To fix this, you can execute `ez.redraw()` whenever your event routine has done something on the screen. The menu code will then redraw the screen accordingly.
 
-> At present, only ezMenu knows about this redraw, so if the use was doing something else (like editing a text field or looking at a msgBox, the screen will not redraw. This is on the todo list. 
+#### Changing the menu from an event
+
+You can get a pointer to the current menu from inside your event code by calling `M5ez::getCurrentMenu()`. Events are not related to any specific menu, so you may get a pointer to different menus at different times durring the program, or even no menu at all (`nullptr`).  
+If you need to confirm what menu you are dealing with, you can retrieve the title you gave the menu when it was created via `ezMenu::getTitle()`, which returns a `String`.  
+An example of a safe usage pattern is:
+
+```c
+ezMenu* cur_menu = M5ez::getCurrentMenu();
+// Test to see if menu exists before testing menu's title
+if(cur_menu && cur_menu->getTitle() == "Desired Menu Title") {
+    cur_menu->setCaption(someItem, someCaption);
+}
+```
+
+Note: If a menu item uses a `simpleFunction` or an `advancedFunction` to display a screen which does not display any menu at all (perhaps only the canvas and buttons are rendered), `M5ez::getCurrentMenu()` will still return the last active menu. You can modify this menu even when it's not displayed, and the changes will be evident when you return from the `simpleFunction` or `advancedFunction`.
 
 &nbsp;
 
@@ -367,10 +346,10 @@ Sometimes code executed in an event will have changed the contents of the screen
 
 ```
 String ez.msgBox(String header,
-	String msg, String buttons = "OK", 
-    const bool blocking = true,
-    const GFXfont* font = MSG_FONT,
-    uint16_t color = MSG_COLOR)
+  String msg, String buttons = "OK",
+  const bool blocking = true,
+  const GFXfont* font = MSG_FONT,
+  uint16_t color = MSG_COLOR)
 ```
 
 `ez.msgBox` produces a screen that just has your text message centered in the middle. If your message consists of multiple lines, msgBox will word-wrap and justify to the best fit on the screen. You can indicate where to break the lines yourself with a pipe sign (`|`). The only two arguments you have to provide are the header text and the message to be printed. If you do not specify buttons, `ez.msgBox` will put a single "OK" button in the middle. You can specify buttons in the same way it's done with the button commands seen earlier.
@@ -385,23 +364,23 @@ The font and color options allow you to use something other than the default (th
 
 ## ezProgressBar
 
-**`class ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR)`**
+**`class ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR, bool show_val = false, uint16_t val_color = PROGRESSBAR_VAL_COLOR)`**
 
 ![](images/ezProgressBar.png)
 
 If you want to show progress on a download or something else, use the `ezProgressBar` class. It behaves very similarly to msgBox, except you need to create a class instance. To create an ezProgressBar instance called pb, one could use:
 
 ```
-	ezProgressBar pb ("This is a header", "Message, just like with msgBox", "Abort");
+  ezProgressBar pb ("This is a header", "Message, just like with msgBox", "Abort");
 ```
 
 This will draw header, message, an empty (0 %) progress bar and the specified single "Abort" button. Unlike msgBox this will not block by default. In code that executes after this, one would presumably check for the "Abort" button with `ez.buttons.poll()`. To advance the bar, the code would simply call:
 
 ```
-	pb.value(float val)
+  pb.value(float val)
 ```
 
-where `val` is a floating point value between 0 and 100. Check out the [Over-The-Air https update example](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) to see how the ezProgressBar object is used there. (You'll see that the `ez.wifi.update()` software update function accepts a pointer to an ezProgressBar instance to show its progress.) 
+where `val` is a floating point value between 0 and 100. Check out the [Over-The-Air https update example](https://github.com/M5ez/M5ez/tree/master/examples/OTA_https) to see how the ezProgressBar object is used there. (You'll see that the `ez.wifi.update()` software update function accepts a pointer to an ezProgressBar instance to show its progress.)
 
 &nbsp;
 
@@ -409,7 +388,7 @@ where `val` is a floating point value between 0 and 100. Check out the [Over-The
 
 **`String ez.textInput(String header = "", String defaultText = "")`**
 
-This function will provide a text-entry field, pre-filled with `defaulttext` if specified. The user can then select a group of letter and then press the letter using the short and long keypresses and multi-key presses as discussed above in the "Buttons" chapter. By using this method, the lower case letters can be reached in two presses, upper case letters in three. If you are in shifted or numeric mode and press lock, the keyboard will return there instead of to lower case after each sucessfull key. Once the user presses "done" (buttons A and C together), the function returns the entered text.
+This function will provide a text-entry field, pre-filled with `defaultText` if specified. The user can then select a group of letter and then press the letter using the short and long keypresses and multi-key presses as discussed above in the "Buttons" chapter. By using this method, the lower case letters can be reached in two presses, upper case letters in three. If you are in shifted or numeric mode and press lock, the keyboard will return there instead of to lower case after each successful key. Once the user presses "done" (buttons A and C together), the function returns the entered text.
 
 ![](images/textInput.png)
 
@@ -433,12 +412,12 @@ M5ez supports the M5 FACES keyboard: simply set the keyboard to "attached" in th
 
 ```
 String ez.textBox(String header = "",
-	String text = "", bool readonly = false,
-	String buttons = "up#Done#down",
-	const GFXfont* font = TB_FONT, uint16_t color = TB_COLOR)
+  String text = "", bool readonly = false,
+  String buttons = "up#Done#down",
+  const GFXfont* font = TB_FONT, uint16_t color = TB_COLOR)
 ```
 
-This will word-wrap and display the string in `text` (up to 32 kB), allowing the user to page through it. Ideal for LoRa or SMS messages, short mails or whatever else. If a FACES keyboard is attached and `readonly` is false, the user can edit the text: a cursor appears, which can be moved with the arrow keys on the FACES keyboard. `TB_FONT` and `TB_COLOR` are the defaults from the theme, but they can be overridden by supplying a font and/or a color directly. 
+This will word-wrap and display the string in `text` (up to 32 kB), allowing the user to page through it. Ideal for LoRa or SMS messages, short mails or whatever else. If a FACES keyboard is attached and `readonly` is false, the user can edit the text: a cursor appears, which can be moved with the arrow keys on the FACES keyboard. `TB_FONT` and `TB_COLOR` are the defaults from the theme, but they can be overridden by supplying a font and/or a color directly.
 
 ![](images/textBox.png)
 
@@ -459,90 +438,90 @@ What that all means is that without adding any fonts of your own, you can specif
 ### FreeFonts from the Adafruit library
 
 ```
-	&TomThumb
-	&FreeMono9pt7b
-	&FreeMono12pt7b
-	&FreeMono18pt7b
-	&FreeMono24pt7b
-	&FreeMonoBold9pt7b
-	&FreeMonoBold12pt7b
-	&FreeMonoBold18pt7b
-	&FreeMonoBold24pt7b
-	&FreeMonoOblique9pt7b
-	&FreeMonoOblique12pt7b
-	&FreeMonoOblique18pt7b
-	&FreeMonoOblique24pt7b
-	&FreeMonoBoldOblique9pt7b
-	&FreeMonoBoldOblique12pt7b
-	&FreeMonoBoldOblique18pt7b
-	&FreeMonoBoldOblique24pt7b
-	&FreeSans9pt7b
-	&FreeSans12pt7b
-	&FreeSans18pt7b
-	&FreeSans24pt7b
-	&FreeSansBold9pt7b
-	&FreeSansBold12pt7b
-	&FreeSansBold18pt7b
-	&FreeSansBold24pt7b
-	&FreeSansOblique9pt7b
-	&FreeSansOblique12pt7b
-	&FreeSansOblique18pt7b
-	&FreeSansOblique24pt7b
-	&FreeSansBoldOblique9pt7b
-	&FreeSansBoldOblique12pt7b
-	&FreeSansBoldOblique18pt7b
-	&FreeSansBoldOblique24pt7b
-	&FreeSerif9pt7b
-	&FreeSerif12pt7b
-	&FreeSerif18pt7b
-	&FreeSerif24pt7b
-	&FreeSerifItalic9pt7b
-	&FreeSerifItalic12pt7b
-	&FreeSerifItalic18pt7b
-	&FreeSerifItalic24pt7b
-	&FreeSerifBold9pt7b
-	&FreeSerifBold12pt7b
-	&FreeSerifBold18pt7b
-	&FreeSerifBold24pt7b
-	&FreeSerifBoldItalic9pt7b
-	&FreeSerifBoldItalic12pt7b
-	&FreeSerifBoldItalic18pt7b
-	&FreeSerifBoldItalic24pt7b
+  &TomThumb
+  &FreeMono9pt7b
+  &FreeMono12pt7b
+  &FreeMono18pt7b
+  &FreeMono24pt7b
+  &FreeMonoBold9pt7b
+  &FreeMonoBold12pt7b
+  &FreeMonoBold18pt7b
+  &FreeMonoBold24pt7b
+  &FreeMonoOblique9pt7b
+  &FreeMonoOblique12pt7b
+  &FreeMonoOblique18pt7b
+  &FreeMonoOblique24pt7b
+  &FreeMonoBoldOblique9pt7b
+  &FreeMonoBoldOblique12pt7b
+  &FreeMonoBoldOblique18pt7b
+  &FreeMonoBoldOblique24pt7b
+  &FreeSans9pt7b
+  &FreeSans12pt7b
+  &FreeSans18pt7b
+  &FreeSans24pt7b
+  &FreeSansBold9pt7b
+  &FreeSansBold12pt7b
+  &FreeSansBold18pt7b
+  &FreeSansBold24pt7b
+  &FreeSansOblique9pt7b
+  &FreeSansOblique12pt7b
+  &FreeSansOblique18pt7b
+  &FreeSansOblique24pt7b
+  &FreeSansBoldOblique9pt7b
+  &FreeSansBoldOblique12pt7b
+  &FreeSansBoldOblique18pt7b
+  &FreeSansBoldOblique24pt7b
+  &FreeSerif9pt7b
+  &FreeSerif12pt7b
+  &FreeSerif18pt7b
+  &FreeSerif24pt7b
+  &FreeSerifItalic9pt7b
+  &FreeSerifItalic12pt7b
+  &FreeSerifItalic18pt7b
+  &FreeSerifItalic24pt7b
+  &FreeSerifBold9pt7b
+  &FreeSerifBold12pt7b
+  &FreeSerifBold18pt7b
+  &FreeSerifBold24pt7b
+  &FreeSerifBoldItalic9pt7b
+  &FreeSerifBoldItalic12pt7b
+  &FreeSerifBoldItalic18pt7b
+  &FreeSerifBoldItalic24pt7b
 ```
-	
+
 ### FreeFonts included by the M5Stack driver
 
 ```
-	&Orbitron_Light_24
-	&Orbitron_Light_32
-	&Roboto_Thin_24
-	&Satisfy_24
-	&Yellowtail_32
+  &Orbitron_Light_24
+  &Orbitron_Light_32
+  &Roboto_Thin_24
+  &Satisfy_24
+  &Yellowtail_32
 ```
 
 ### Older fonts available only through M5ez
 
 ```
-	mono6x8
-	sans16
-	sans26
-	numonly48
-	numonly7seg48
-	numonly75
+  mono6x8
+  sans16
+  sans26
+  numonly48
+  numonly7seg48
+  numonly75
 
-	mono12x16
-	sans32
-	sans52
-	numonly96
-	numonly7seg96
-	numonly150
+  mono12x16
+  sans32
+  sans52
+  numonly96
+  numonly7seg96
+  numonly150
 ```
 
 Note that these fonts need to be specified without the `&` in front, and that the second batch consists of scaled up versions of the first batch, but they're nice and big and they still might be quite useful.
 
 ### Using your own fonts
 
-You can convert your own TrueType fonts to font files that can be included in your project and used on the M5Stack. As a separate project, I wrote a graphical converter where you can test the fonts on a virtual M5Stack display before converting. It's an online tool, so all of the action takes place online and in your webbrowser. Click [here](https://rop.nl/truetype2gfx/) (or on the image below) to use it. Everything you need to know to use it is on that page also.
+You can convert your own TrueType fonts to font files that can be included in your project and used on the M5Stack. As a separate project, I wrote a graphical converter where you can test the fonts on a virtual M5Stack display before converting. It's an online tool, so all of the action takes place online and in your web browser. Click [here](https://rop.nl/truetype2gfx/) (or on the image below) to use it. Everything you need to know to use it is on that page also.
 
 [![](images/truetype2gfx-screenshot.png)](https://rop.nl/truetype2gfx/)
 
@@ -588,7 +567,7 @@ void mainmenu_two() {
 
 As you can see we define our menu named `myMenu` and we added three items with names and optional functions to jump to. We have inserted this in the Arduino `loop` function, but we might as well have stuck it in setup, because this menu will keep running forever: the `myMenu.run()` statement will never complete. It will display the menu, call and wait for the appropriate function if the user selects a menu option, rinse and repeat.
 
-Which is all fine and well if that's our main menu, but it doesn't work if if the menu is a submenu. This is why the `yourMenu.run()` function exits if the user selects a menu item named "Exit", "Back" or "Done". This may be with a capitalised first letter or all lower case. (Menu items are just like buttons in that they have a name and a caption. If you add an item with `yourMenu.addItem("Exit | Go back to main menu"), it will display the longer text, but still cause the menu to exit.
+Which is all fine and well if that's our main menu, but it doesn't work if if the menu is a submenu. This is why the `yourMenu.run()` function exits if the user selects a menu item named "Exit", "Back" or "Done". This may be with a capitalized first letter or all lower case. (Menu items are just like buttons in that they have a name and a caption. If you add an item with `yourMenu.addItem("Exit | Go back to main menu"), it will display the longer text, but still cause the menu to exit.
 
 Let's see our sketch again, this time with a submenu added:
 
@@ -597,7 +576,7 @@ Let's see our sketch again, this time with a submenu added:
 #include <M5ez.h>
 
 void setup() {
-  ez.begin(); 
+  ez.begin();
 }
 
 void loop() {
@@ -605,7 +584,7 @@ void loop() {
   myMenu.addItem("Item 1", mainmenu_one);
   myMenu.addItem("Item 2", mainmenu_two);
   myMenu.addItem("Item 3", mainmenu_three);
-  myMenu.run();    
+  myMenu.run();
 }
 
 void mainmenu_one() {
@@ -639,7 +618,7 @@ Until now we have considered menus that run all by themselves, unless they exit 
 #include <M5ez.h>
 
 void setup() {
-  ez.begin(); 
+  ez.begin();
 }
 
 void loop() {
@@ -649,11 +628,11 @@ void loop() {
   myMenu.addItem("Item 3");
   myMenu.runOnce();
   if (myMenu.pickName() == "Item 1") {
-  	ez.msgBox("", "You pressed one");
+    ez.msgBox("", "You pressed one");
   }
   if (myMenu.pickName() == "Item 2") {
-  	Serial.println("Number two was pressed");
-  }   
+    Serial.println("Number two was pressed");
+  }
 }
 ```
 
@@ -664,7 +643,7 @@ This does exactly the same as the first example we started with. Note that `.run
 #include <M5ez.h>
 
 void setup() {
-  ez.begin(); 
+  ez.begin();
 }
 
 void loop() {
@@ -689,7 +668,7 @@ void loop() {
 
 ![](images/ezMenu3.png)
 
-You can include jpg files in the flash by creating a special .h file that holds byte arrays encoding the bytes in the JPG file. If you `#include` this file in your program and then add at least one menu items with `addItem(picture1, "Item 1")` where `picture1` is the name of the JPG array in the .h file, the menu's `.run()` and `.runOnce()` functions will change behaviour: they will show an image menu instead of a text menu.
+You can include jpg files in the flash by creating a special .h file that holds byte arrays encoding the bytes in the JPG file. If you `#include` this file in your program and then add at least one menu items with `addItem(picture1, "Item 1")` where `picture1` is the name of the JPG array in the .h file, the menu's `.run()` and `.runOnce()` functions will change behavior: they will show an image menu instead of a text menu.
 
 You can also include the images to be shown as files, either on an SD card or on the special SPIFFS partition in the flash memory of the M5Stack.
 
@@ -698,11 +677,9 @@ The code in the demo application to show the picture menu looks as follows:
 ```
 void mainmenu_image() {
   ezMenu images;
-```
 
-[...]
+  ...
 
-```
   images.addItem(sysinfo_jpg, "System Information", sysInfo);
   images.addItem(wifi_jpg, "WiFi Settings", mainmenu_wifi);
   images.addItem(about_jpg, "About M5ez", aboutM5ez);
@@ -722,27 +699,30 @@ As you will see in the function documentation below, there is much more you can 
 
 **`ezMenu yourMenu`**
 
-If you issue on of these statements, you are creating an instance of the ezMenu object called "yourMenu". This will allow you to reference it when you start adding items to it, change various properties of it. Eventually your code will run the menu, which means it will display on the screen. "yourMenu" should offcourse be replaced by any name of your choice, but we'll use it in this text to show all the functions that apply to menus. These functions should be called with the name of the menu followed by a dot in front of them, as they are "member functions" of the ezMenu object.
+If you issue on of these statements, you are creating an instance of the ezMenu object called "yourMenu". This will allow you to reference it when you start adding items to it, change various properties of it. Eventually your code will run the menu, which means it will display on the screen. "yourMenu" should of course be replaced by any name of your choice, but we'll use it in this text to show all the functions that apply to menus. These functions should be called with the name of the menu followed by a dot in front of them, as they are "member functions" of the ezMenu object.
 
 ```
-bool addItem(String nameAndCaption, 
-	void (*simpleFunction)() = NULL,
-	bool (*advancedFunction)(ezMenu* callingMenu) = NULL)
-```
-
-```
-bool addItem(const char *image, String nameAndCaption, 
-	void (*simpleFunction)() = NULL,
-	bool (*advancedFunction)(ezMenu* callingMenu) = NULL)
+bool addItem(String nameAndCaption,
+  void (*simpleFunction)() = NULL,
+  bool (*advancedFunction)(ezMenu* callingMenu) = NULL,
+  void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL)
 ```
 
 ```
-bool addItem(fs::FS &fs, String path, String nameAndCaption, 
-	void (*simpleFunction)() = NULL,
-	bool (*advancedFunction)(ezMenu* callingMenu) = NULL)
+bool addItem(const char *image, String nameAndCaption,
+  void (*simpleFunction)() = NULL,
+  bool (*advancedFunction)(ezMenu* callingMenu) = NULL,
+  void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL)
 ```
 
-Adds items to a menu. The first form adds a text only item, the second and third forms make image menus. You can either supply a pointer to the image which is encoded as a byte array in a special .h file that you should have included, or a file system reference and a path for a file stored on SD of SPIFFS. 
+```
+bool addItem(fs::FS &fs, String path, String nameAndCaption,
+  void (*simpleFunction)() = NULL,
+  bool (*advancedFunction)(ezMenu* callingMenu) = NULL,
+  void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL)
+```
+
+Adds items to a menu. The first form adds a text only item, the second and third forms make image menus. You can either supply a pointer to the image which is encoded as a byte array in a special .h file that you should have included, or a file system reference and a path for a file stored on SD of SPIFFS.
 
 In the latter case your sketch must do either `#include <SPIFFS.h>` and `SPIFFS.begin()` or `#include <SD.h>' and 'SD.begin()`, and provide both the SD or SPIFFS object reference as well as the path to the file. The "ImagesSPIFFSorSD" example shows how to use this feature. Images from program flash, SPIFFS and SD-card can be freely mixed in the same menu.
 
@@ -750,23 +730,35 @@ The `simpleFunction` should be the name of a `void` function without parameters 
 
 The string named `nameAndCaption` can (as the name implies) hold both a name and a caption. If you don't do anything special they are set to the same string you supply. But if you pass `somename | Some caption`, the name is the part before the first pipe sign (`|`), the caption is everything after it. (Spaced around the pipe sign are removed.)
 
-The name is what is returned when you call `yourMenu.pickName()` after the menu has ran, and you can also supply it as an argument to `deleteItem()` (see below). The caption is what is printed, either in the item's line in the menu or as a caption with the image in an image menu. The caption is also returned by `yourMenu.pickCaption()`.   
+The name is what is returned when you call `yourMenu.pickName()` after the menu has ran, and you can also supply it as an argument to `deleteItem()` (see below). The caption is what is printed, either in the item's line in the menu or as a caption with the image in an image menu. The caption is also returned by `yourMenu.pickCaption()`.
 
 If you put a tab character (Represented by `\t`) in the caption of a menu item, the text to the left of the tab will be left-aligned to the left of the menu item, and the text to the right of it will be right-aligned to the right of the item. You can see this feature in use in M5ez's settings menu where the part on the right generally represents the actual state of a setting.
 
-If an item is named "Back", "Exit" or "Done" (either with first letter capitalised all all lower case), the menu will exit is this item is picked, unless an advancedFunction is supplied (see below). Note that while it has to be *named* one of these three things, it can be *captioned* something completely different.
+If an item is named "Back", "Exit" or "Done" (either with first letter capitalized all all lower case), the menu will exit is this item is picked, unless an advancedFunction is supplied (see below). Note that while it has to be *named* one of these three things, it can be *captioned* something completely different.
 
-If you want your code to have more access to what just happened in the menu, you can supply an advancedFunction pointer. This way you can have a function that has access to all the member functions of the menu that called it, and it can determine whether the menu exits or not by returning `true` (keep running) or `false` (exit). 
+If you want your code to have more access to what just happened in the menu, you can supply an advancedFunction pointer. This way you can have a function that has access to all the member functions of the menu that called it, and it can determine whether the menu exits or not by returning `true` (keep running) or `false` (exit).
 
 ```
 bool myAdvancedFunction(ezMenu* callingMenu) {
-	Serial.print( callingMenu->pickCaption() )
-	If (msgBox("Wow...", "Are you sure?", "yes##no") == "yes") return false;
-	return true;
+  Serial.print( callingMenu->pickCaption() )
+  If (msgBox("Wow...", "Are you sure?", "yes##no") == "yes") return false;
+  return true;
 }
 ```
 
 This function will print the caption printed on the menu item that was picked, and it will ask the user whether she really wants to exit the menu, causing the calling menu to exit by returning `false` if she presses yes. Note that items called "Back", "Exit" or "Done" do not cause the menu to exit immediately if they have an advancedFunction set: in that case the decision is left to the advancedFunction.
+
+If you want your code to have access to the way the menus are drawn, you can supply an drawFunction pointer. The coordinates x, y, w (width) and h (height) define the rectangle where the menu is located.
+
+```
+void myDrawFunction(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h){
+  m5.lcd.setTextDatum(CL_DATUM);
+  m5.lcd.setTextColor(ez.theme->menu_item_color);
+  // New callingMenu aspect
+  m5.lcd.fillRoundRect(x, y, w, h, 1, TFT_RED);
+  m5.lcd.drawString("New text",x + ez.theme->menu_item_hmargin,y + ez.fontHeight() / 2 - 2);
+}
+```
 
 Note that to address member functions of the calling menu in this function we need to use '->' instead of '.'. That's because we were passed a pointer to the instance, not an instance itself, but don't worry too much if you don't understand that.
 
@@ -780,7 +772,7 @@ The first form deletes the menu item at the position indicated, starting with 1 
 
 **`bool setCaption(String name, String caption)`**
 
-As the name implies, changes the caption (but not the name) of the item specfied either by position or by name.
+As the name implies, changes the caption (but not the name) of the item specified either by position or by name.
 
 **`int16_t getItemNum(String name)`**
 
@@ -792,7 +784,7 @@ This allows you to pass your own buttons to the function, using the format discu
 
 Buttons *captioned* "up", "down", "left" or "right" are displayed with a triangular arrow in the corresponding direction instead of that word. Buttons *named* "Back", "Exit" or "Done" cause the menu to exit. Note that menus without buttons named "up and "down" (text menus) or "left" and "right" (image menus) become impossible to navigate.
 
-Buttons named "first" and "last" ump to the first or last item of the menu repectively.
+Buttons named "first" and "last" ump to the first or last item of the menu respectively.
 
 **`void upOnFirst(String nameAndCaption)`**
 
@@ -817,12 +809,40 @@ Note that the "first" and "last" are button *names* with special functions, and 
 
 **`void txtSmall()`**
 
-
 These apply to text menus only. You can set the font. The theme can supply a default big and small menu font, which can be set by simply calling `.txtBig()` or `.txtSmall()` on a menu. In the default theme, the big menu can display 6 items at a time when a header and a single row of button labels is displayed, a small menu displays eight items at a time. You can set your own font with `txtFont` or create a new theme with different defaults.
 
-<hr>
+**`void setSortFunction(bool (*sortFunction)(const char* s1, const char* s2))`**
 
-Then there are some functions that only apply to image menus 
+Ordinarily, menu items are displayed in the order in which they are added. However, if you are building a menu from data which you have no control over, such as a list of file names from an SD card, a sort function will ensure that the names are displayed in a specific order. You may define a sort function that takes two `const char*`'s and returns true when the second is greater than the first, or use one of the eight built-in sorting functions.
+
+```
+bool ascendingCaseSensitive(const char* s1, const char* s2) {
+    return 0 > strcmp(s1, s2);
+}
+...
+menu.setSortFunction(ascendingCaseSensitive);
+```
+
+Once set, the menu is automatically kept sorted. All calls to addItem result in a sorted menu without further interaction. If setSortFunction is called after the menu has been populated, it's immediately resorted and maintained in its new order as items are added and deleted.
+
+Note that if your menus use Captions as well as Names, sorting is a bit more complicated. A set of functions is provided for sorting text in most typical manners:
+
+| Function                       | Purpose                                                                  |
+| :----------------------------- | :----------------------------------------------------------------------- |
+| `ezMenu::sort_asc_name_cs`		 | Sort ascending by menu name, case sensitive                              |
+| `ezMenu::sort_asc_name_ci`		 | Sort ascending by menu name, case insensitive                            |
+| `ezMenu::sort_dsc_name_cs`		 | Sort descending by menu name, case sensitive                             |
+| `ezMenu::sort_dsc_name_ci`		 | Sort descending by menu name, case insensitive                           |
+| `ezMenu::sort_asc_caption_cs`	 | Sort ascending by menu caption or name if no caption, case sensitive     |
+| `ezMenu::sort_asc_caption_ci`	 | Sort ascending by menu caption or name if no caption, incase sensitive   |
+| `ezMenu::sort_dsc_caption_cs`	 | Sort descending by menu caption or name if no caption, case sensitive    |
+| `ezMenu::sort_dsc_caption_ci`	 | Sort descending by menu caption or name if no caption, case insensitive  |
+
+See the example program SortedMenus for typical usage.
+
+---
+
+Then there are some functions that only apply to image menus
 
 **`void imgBackground(uint16_t color)`**
 
@@ -840,8 +860,7 @@ The offset in pixels from `canvasTop()` where the top of the image is rendered.
 
 **`void imgCaptionMargins(int16_t hmargin, int16_t vmargin)`**
 
-
-These settings allow for the menu item caption to be printed somewhere on the canvas. The font and color options are obvious, the location is one of 
+These settings allow for the menu item caption to be printed somewhere on the canvas. The font and color options are obvious, the location is one of
 
 |     | left | middle | right |
 | ----|:-----|:-----|:------ |
@@ -849,14 +868,13 @@ These settings allow for the menu item caption to be printed somewhere on the ca
 | **middle** | `ML_DATUM` | `MC_DATUM` | `MR_DATUM` |
 | **bottom** | `BL_DATUM` | `BC_DATUM` | `BR_DATUM` |
 
-and the margins specify how far away from the edges of the canvas the caption is printed. The default is for no caption to be printed, you must specify all these options if you want captions. 
-
+and the margins specify how far away from the edges of the canvas the caption is printed. The default is for no caption to be printed, you must specify all these options if you want captions.
 
 **`int16_t runOnce()`**
 
 If you execute `yourMenu.runOnce()`, the menu will show and the user can interact with it until an item is picked. Then the function returns the index of the picked item (starting at one). The menu can also 'exit' (which is not the same as the `.runOnce()` function exiting, which happens when an item is picked.
 
-* If the user picks an item named "Back", "Exit" or "Done" that does not have an advancedFunction passed. 
+* If the user picks an item named "Back", "Exit" or "Done" that does not have an advancedFunction passed.
 * If the user picks any item using a button named "Back", "Exit" or "Done".
 * if the advancedFunction that was ran for a picked item returned `false`.
 
@@ -868,11 +886,11 @@ The internal code for `.run()` is very simple:
 
 ```
 void ezMenu::run() {
-	while (runOnce()) {}
+  while (runOnce()) {}
 }
 ```
 
-In other words: all it does is just call `.runOnce()` on your menu until it exits for any of the reasons listed above. If your menu is the main menu of the program, you would simply not supply any items or buttons called "Exit", "Back" or "Done" and have no advancedFunctions ever return `false`. This will cause the menu to run forever. 
+In other words: all it does is just call `.runOnce()` on your menu until it exits for any of the reasons listed above. If your menu is the main menu of the program, you would simply not supply any items or buttons called "Exit", "Back" or "Done" and have no advancedFunctions ever return `false`. This will cause the menu to run forever.
 
 **`int16_t pick()`**
 
@@ -881,7 +899,6 @@ In other words: all it does is just call `.runOnce()` on your menu until it exit
 **`String pickCaption()`**
 
 **`String pickButton()`**
-
 
 These functions will show the position, name and caption of the picked item. They are useful after your menu has been ran once with `.runOnce` or in an advancedFunction (see under `addItem` above).
 
@@ -894,6 +911,7 @@ M5ez comes with a number of built-in settings menus. The settings are saved to f
 | Menu | `#define` | function |
 |:-----|:----------|:---------|
 | Wifi menu | `M5EZ_WIFI` | `ez.wifi.menu` |
+| Battery menu | `M5EZ_BATTERY` | `ez.battery.menu` |
 | Clock menu | `M5EZ_CLOCK` | `ez.clock.menu` |
 | Backlight brightness | `M5EZ_BACKLIGHT` | `ez.backlight.menu` |
 | FACES keyboard | `M5EZ_FACES` | `ez.faces.menu` |
@@ -901,9 +919,9 @@ M5ez comes with a number of built-in settings menus. The settings are saved to f
 
 ### Wifi
 
-The wifi menu allows the user to connect to an Access Point. The user can also turn on and off the "autoconnect" feature. With this feature on, M5EZ will behave like most smartphones and automatically connect to any Access Point which has been added to the autoconnect list when it was joined. 
+The wifi menu allows the user to connect to an Access Point. The user can also turn on and off the "autoconnect" feature. With this feature on, M5EZ will behave like most smartphones and automatically connect to any Access Point which has been added to the autoconnect list when it was joined.
 
-Note that this doesn't use the `WiFi.setAutoConnect` and `WiFi.setAutoReconnect` fucntions of the ESP32 WiFi library: they can only connect to one access point. Instead  M5ez has it's own logic for connecting, saving the ssid and password of networks you want to automatically connect to in flash.
+Note that this doesn't use the `WiFi.setAutoConnect` and `WiFi.setAutoReconnect` functions of the ESP32 WiFi library: they can only connect to one access point. Instead  M5ez has it's own logic for connecting, saving the ssid and password of networks you want to automatically connect to in flash.
 
 Below you can see how to access the stored networks as well as the stored "on/off" toggle for the autoconnect feature from code. You probably won't need this as `ez.wifi.menu` lets the user manage all of this. Note that if you do make any changes, you have to call `ez.wifi.writeFlash()` when you are done to save them to flash.
 
@@ -913,9 +931,9 @@ Below you can see how to access the stored networks as well as the stored "on/of
 
 ```
 for (int8_t n = 0; n < ez.wifi.networks.size(); n++) {
-	ez.canvas.print(ez.wifi.networks[n].SSID);
-	ez.canvas.print(": ");
-	ez.canvas.println(ez.wifi.networks[n].key);
+  ez.canvas.print(ez.wifi.networks[n].SSID);
+  ez.canvas.print(": ");
+  ez.canvas.println(ez.wifi.networks[n].key);
 }
 ```
 
@@ -925,7 +943,7 @@ for (int8_t n = 0; n < ez.wifi.networks.size(); n++) {
 
 `bool ez.wifi.remove(String ssid)`
 
-Adds or removes a network. the index is the index in te networks array above. 
+Adds or removes a network. the index is the index in te networks array above.
 
 `int8_t indexForSSID(String ssid)`
 
@@ -935,10 +953,10 @@ Can be used to find the index for a named SSID. -1 is returned if the name is no
 
 when you connect to Wifi, on some M5Stack devices, you may notice a strange quirk of the M5Stack hardware, or possibly of the ESP32 chip. When you are connected, the left button is getting ghost clicks. If this happens to you when you are on Wifi, you will need to do the following to fix it.
 
-Navigate to the Arduino libraries directory, and then from there to `M5Stack/src/utility/Button.cpp`. In that file (around line 60) find 
+Navigate to the Arduino libraries directory, and then from there to `M5Stack/src/utility/Button.cpp`. In that file (around line 60) find
 
 ```
-	pinVal = digitalRead(_pin);
+  pinVal = digitalRead(_pin);
 ```
 
 and replace that line with:
@@ -946,11 +964,11 @@ and replace that line with:
 ```
 // The digitalRead of the button pin is commented out below.
 // The two lines below fix an issue where BtnA gets spurious presses if the
-// Wifi is active. (The second line fixes it, the first remediates resulting 
+// Wifi is active. (The second line fixes it, the first remediates resulting
 // speaker noise.) For details: https://github.com/m5stack/M5Stack/issues/52
 
-//    pinVal = digitalRead(_pin); 
-    dacWrite(25, 0);							
+//    pinVal = digitalRead(_pin);
+    dacWrite(25, 0);
     pinVal = analogRead(_pin);
 ```
 
@@ -958,17 +976,29 @@ Now recompile and the problem is gone. It does mean that you cannot use the spea
 
 #### Over-The-Air (OTA) updates via https
 
-You might deploy hardware that needs updates but that you don't wnat to hook up via USB every time. But you will want this upload mechanism to offer some security against attackers that culd otherwise compromise large numbers of internet-connected IoT devices. M5ez allows you to boot from a compiled binary file that is downloaded from the internet over https.
+You might deploy hardware that needs updates but that you don't want to hook up via USB every time. But you will want this upload mechanism to offer some security against attackers that could otherwise compromise large numbers of internet-connected IoT devices. M5ez allows you to boot from a compiled binary file that is downloaded from the internet over https.
 
 `bool ez.wifi.update(String url, const char* root_cert, ezProgressBar* pb = NULL)`
 
 `String ez.wifi.updateError()`
 
-Takes a URL and a root certificate. A shell script called `get_cert` is provided in the `/tools` directory of this repository to get the right (non-forwarded) URL and create an include file to provide the correct certificate. The optional third argument is a pointer to the `ezProgressBar` instance that will show the progress of the firmware download. It must be provided with a leading ampersand. 
+Takes a URL and a root certificate. A shell script called `get_cert` is provided in the `/tools` directory of this repository to get the right (non-forwarded) URL and create an include file to provide the correct certificate. The optional third argument is a pointer to the `ezProgressBar` instance that will show the progress of the firmware download. It must be provided with a leading ampersand.
 
-`ez.wifi.update` returns `true` if the file is downloaded and everything is set up. The next reboot - which can be forced with `ESP.restart()` - will start the new binary. If `ez.wifi.update` returns `false`, you can use `ez.wifi.updateError()` to return a String with a human-readbale error message. (The way the https stream data is handled by the underlying ESP32 `Update` library does not seem terribly robust: stream timeouts happen, even on otherwise good internet connections.)
+`ez.wifi.update` returns `true` if the file is downloaded and everything is set up. The next reboot - which can be forced with `ESP.restart()` - will start the new binary. If `ez.wifi.update` returns `false`, you can use `ez.wifi.updateError()` to return a String with a human-readable error message. (The way the https stream data is handled by the underlying ESP32 `Update` library does not seem terribly robust: stream timeouts happen, even on otherwise good internet connections.)
 
-The [README.rd file of the OTA_https sample sketch](https://github.com/ropg/M5ez/tree/master/examples/OTA_https) provides a step-by-step recipe that describes how to determine the URL and get the certficate using `get_cert`.
+The [README.rd file of the OTA_https sample sketch](https://github.com/M5ez/M5ez/tree/master/examples/OTA_https) provides a step-by-step recipe that describes how to determine the URL and get the certificate using `get_cert`.
+
+&nbsp;
+
+### BLE
+
+BLE, short for [Bluetooth Low Energy](https://en.wikipedia.org/wiki/Bluetooth_Low_Energy).  Is intended to provide considerably reduced power consumption and cost while maintaining a similar communication range. We implemented a device manager, so you can just focus on communicate with the target device. You can access it's interface from `ez.ble` , and can get access to connected devices from `ez.ble.getClient` function.
+
+&nbsp;
+
+### Battery
+
+The battery menu allows you to selectively show a battery level icon in the header bar. But due to [hardware limitations](https://github.com/m5stack/M5Stack/issues/74) it can only show four different battery levels. You can access its menu from `ez.battery.menu`. The battery level icon is animated while charging via USB.
 
 &nbsp;
 
@@ -976,7 +1006,7 @@ The [README.rd file of the OTA_https sample sketch](https://github.com/ropg/M5ez
 
 If M5ez is compiled with M5EZ_CLOCK (which it is by default), it will be set up to display a clock in the header bar at the top of the screen. By default this clock displays time in a 24 hour format, but this can be changed in the clock menu, which is also accessible directly via `ez.clock.menu`.
 
-The first time M5ez goes online, it will try to look up the timezone using the GeoIP country of the IP address you are connecting to the timezone server from. If this lookup fails or if you are in a country that spans multiple timezones this lookup will fail and an offiecial timezone name will have to be set manually in the menu. (Timezone names are of the from `Continent/Some_City`, see [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of timezone names. Note that the name of the timezone has to be entered in the correct case.
+The first time M5ez goes online, it will try to look up the timezone using the GeoIP country of the IP address you are connecting to the timezone server from. If this lookup fails or if you are in a country that spans multiple timezones this lookup will fail and an official timezone name will have to be set manually in the menu. (Timezone names are of the from `Continent/Some_City`, see [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of timezone names. Note that the name of the timezone has to be entered in the correct case.
 
 If you use M5ez with on-screen clock, your code can also use all the other features of [ezTime](https:://github.com.ropg/ezTime), my full-featured general purpose Arduino time library.
 
@@ -1040,9 +1070,9 @@ To make your own theme, copy the default theme from the src/themes directory to 
 
 ## z-sketches
 
-With a simple trick, you can make code that does something pretty on its own, but that can also be included to provide a submenu in a bigger program. If you look at the M5ez-demo program, you will see that its directory includes another sketch named z-sysinfo.ino. This is the same z-sysinfo.ino that can be compiled on its own. (It is in the examples directory.) 
+With a simple trick, you can make code that does something pretty on its own, but that can also be included to provide a submenu in a bigger program. If you look at the M5ez-demo program, you will see that its directory includes another sketch named z-sysinfo.ino. This is the same z-sysinfo.ino that can be compiled on its own. (It is in the examples directory.)
 
-Normally putting two .ino files in the same directory is a bad idea as the compiler then finds two programs that each have a `setup()` and a `loop()`. But if one of the programs (the "master" program) specifies `#define MAIN_DECLARED` and the slave program has `#ifndef MAIN_DECLARED` and `#endif` around its declaration of `setup()` and `loop()`, it no longer conflicts. This means the master program can call functions from it. As you can see z-sysinfo.ino also uses whether or not `MAIN_DECLARED` is defined to determine whether to provide an "Exit" button. After all: if it is running stand-alone there is nothing to exit to. 
+Normally putting two .ino files in the same directory is a bad idea as the compiler then finds two programs that each have a `setup()` and a `loop()`. But if one of the programs (the "master" program) specifies `#define MAIN_DECLARED` and the slave program has `#ifndef MAIN_DECLARED` and `#endif` around its declaration of `setup()` and `loop()`, it no longer conflicts. This means the master program can call functions from it. As you can see z-sysinfo.ino also uses whether or not `MAIN_DECLARED` is defined to determine whether to provide an "Exit" button. After all: if it is running stand-alone there is nothing to exit to.
 
 Also note that you do not need to `#include` any sketches placed in the same directory as your master program: the compiler combines them automatically. That also means you must ensure that no names are declared twice, or otherwise the compiler will complain.
 
@@ -1052,52 +1082,57 @@ Also note that you do not need to `#include` any sketches placed in the same dir
 
 ## Table of Contents
 
-   * [M5ez The easy way to program on the M5Stack](#m5ez-the-easy-way-to-program-on-the-m5stack)
-      * [introduction](#introduction)
-      * [Getting started](#getting-started)
-         * [If you get a WPS error: outdated ESP32 Arduino platform support](#if-you-get-a-wps-error-outdated-esp32-arduino-platform-support)
-      * [M5ez 2.0](#m5ez-20)
-         * [What's new in M5ez 2.x ?](#whats-new-in-m5ez-2x-)
-         * [Converting code from M5ez 1.x to 2.x](#converting-code-from-m5ez-1x-to-2x)
-   * [M5ez User Manual](#m5ez-user-manual)
-      * [How it all works](#how-it-all-works)
-      * [Screen](#screen)
-      * [Header](#header)
-         * [Showing, hiding, title](#showing-hiding-title)
-         * [Your own header widgets](#your-own-header-widgets)
-      * [Canvas](#canvas)
-         * [Canvas dimensions](#canvas-dimensions)
-         * [Printing to the canvas](#printing-to-the-canvas)
-      * [Buttons](#buttons)
-      * [Scheduling tasks within M5ez](#scheduling-tasks-within-m5ez)
-         * [Yield](#yield)
-         * [Your own events](#your-own-events)
-      * [Showing messages with msgBox](#showing-messages-with-msgbox)
-      * [ezProgressBar](#ezprogressbar)
-      * [3-button text input](#3-button-text-input)
-      * [FACES keyboard support](#faces-keyboard-support)
-      * [Composing or viewing longer texts: textBox](#composing-or-viewing-longer-texts-textbox)
-      * [Fonts](#fonts)
-         * [FreeFonts from the Adafruit library](#freefonts-from-the-adafruit-library)
-         * [FreeFonts included by the M5Stack driver](#freefonts-included-by-the-m5stack-driver)
-         * [Older fonts available only through M5ez](#older-fonts-available-only-through-m5ez)
-         * [Using your own fonts](#using-your-own-fonts)
-      * [Menus](#menus)
-         * [Let's start with text menus](#lets-start-with-text-menus)
-         * [.runOnce()](#runonce)
-         * [Image menus](#image-menus)
-         * [Menus: all the functions documented](#menus-all-the-functions-documented)
-      * [Settings](#settings)
-         * [Wifi](#wifi)
-            * [The weird Wifi ghost button problem](#the-weird-wifi-ghost-button-problem)
-            * [Over-The-Air (OTA) updates via https](#over-the-air-ota-updates-via-https)
-         * [Clock](#clock)
-         * [Backlight](#backlight)
-         * [FACES keyboard](#faces-keyboard)
-         * [Factory defaults](#factory-defaults)
-         * [Adding your own settings](#adding-your-own-settings)
-      * [Themes](#themes)
-         * [Including themes](#including-themes)
-         * [Making your own](#making-your-own)
-      * [z-sketches](#z-sketches)
-      * [Table of Contents](#table-of-contents)
+* [`M5ez` The easy way to program on the M5Stack](#m5ez-the-easy-way-to-program-on-the-m5stack)
+  * [Introduction](#introduction)
+    * [Other products by M5](#other-products-by-m5)
+    * [Alternatives](#alternatives)
+      * [UiFlow](#uiflow)
+  * [Getting started](#getting-started)
+    * [If you get `fatal error: ezTime.h: No such file or directory`](#if-you-get-fatal-error-eztimeh-no-such-file-or-directory)
+  * [Structure of documentation](#structure-of-documentation)
+    * [Tech Notes](#tech-notes)
+* [M5ez User Manual](#m5ez-user-manual)
+  * [How it all works](#how-it-all-works)
+  * [Screen](#screen)
+  * [Header](#header)
+    * [Showing, hiding, title](#showing-hiding-title)
+    * [Your own header widgets](#your-own-header-widgets)
+  * [Canvas](#canvas)
+    * [Canvas dimensions](#canvas-dimensions)
+    * [Printing to the canvas](#printing-to-the-canvas)
+  * [Buttons](#buttons)
+  * [Scheduling tasks within M5ez](#scheduling-tasks-within-m5ez)
+    * [Yield](#yield)
+    * [Your own events](#your-own-events)
+      * [Redrawing after an event](#redrawing-after-an-event)
+  * [Showing messages with msgBox](#showing-messages-with-msgbox)
+  * [ezProgressBar](#ezprogressbar)
+  * [3-button text input](#3-button-text-input)
+  * [FACES keyboard support](#faces-keyboard-support)
+  * [Composing or viewing longer texts: textBox](#composing-or-viewing-longer-texts-textbox)
+  * [Fonts](#fonts)
+    * [FreeFonts from the Adafruit library](#freefonts-from-the-adafruit-library)
+    * [FreeFonts included by the M5Stack driver](#freefonts-included-by-the-m5stack-driver)
+    * [Older fonts available only through M5ez](#older-fonts-available-only-through-m5ez)
+    * [Using your own fonts](#using-your-own-fonts)
+  * [Menus](#menus)
+    * [Let's start with text menus](#lets-start-with-text-menus)
+    * [`.runOnce()`](#runonce)
+    * [Image menus](#image-menus)
+    * [Menus: all the functions documented](#menus-all-the-functions-documented)
+  * [Settings](#settings)
+    * [Wifi](#wifi)
+      * [The weird Wifi ghost button problem](#the-weird-wifi-ghost-button-problem)
+      * [Over-The-Air (OTA) updates via https](#over-the-air-ota-updates-via-https)
+    * [BLE](#ble)
+    * [Battery](#battery)
+    * [Clock](#clock)
+    * [Backlight](#backlight)
+    * [FACES keyboard](#faces-keyboard)
+    * [Factory defaults](#factory-defaults)
+    * [Adding your own settings](#adding-your-own-settings)
+  * [Themes](#themes)
+    * [Including themes](#including-themes)
+    * [Making your own](#making-your-own)
+  * [z-sketches](#z-sketches)
+* [Table of Contents](#table-of-contents)
