@@ -853,7 +853,7 @@ void ezSettings::defaults() {
 		_last_activity = millis();
 	}
 	
-	uint16_t ezBacklight::loop() {
+	uint32_t ezBacklight::loop() {
 		if (!_backlight_off && _inactivity && !_inactive) {
 			if (millis() > _last_activity + 30000 * _inactivity) {
 				_backlight_off = true;
