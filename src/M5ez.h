@@ -458,7 +458,6 @@ class ezSettings {
 			static uint8_t _inactivity;
 			static uint32_t _last_activity;
 			static bool _backlight_off;
-			static bool _inactive;
 			static uint32_t _ButA_LastChg;
 			static uint32_t _ButB_LastChg;
 			static uint32_t _ButC_LastChg;

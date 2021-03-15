@@ -748,7 +748,6 @@ void ezSettings::defaults() {
 	uint8_t ezBacklight::_inactivity;
 	uint32_t ezBacklight::_last_activity;
 	bool ezBacklight::_backlight_off = false;
-	bool ezBacklight::_inactive = false;
 	uint32_t ezBacklight::_ButA_LastChg = 0;
 	uint32_t ezBacklight::_ButB_LastChg = 0;
 	uint32_t ezBacklight::_ButC_LastChg = 0;
@@ -854,11 +853,10 @@ void ezSettings::defaults() {
 	}
 	
 	uint32_t ezBacklight::loop() {
-		if (!_backlight_off && _inactivity && !_inactive) {
+		if (!_backlight_off && _inactivity) {
 			if (millis() > _last_activity + 30000 * _inactivity) {
-				_backlight_off = true;
 				m5.lcd.setBrightness(0);
-				_inactive = true;
+				_backlight_off = true;
 				ez.yield();
 				_ButA_LastChg = M5.BtnA.lastChange();
 				_ButB_LastChg = M5.BtnB.lastChange();
@@ -866,13 +864,12 @@ void ezSettings::defaults() {
 			}
 		}
 
-		if (_backlight_off || _inactive) {
+		if (_backlight_off) {
 			ez.yield();
 			if (_ButA_LastChg != M5.BtnA.lastChange() || _ButB_LastChg != M5.BtnB.lastChange() || _ButC_LastChg != M5.BtnC.lastChange()) {
 				m5.lcd.setBrightness(_brightness);
 				activity();
 				_backlight_off = false;
-				_inactive = false;
 			}
 		}
 		return 1000000;
