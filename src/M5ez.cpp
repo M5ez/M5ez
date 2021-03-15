@@ -748,6 +748,9 @@ void ezSettings::defaults() {
 	uint8_t ezBacklight::_inactivity;
 	uint32_t ezBacklight::_last_activity;
 	bool ezBacklight::_backlight_off = false;
+	uint32_t ezBacklight::_ButA_LastChg = 0;
+	uint32_t ezBacklight::_ButB_LastChg = 0;
+	uint32_t ezBacklight::_ButC_LastChg = 0;
 
 	void ezBacklight::begin() {
 		ez.addEvent(ez.backlight.loop);
@@ -852,14 +855,18 @@ void ezSettings::defaults() {
 	uint32_t ezBacklight::loop() {
 		if (!_backlight_off && _inactivity) {
 			if (millis() > _last_activity + 30000 * _inactivity) {
-				_backlight_off = true;
 				m5.lcd.setBrightness(0);
-				while (true) {
-					if (m5.BtnA.wasPressed() || m5.BtnB.wasPressed() || m5.BtnC.wasPressed()) break;
-					ez.yield();
-					delay(10);
-				}
-				ez.buttons.releaseWait();	// Make sure the key pressed to wake display gets ignored
+				_backlight_off = true;
+				ez.yield();
+				_ButA_LastChg = M5.BtnA.lastChange();
+				_ButB_LastChg = M5.BtnB.lastChange();
+				_ButC_LastChg = M5.BtnC.lastChange();
+			}
+		}
+
+		if (_backlight_off) {
+			ez.yield();
+			if (_ButA_LastChg != M5.BtnA.lastChange() || _ButB_LastChg != M5.BtnB.lastChange() || _ButC_LastChg != M5.BtnC.lastChange()) {
 				m5.lcd.setBrightness(_brightness);
 				activity();
 				_backlight_off = false;
@@ -2006,9 +2013,11 @@ void ezSettings::defaults() {
 	bool ezBattery::_on = false;
 	#define BATTERY_CHARGING_OFF (255)
 	uint8_t ezBattery::_numChargingBars = BATTERY_CHARGING_OFF;
+	bool ezBattery::_canControl = false;
 
 	void ezBattery::begin() {
 		Wire.begin();
+		_canControl = m5.Power.canControl();
 		ez.battery.readFlash();
 		ez.settings.menuObj.addItem("Battery settings", ez.battery.menu);
 		if (_on) {
@@ -2051,7 +2060,23 @@ void ezSettings::defaults() {
 		}
 	}
 
+	void ezBattery::adaptChargeMode() {
+	  // If power management not available, ignore the routine
+	  if(!_canControl) {
+	    return;
+	  }
+	  // Disable the charging if the battery is fully charged
+	  if(m5.Power.isChargeFull()) {
+	    m5.Power.setCharge(false);
+	  } else if (m5.Power.getBatteryLevel() < 76) {
+	    m5.Power.setCharge(true);
+	  }
+	  // Define the shutdown time at 64s
+	  m5.Power.setLowPowerShutdownTime(M5.Power.ShutdownTime::SHUTDOWN_64S);
+	}
+
 	uint32_t ezBattery::loop() {
+		adaptChargeMode();
 		if (!_on) return 0;
 		ez.header.draw("battery");
 		return (_numChargingBars != BATTERY_CHARGING_OFF ? 1000000 : 5000000);
@@ -2120,7 +2145,11 @@ void ezSettings::defaults() {
 		uint8_t top = ez.theme->header_height / 10;
 		uint8_t height = ez.theme->header_height * 0.8;
 		m5.lcd.fillRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, ez.theme->header_bgcolor);
-		m5.lcd.drawRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, ez.theme->header_fgcolor);
+		if (m5.Power.isCharging()) {
+			m5.lcd.drawRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, RED);
+		} else {
+			m5.lcd.drawRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, ez.theme->header_fgcolor);
+		}
 		uint8_t bar_width = (ez.theme->battery_bar_width - ez.theme->battery_bar_gap * 5) / 4.0;
 		uint8_t bar_height = height - ez.theme->battery_bar_gap * 2;
 		left_offset += ez.theme->battery_bar_gap;
