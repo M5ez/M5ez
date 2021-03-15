@@ -17,6 +17,7 @@ void loop() {
   ezMenu mainmenu("Welcome to M5ez");
   mainmenu.txtSmall();
   mainmenu.addItem("Flexible text menus", mainmenu_menus);
+  mainmenu.addItem("Event updated menus", NULL, mainmenu_settings);
   mainmenu.addItem("Image menus", mainmenu_image);
   mainmenu.addItem("Neat messages", mainmenu_msgs);
   mainmenu.addItem("Multi-function buttons", mainmenu_buttons);
@@ -47,6 +48,262 @@ void mainmenu_menus() {
   submenu.addItem("more | Learn more about menus", submenu_more);
   submenu.addItem("Exit | Go back to main menu");
   submenu.run();
+}
+
+enum ez_switch_t {
+  SW_NORTH,
+  SW_EAST,
+  SW_SOUTH,
+  SW_WEST
+};
+
+enum tmEntered_t {
+  TM_DAY    = 0,
+  TM_MONTH  = 1,
+  TM_YEAR   = 2,
+  TM_HOUR   = 3,
+  TM_MINUTE = 4
+};
+  
+time_t alarmTime = 0;
+uint16_t updatedData = 0;
+uint8_t days[12] = {31,29,31,30,31,30,31,31,30,31,30,31};
+ez_switch_t rotarySwitch = SW_NORTH;
+uint8_t timeOutVar = 0;
+String sRotary;
+static bool toggleSwitch = false;
+bool extraControl = false;
+
+String strRotary(void){
+  String sRotary;
+  switch(rotarySwitch){
+    case SW_NORTH:
+    default:
+      sRotary = "North";
+      break;
+    case SW_EAST:
+      sRotary = "East";
+      break;
+    case SW_SOUTH:
+      sRotary = "South";
+      break;
+    case SW_WEST:
+      sRotary = "West";
+      break;
+  }
+  return sRotary;
+}
+
+
+bool mngAlarmTime(ezMenu* callingMenu) {
+  tmElements_t tmOnScreen;
+  uint16_t highlight_color = TFT_RED;
+  String disp_val;
+  uint8_t elementSet = TM_DAY;
+
+  //production time as start point
+  tmOnScreen.Hour   = 12;
+  tmOnScreen.Minute = 0;
+  tmOnScreen.Day    = 1;
+  tmOnScreen.Month  = 3;
+  tmOnScreen.Year   = 21;
+
+  elementSet  = TM_DAY;
+  disp_val = "Enter alarm time in | DD.MM.YY HH:MM format";
+  while (true) {     
+    ez.msgBox("TIME", disp_val, " - # -- # select | > # OK # + # ++ # # # Back ", false, &FreeMono12pt7b);
+    ez.canvas.font(&FreeMonoBold18pt7b);
+    M5.lcd.fillRect (0, ez.canvas.bottom() - 40, TFT_W, 40, ez.theme->background); 
+    ez.canvas.pos(13, ez.canvas.bottom() - 40);
+    ez.canvas.color(elementSet == TM_DAY    ? highlight_color : ez.theme->msg_color);            
+    ez.canvas.print(zeropad((uint32_t)tmOnScreen.Day, 2));
+    ez.canvas.print(".");
+    ez.canvas.color(elementSet == TM_MONTH  ? highlight_color : ez.theme->msg_color);            
+    ez.canvas.print(zeropad((uint32_t)tmOnScreen.Month, 2));
+    ez.canvas.color(ez.theme->msg_color);        
+    ez.canvas.print(".");      
+    ez.canvas.color(elementSet == TM_YEAR   ? highlight_color : ez.theme->msg_color);
+    ez.canvas.print(zeropad((uint32_t)tmOnScreen.Year, 2));
+    ez.canvas.color(ez.theme->msg_color);        
+    ez.canvas.print(" ");
+    ez.canvas.color(elementSet == TM_HOUR   ? highlight_color : ez.theme->msg_color);  
+    ez.canvas.print(zeropad((uint32_t)tmOnScreen.Hour, 2));
+    ez.canvas.color(ez.theme->msg_color);        
+    ez.canvas.print(":");
+    ez.canvas.color(elementSet == TM_MINUTE ? highlight_color : ez.theme->msg_color);          
+    ez.canvas.print(zeropad((uint32_t)tmOnScreen.Minute, 2));
+    String b = ez.buttons.wait();
+    if (b == "select") elementSet == 4 ? elementSet-=4 : elementSet++ ; 
+    switch (elementSet) {
+      case TM_DAY:
+        if (tmOnScreen.Day > days[tmOnScreen.Month-1]) tmOnScreen.Day = days[tmOnScreen.Month-1];
+        if (b == "-" && tmOnScreen.Day >  1) tmOnScreen.Day--;
+        if (b == "+" && tmOnScreen.Day < days[tmOnScreen.Month-1]) tmOnScreen.Day++;
+        if (b == "--") {
+          if (tmOnScreen.Day < 10) {
+            tmOnScreen.Day = 0;
+          } else {
+            tmOnScreen.Day -= 10;
+          }
+        }
+        if (b == "++") {
+          if (tmOnScreen.Day > 20) {
+            tmOnScreen.Day = days[tmOnScreen.Month-1];
+          } else {
+            tmOnScreen.Day += 10;
+          }
+        }
+        break;
+      case TM_MONTH: 
+        if (((b == "-") || (b == "--")) && (tmOnScreen.Month >  1)) tmOnScreen.Month--;
+        if (((b == "+") || (b == "++")) && (tmOnScreen.Month < 12)) tmOnScreen.Month++;
+        if (tmOnScreen.Day > days[tmOnScreen.Month-1]) tmOnScreen.Day = days[tmOnScreen.Month-1];
+        break;
+      case TM_YEAR: 
+        if (((b == "-") || (b == "--")) && (tmOnScreen.Year > 20)) tmOnScreen.Year--;
+        if (((b == "+") || (b == "++")) && (tmOnScreen.Year < 35)) tmOnScreen.Year++;
+        break; 
+      case TM_HOUR: 
+        if ((b == "-") && (tmOnScreen.Hour >  0)) tmOnScreen.Hour--;
+        if ((b == "+") && (tmOnScreen.Hour < 23)) tmOnScreen.Hour++;
+        if (b == "--") {
+          if (tmOnScreen.Hour < 3) {
+            tmOnScreen.Hour = 0;
+          } else {
+            tmOnScreen.Hour -= 3;
+          }
+        }
+        if (b == "++") {
+          if (tmOnScreen.Hour > 21) {
+            tmOnScreen.Hour = 0;
+          } else {
+            tmOnScreen.Hour += 3;
+          }
+        }
+        break;
+      case TM_MINUTE: 
+        if (b == "-") {
+          tmOnScreen.Minute--;
+          if(tmOnScreen.Minute == 255)tmOnScreen.Minute = 59;
+        }
+        if (b == "+") {
+          tmOnScreen.Minute++;
+          if(tmOnScreen.Minute == 60)tmOnScreen.Minute = 0;
+        }
+        if (b == "--") {
+          if (tmOnScreen.Minute < 10) {
+            tmOnScreen.Minute = 0;
+          } else {
+            tmOnScreen.Minute -= 10;
+          }
+        }
+        if (b == "++") {
+          if (tmOnScreen.Minute > 50) {
+            tmOnScreen.Minute = 59;
+          } else {
+            tmOnScreen.Minute += 10;
+          }
+        }
+        break;          
+    }
+    if (b == "OK") {
+      tmOnScreen.Year += 30;
+      tmOnScreen.Second = 00;
+      time_t timeEntered = makeTime(tmOnScreen);
+      
+      if (timeStatus() == timeNotSet) {
+        // timeNotSet - We are enering system time
+        // store entered time somewhere
+        //setRtcEpoch(timeEntered);
+        UTC.setTime(timeEntered);
+        ez.header.draw("clock");
+        callingMenu->setCaption("settime", "System time set\t" + UTC.dateTime(timeEntered, "d.m.y H:i"));
+      } else {
+        // timeSet || timeNeedSync
+        UTC.setTime(timeEntered);
+        ez.header.draw("clock");
+        callingMenu->setCaption("settime", "Alarm time set\t"  + UTC.dateTime(timeEntered, "d.m.y H:i"));
+        break;
+      }
+      break;
+    } else if (b == "Back") {
+      break;
+    }
+  }
+  return true;
+}
+
+bool mngToggle(ezMenu* callingMenu) {
+    toggleSwitch = !toggleSwitch;
+    callingMenu->setCaption("toggle", "Toggle something\t" + String(toggleSwitch ? "On" : "Off"));
+    return true;
+}
+
+bool mngRotary(ezMenu* callingMenu) {
+    uint8_t switchVar = (uint8_t)rotarySwitch;
+    switchVar += 1;
+    switchVar %= 4;
+    rotarySwitch = (ez_switch_t)switchVar;
+    callingMenu->setCaption("rotary", "Rotary Switch\t" + strRotary());
+    return true;
+}
+
+bool mngTimeOut(ezMenu* callingMenu){
+    timeOutVar += 15;
+    timeOutVar %= 75;
+    callingMenu->setCaption("timeout", "Show disabled state\t" + (String)(!timeOutVar ? "Off" : (String)(timeOutVar) + "s"));
+    return true;
+}
+
+int64_t timeOnEntry, timeOnEntryOld;
+uint32_t period;
+uint32_t secondsCounter = 0;
+
+uint32_t eventLoop() {
+    //get some updated data 
+    //for example period between loop reentries in us
+    timeOnEntry = esp_timer_get_time();
+    period = timeOnEntry - timeOnEntryOld;
+    timeOnEntryOld = timeOnEntry;
+    secondsCounter++;
+    //show updated data in an item of the active menue 
+    ezMenu* curMenu = M5ez::getCurrentMenu();
+    if (curMenu->getTitle() == "Control") {
+        curMenu->setCaption("update", "Loop period\t" + String(period) + "us");
+        curMenu->setCaption("counter", "Seconds from start\t" + String(secondsCounter));
+    }
+    ez.yield();
+    return 1000000; //1s
+}
+
+bool loopStarted = false;
+
+bool mngEventLoop(ezMenu* callingMenu) {
+    callingMenu->addItem("counter | Seconds from start\t" + String(secondsCounter));
+    if (!loopStarted) {
+        ez.addEvent(eventLoop);
+        loopStarted = true;
+    }
+    return true;
+}
+
+
+bool mainmenu_settings(ezMenu* callingMenu) {
+  ezMenu controlmenu("Control");
+  controlmenu.txtSmall();
+  controlmenu.buttons("up#Back#select##down#");
+  controlmenu.addItem("update | Start reading data\t", NULL, mngEventLoop); //to add event eventLoop() once
+  controlmenu.addItem("toggle | Toggle something\t" + String(toggleSwitch ? "On" : "Off"), NULL, mngToggle);
+  controlmenu.addItem("rotary | Rotary Switch\t" + strRotary(), NULL, mngRotary);
+  controlmenu.addItem("timeout | Show disabled state\t" + (String)(!timeOutVar ? "Off" : (String)(timeOutVar) + "s"), NULL, mngTimeOut);
+  controlmenu.addItem("settime | Set some time\t" + (String)(!alarmTime ? "dd.mm.yy hh:mm" : UTC.dateTime(alarmTime, "d.m.y H:i")), NULL, mngAlarmTime);
+  controlmenu.run();
+  //on Back/Exit/Done
+  ez.removeEvent(eventLoop);    //if event is not needed any more
+  loopStarted = false; //allows to restart eventLoop
+  secondsCounter = 0;
+  controlmenu.deleteItem("counter");
+  return true;
 }
 
 void submenu_more() {
@@ -164,7 +421,7 @@ void mainmenu_ota() {
   if (ez.msgBox("Get OTA_https demo", "This will replace the demo with a program that can then load the demo program again.", "Cancel#OK#") == "OK") {
     ezProgressBar progress_bar("OTA update in progress", "Downloading ...", "Abort");
     #include "raw_githubusercontent_com.h" // the root certificate is now in const char * root_cert
-    if (ez.wifi.update("https://raw.githubusercontent.com/M5ez/M5ez/master/compiled_binaries/OTA_https.bin", root_cert, &progress_bar)) {
+    if (ez.wifi.update("https://raw.githubusercontent.com/ropg/M5ez/master/compiled_binaries/OTA_https.bin", root_cert, &progress_bar)) {
       ez.msgBox("Over The Air updater", "OTA download successful. Reboot to new firmware", "Reboot");
       ESP.restart();
     } else {
@@ -176,5 +433,5 @@ void mainmenu_ota() {
 void powerOff() { m5.powerOFF(); }
 
 void aboutM5ez() {
-  ez.msgBox("About M5ez", "M5ez was written by | Rop Gonggrijp | | https://github.com/M5ez/M5ez");
+  ez.msgBox("About M5ez", "M5ez was written by | Rop Gonggrijp | | https://github.com/ropg/M5ez");
 }

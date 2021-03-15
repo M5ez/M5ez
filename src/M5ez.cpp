@@ -2051,10 +2051,10 @@ void ezSettings::defaults() {
 		}
 	}
 
-	uint16_t ezBattery::loop() {
+	uint32_t ezBattery::loop() {
 		if (!_on) return 0;
 		ez.header.draw("battery");
-		return (_numChargingBars != BATTERY_CHARGING_OFF ? 1000 : 5000);
+		return (_numChargingBars != BATTERY_CHARGING_OFF ? 1000000 : 5000000);
 	}
 
 	//Transform the M5Stack built in battery level into an internal format.
