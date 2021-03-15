@@ -263,7 +263,7 @@ class ezCanvas : public Print {
 		virtual size_t write(uint8_t c);						// These three are used to inherint print and println from Print class
 		virtual size_t write(const char *str);
 		virtual size_t write(const uint8_t *buffer, size_t size);
-		static uint16_t loop();
+		static uint32_t loop();
 	private:
 		static std::vector<print_t> _printed;
 		static uint32_t _next_scroll;
@@ -452,7 +452,7 @@ class ezSettings {
 			static void menu();
 			static void inactivity(uint8_t half_minutes);
 			static void activity();
-			static uint16_t loop();
+			static uint32_t loop();
 		private:
 			static uint8_t _brightness;
 			static uint8_t _inactivity;
@@ -477,7 +477,7 @@ class ezSettings {
 			static void begin();
 			static void restart();
 			static void menu();
-			static uint16_t loop();
+			static uint32_t loop();
 			static void clear();
 			static void draw(uint16_t x, uint16_t w);
 			static bool waitForSync(const uint16_t timeout = 0);
@@ -550,7 +550,7 @@ class ezSettings {
 			static void readFlash();
 			static void writeFlash();
 			static void menu();
-			static uint16_t loop();
+			static uint32_t loop();
 			static bool update(String url, const char* root_cert, ezProgressBar* pb = NULL);
 			static String updateError();
 		private:
@@ -629,7 +629,7 @@ class ezSettings {
 			static void readFlash();
 			static void writeFlash();
 			static void menu();
-			static uint16_t loop();
+			static uint32_t loop();
 			static uint8_t getTransformedBatteryLevel();
 			static uint32_t getBatteryBarColor(uint8_t batteryLevel);
 		private:
@@ -650,8 +650,8 @@ class ezSettings {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct event_t {
-	uint16_t (*function)();
-	uint32_t when;
+	uint32_t (*function)();
+	int64_t when;
 };
 class M5ez {
 
@@ -695,8 +695,8 @@ class M5ez {
 
 		static void yield();
 		
-		static void addEvent(uint16_t (*function)(), uint32_t when = 1);
-		static void removeEvent(uint16_t (*function)());
+		static void addEvent(uint32_t (*function)(), uint32_t when = 1);
+		static void removeEvent(uint32_t (*function)());
 		static void redraw();
 
 		static ezMenu* getCurrentMenu();

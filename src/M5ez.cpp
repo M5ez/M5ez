@@ -352,7 +352,7 @@ size_t ezCanvas::write(const uint8_t *buffer, size_t size) {
 	return size;
 }
 
-uint16_t ezCanvas::loop() {
+uint32_t ezCanvas::loop() {
 	if (_next_scroll && millis() >= _next_scroll) {
 		ez.setFont(_font);
 		uint8_t h = ez.fontHeight();
@@ -384,7 +384,7 @@ uint16_t ezCanvas::loop() {
 		_printed = clean_copy;
 		Serial.println(ESP.getFreeHeap());
 	}
-	return 10;
+	return 10000;
 }
 	
 
@@ -849,7 +849,7 @@ void ezSettings::defaults() {
 		_last_activity = millis();
 	}
 	
-	uint16_t ezBacklight::loop() {
+	uint32_t ezBacklight::loop() {
 		if (!_backlight_off && _inactivity) {
 			if (millis() > _last_activity + 30000 * _inactivity) {
 				_backlight_off = true;
@@ -865,7 +865,7 @@ void ezSettings::defaults() {
 				_backlight_off = false;
 			}
 		}
-		return 1000;
+		return 1000000;
 	}
 #endif
 
@@ -966,7 +966,7 @@ void ezSettings::defaults() {
 		}
 	}
 	
-	uint16_t ezClock::loop() {
+	uint32_t ezClock::loop() {
 		ezt::events();
 		if (_starting && timeStatus() != timeNotSet) {
 			_starting = false;
@@ -980,7 +980,7 @@ void ezSettings::defaults() {
 		} else {
 			if (_on && ezt::minuteChanged()) ez.header.draw("clock");
 		}
-		return 250;
+		return 250000;
 	}
 	
 	void ezClock::draw(uint16_t x, uint16_t w) {
@@ -1485,7 +1485,7 @@ void ezSettings::defaults() {
 		}
 	}
 
-	uint16_t ezWifi::loop() {
+	uint32_t ezWifi::loop() {
 		if (millis() > _widget_time + ez.theme->signal_interval) {
 			ez.header.draw("wifi");
 			_widget_time = millis();
@@ -1584,7 +1584,7 @@ void ezSettings::defaults() {
 				#endif
 				break;
 		}
-		return 250;
+		return 250000;
 	}
 
 	bool ezWifi::update(String url, const char* root_cert, ezProgressBar* pb /* = NULL */) {
@@ -2051,10 +2051,10 @@ void ezSettings::defaults() {
 		}
 	}
 
-	uint16_t ezBattery::loop() {
+	uint32_t ezBattery::loop() {
 		if (!_on) return 0;
 		ez.header.draw("battery");
-		return (_numChargingBars != BATTERY_CHARGING_OFF ? 1000 : 5000);
+		return (_numChargingBars != BATTERY_CHARGING_OFF ? 1000000 : 5000000);
 	}
 
 	//Transform the M5Stack built in battery level into an internal format.
@@ -2191,12 +2191,12 @@ void M5ez::yield() {
 	M5.update();
 	if(M5ez::_in_event) return;			// prevent reentrancy
 	for (uint8_t n = 0; n< _events.size(); n++) {
-		if (millis() > _events[n].when) {
+		if (esp_timer_get_time() > _events[n].when) {
 			M5ez::_in_event = true;		// prevent reentrancy
-			uint16_t r = (_events[n].function)();
+			uint32_t r = (_events[n].function)();
 			M5ez::_in_event = false;	// prevent reentrancy
 			if (r) {
-				_events[n].when = millis() + r - 1;
+				_events[n].when = esp_timer_get_time() + r - 1;
 			} else {
 				_events.erase(_events.begin() + n);
 				break;		// make sure we don't go beyond _events.size() after deletion
@@ -2208,14 +2208,14 @@ void M5ez::yield() {
 #endif
 }
 
-void M5ez::addEvent(uint16_t (*function)(), uint32_t when /* = 1 */) {
+void M5ez::addEvent(uint32_t (*function)(), uint32_t when /* = 1 */) {
 	event_t n;
 	n.function = function;
-	n.when = millis() + when - 1;
+	n.when = esp_timer_get_time() + when - 1;
 	_events.push_back(n);
 }
 
-void M5ez::removeEvent(uint16_t (*function)()) {
+void M5ez::removeEvent(uint32_t (*function)()) {
 	uint8_t n = 0;
 	while (n < _events.size()) {
 		if (_events[n].function == function) {
