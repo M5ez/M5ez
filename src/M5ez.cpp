@@ -241,7 +241,7 @@ void ezHeader::_drawTitle(uint16_t x, uint16_t w) {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-uint8_t ezCanvas::_y, ezCanvas::_top, ezCanvas::_bottom;
+uint16_t ezCanvas::_y, ezCanvas::_top, ezCanvas::_bottom;
 uint16_t ezCanvas::_x, ezCanvas::_left, ezCanvas::_right, ezCanvas::_lmargin;
 const FONT_TYPE* ezCanvas::_font;
 uint16_t ezCanvas::_color;
@@ -275,15 +275,15 @@ void ezCanvas::clear() {
 	_printed.clear();
 }
 
-uint8_t ezCanvas::top() { return _top; }
+uint16_t ezCanvas::top() { return _top; }
 
-uint8_t ezCanvas::bottom() { return _bottom; }
+uint16_t ezCanvas::bottom() { return _bottom; }
 
 uint16_t ezCanvas::left() { return _left; }
 
 uint16_t ezCanvas::right() { return _right; }
 
-uint8_t ezCanvas::height() { return _bottom - _top + 1;}
+uint16_t ezCanvas::height() { return _bottom - _top + 1;}
 
 uint16_t ezCanvas::width() { return _right - _left + 1; }
 
@@ -310,7 +310,7 @@ void ezCanvas::color(uint16_t color) { _color = color; }
 
 uint16_t ezCanvas::color() { return _color; }
 
-void ezCanvas::pos(uint16_t x, uint8_t y) {
+void ezCanvas::pos(uint16_t x, uint16_t y) {
 	_x = x;
 	_y = y;
 }
@@ -319,16 +319,16 @@ uint16_t ezCanvas::x() { return _x; }
 
 void ezCanvas::x(uint16_t x) { _x = x; }
 
-uint8_t ezCanvas::y() { return _y; }
+uint16_t ezCanvas::y() { return _y; }
 
-void ezCanvas::y(uint8_t y) { _y = y; }
+void ezCanvas::y(uint16_t y) { _y = y; }
 		
-void ezCanvas::top(uint8_t newtop) {
+void ezCanvas::top(uint16_t newtop) {
 	if (_y < newtop) _y = newtop;
 	_top = newtop;
 }
 
-void ezCanvas::bottom(uint8_t newbottom) {
+void ezCanvas::bottom(uint16_t newbottom) {
 	_bottom = newbottom;
 }
 
@@ -356,7 +356,7 @@ uint16_t ezCanvas::loop() {
 	if (_next_scroll && millis() >= _next_scroll) {
 		ez.setFont(_font);
 		uint8_t h = ez.fontHeight();
-		uint8_t scroll_by = _y - _bottom;
+		uint16_t scroll_by = _y - _bottom;
 		if (_x > _lmargin) scroll_by += h;
 		const FONT_TYPE* hold_font = _font;
 		const uint16_t hold_color = _color;
@@ -2061,7 +2061,7 @@ void ezSettings::defaults() {
 	// From [100, 75, 50, 25, 0] to [4, 3, 2, 1, 0]
 	uint8_t ezBattery::getTransformedBatteryLevel()
 	{
-		switch (m5.Power.getBatteryLevel()) 
+		switch (getBatteryLevel()) 
 		{
 			case 100:
 				return 4;
@@ -2107,7 +2107,7 @@ void ezSettings::defaults() {
 
 	void ezBattery::_drawWidget(uint16_t x, uint16_t w) {
 		uint8_t currentBatteryLevel = getTransformedBatteryLevel();
-		if((M5.Power.isChargeFull() == false) && (M5.Power.isCharging() == true)) {
+		if((isChargeFull() == false) && (isCharging() == true)) {
 			if(_numChargingBars < currentBatteryLevel) {
 				_numChargingBars++;
 			} else {
@@ -2128,6 +2128,36 @@ void ezSettings::defaults() {
 			m5.lcd.fillRect(left_offset + n * (bar_width + ez.theme->battery_bar_gap), top + ez.theme->battery_bar_gap, 
 				bar_width, bar_height, getBatteryBarColor(currentBatteryLevel));
 		}
+	}
+
+	uint8_t ezBattery::getBatteryLevel() {
+		#if defined (ARDUINO_M5STACK_Core2)
+			return 50;	//DEBUG
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			return 50;	//DEBUG
+		#elif defined (ARDUINO_M5Stack_Core_ESP32)
+			return m5.Power.getBatteryLevel();
+		#endif
+	}
+
+	bool ezBattery::isChargeFull() {
+		#if defined (ARDUINO_M5STACK_Core2)
+			return false;	//DEBUG
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			return false;	//DEBUG
+		#elif defined (ARDUINO_M5Stack_Core_ESP32)
+			return m5.Power.isChargeFull();
+		#endif		
+	}
+	
+	bool ezBattery::isCharging() {
+		#if defined (ARDUINO_M5STACK_Core2)
+			return m5.Axp.isCharging();
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			return m5.Axp.isCharging();
+		#elif defined (ARDUINO_M5Stack_Core_ESP32)
+			return m5.Power.isCharging();
+		#endif
 	}
 
 #endif
@@ -2741,12 +2771,16 @@ void M5ez::setFont(const FONT_TYPE* font) {
  		}
 		m5.lcd.setTextFont(ptrAsInt);
 	} else {
-		m5.lcd.setFreeFont(font);
+		m5.lcd.setFont(font);
 	}
 	m5.lcd.setTextSize(size);
 }
 
-int16_t M5ez::fontHeight() { return m5.lcd.fontHeight(m5.lcd.textfont); }
+#if defined(CHIMERA_CORE)
+	int16_t M5ez::fontHeight() { return m5.lcd.fontHeight(); }
+#else
+	int16_t M5ez::fontHeight() { return m5.lcd.fontHeight(m5.lcd.textfont); }
+#endif
 
 String M5ez::version() { return M5EZ_VERSION; } 
 

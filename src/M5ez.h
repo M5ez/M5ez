@@ -3,6 +3,44 @@
 
 #define M5EZ_VERSION		"2.4.0"
 
+#define CHIMERA_CORE
+
+#if defined(CHIMERA_CORE)
+    #define FONT_TYPE lgfx::IFont
+	#define FONT_ADDR &fonts::
+	#include <ESP32-Chimera-Core.h>
+#else
+    #define FONT_TYPE GFXfont
+	#define FONT_ADDR &
+	#if defined (ARDUINO_M5STACK_Core2)
+		#include <M5Core2.h>
+	#elif defined ( ARDUINO_M5Stick_C )
+		#include <M5StickC.h>
+	#elif defined (ARDUINO_M5Stick_C_Plus)
+		#include "M5StickCPlus.h"
+	#elif defined (ARDUINO_M5Stack_Core_ESP32)
+		#include <M5Stack.h>
+	#elif defined (ARDUINO_ESP32_DEV)
+		#include <M5Stack.h>
+	#endif
+#endif
+
+#if defined (ARDUINO_M5STACK_Core2)
+	#define TFT_W		320
+	#define TFT_H		240
+#elif defined (ARDUINO_M5Stick_C)
+	#define TFT_W		160
+	#define TFT_H		 80
+#elif defined (ARDUINO_M5Stick_C_Plus)
+	#define TFT_W		240
+	#define TFT_H		135
+#elif defined (ARDUINO_M5Stack_Core_ESP32)
+	#define TFT_W		320
+	#define TFT_H		240
+#elif defined (ARDUINO_ESP32_DEV)
+	#define TFT_W		320
+	#define TFT_H		480
+#endif
 
 // Comment out the line below to disable WPS.
 #define M5EZ_WPS
@@ -34,35 +72,6 @@
 #include <vector>			// std::vector
 #ifdef M5EZ_WIFI
 	#include <WiFi.h>			// WiFiEvent_t, system_event_info_t
-#endif
-
-#define CHIMERA_CORE
-#if defined(CHIMERA_CORE)
-    #define FONT_TYPE lgfx::IFont
-	#define FONT_ADDR &fonts::
-	#include <ESP32-Chimera-Core.h>
-	#define TFT_W		320
-	#define TFT_H		240
-#else
-    #define FONT_TYPE GFXfont
-	#define FONT_ADDR &
-	#if defined (ARDUINO_M5STACK_Core2)
-		#include <M5Core2.h>
-		#define TFT_W		320
-		#define TFT_H		240
-	#elif defined (ARDUINO_M5Stick_C_Plus)
-		#include "M5StickCPlus.h"
-		#define TFT_W		240
-		#define TFT_H		135
-	#elif defined (ARDUINO_M5Stack_Core_ESP32)
-		#include <M5Stack.h>		// FONT_TYPE*
-		#define TFT_W		320
-		#define TFT_H		240
-	#elif defined (ARDUINO_ESP32_DEV)
-		#include <M5Stack.h>		// M35 and K36 mods as D1_MINI32
-		#define TFT_W		320
-		#define TFT_H		480
-	#endif
 #endif
 
 #ifdef M5EZ_CLOCK
@@ -266,11 +275,11 @@ class ezCanvas : public Print {
 		static void begin();
 		static void reset();
 		static void clear();
-		static uint8_t top();
-		static uint8_t bottom();
+		static uint16_t top();
+		static uint16_t bottom();
 		static uint16_t left();
 		static uint16_t right();
-		static uint8_t height();
+		static uint16_t height();
 		static uint16_t width();
 		static bool scroll();
 		static void scroll(bool s);
@@ -282,11 +291,11 @@ class ezCanvas : public Print {
 		static const FONT_TYPE* font();
 		static void color(uint16_t color);
 		static uint16_t color();
-		static void pos(uint16_t x, uint8_t y);
+		static void pos(uint16_t x, uint16_t y);
 		static uint16_t x();
 		static void x(uint16_t newx);
-		static uint8_t y();
-		static void y(uint8_t newy);
+		static uint16_t y();
+		static void y(uint16_t newy);
 		virtual size_t write(uint8_t c);						// These three are used to inherint print and println from Print class
 		virtual size_t write(const char *str);
 		virtual size_t write(const uint8_t *buffer, size_t size);
@@ -294,9 +303,9 @@ class ezCanvas : public Print {
 	private:
 		static std::vector<print_t> _printed;
 		static uint32_t _next_scroll;
-		static void top(uint8_t newtop);
-		static void bottom(uint8_t newbottom);
-		static uint8_t _y, _top, _bottom;
+		static void top(uint16_t newtop);
+		static void bottom(uint16_t newbottom);
+		static uint16_t _y, _top, _bottom;
 		static uint16_t _x, _left, _right, _lmargin;
 		static bool _wrap, _scroll;
 		static const FONT_TYPE* _font;
@@ -659,7 +668,13 @@ class ezSettings {
 			static uint16_t loop();
 			static uint8_t getTransformedBatteryLevel();
 			static uint32_t getBatteryBarColor(uint8_t batteryLevel);
+
+			static uint8_t getBatteryLevel();
+			static bool isChargeFull();
+			static bool isCharging();
+
 		private:
+			static bool _canControl;
 			static bool _on;
 			static void _refresh();
 			static void _drawWidget(uint16_t x, uint16_t w);
