@@ -243,7 +243,7 @@ void ezHeader::_drawTitle(uint16_t x, uint16_t w) {
 
 uint8_t ezCanvas::_y, ezCanvas::_top, ezCanvas::_bottom;
 uint16_t ezCanvas::_x, ezCanvas::_left, ezCanvas::_right, ezCanvas::_lmargin;
-const GFXfont* ezCanvas::_font;
+const FONT_TYPE* ezCanvas::_font;
 uint16_t ezCanvas::_color;
 bool ezCanvas::_wrap, ezCanvas::_scroll;
 std::vector<print_t> ezCanvas::_printed;
@@ -302,9 +302,9 @@ void ezCanvas::lmargin(uint16_t newmargin) {
 	_lmargin = newmargin;
 }
 
-void ezCanvas::font(const GFXfont* font) { _font = font; }
+void ezCanvas::font(const FONT_TYPE* font) { _font = font; }
 
-const GFXfont* ezCanvas::font() { return _font; }
+const FONT_TYPE* ezCanvas::font() { return _font; }
 
 void ezCanvas::color(uint16_t color) { _color = color; }
 
@@ -358,7 +358,7 @@ uint16_t ezCanvas::loop() {
 		uint8_t h = ez.fontHeight();
 		uint8_t scroll_by = _y - _bottom;
 		if (_x > _lmargin) scroll_by += h;
-		const GFXfont* hold_font = _font;
+		const FONT_TYPE* hold_font = _font;
 		const uint16_t hold_color = _color;
 		for (uint16_t n = 0; n < _printed.size(); n++) {
 			_printed[n].y -= scroll_by;
@@ -1301,7 +1301,7 @@ void ezSettings::defaults() {
 			const uint8_t tab = 140;
 			ez.screen.clear();
 			ez.header.show("Current wifi connection");
-			ez.canvas.font(&FreeSans9pt7b);
+			ez.canvas.font(FONT_ADDR FreeSans9pt7b);
 			ez.canvas.lmargin(10);
 			ez.canvas.y(ez.canvas.top() + 5);
 			ez.canvas.print("SSID:"); ez.canvas.x(tab); ez.canvas.println(WiFi.SSID());
@@ -2257,7 +2257,7 @@ static const char * _keydefs[] PROGMEM = {
 
 // ez.msgBox
 
-String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, const bool blocking /* = true */, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
+String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, const bool blocking /* = true */, const FONT_TYPE* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
 	if (ez.header.title() != header) {
 		ez.screen.clear();
 		if (header != "") ez.header.show(header);
@@ -2409,7 +2409,7 @@ void M5ez::_textCursor(bool state) {
 	_text_cursor_millis = millis();
 }
 
-String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonly /*= false*/, String buttons /*= "up#Done#down"*/, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
+String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonly /*= false*/, String buttons /*= "up#Done#down"*/, const FONT_TYPE* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
 	if (!font) font = ez.theme->tb_font;
 	if (color == NO_COLOR) color = ez.theme->tb_color;
 	#ifdef M5EZ_FACES
@@ -2731,7 +2731,7 @@ bool M5ez::isBackExitOrDone(String str) {
 
 // Font related m5.lcd wrappers
 
-void M5ez::setFont(const GFXfont* font) {
+void M5ez::setFont(const FONT_TYPE* font) {
 	long ptrAsInt = (long) font;
 	int16_t size = 1;
 	if (ptrAsInt <= 16) {
@@ -2767,7 +2767,7 @@ ezMenu::ezMenu(String hdr /* = "" */) {
 	_font = NULL;
 	_img_from_top = 0;
 	_img_caption_location = TC_DATUM;
-	_img_caption_font = &FreeSansBold12pt7b;
+	_img_caption_font = FONT_ADDR FreeSansBold12pt7b;
 	_img_caption_color = TFT_RED;
 	_img_caption_hmargin = 10;
 	_img_caption_vmargin = 10;
@@ -2782,7 +2782,7 @@ void ezMenu::txtBig() { _font = ez.theme->menu_big_font; }
 
 void ezMenu::txtSmall() { _font = ez.theme->menu_small_font; }
 
-void ezMenu::txtFont(const GFXfont* font) { _font = font; }
+void ezMenu::txtFont(const FONT_TYPE* font) { _font = font; }
 
 bool ezMenu::addItem(String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
 	return addItem(NULL, nameAndCaption, simpleFunction, advancedFunction, drawFunction);
@@ -3021,7 +3021,7 @@ void ezMenu::imgBackground(uint16_t color) {
 
 void ezMenu::imgFromTop(int16_t offset) { _img_from_top = offset; }
 
-void ezMenu::imgCaptionFont(const GFXfont* font) { _img_caption_font = font; }
+void ezMenu::imgCaptionFont(const FONT_TYPE* font) { _img_caption_font = font; }
 
 void ezMenu::imgCaptionLocation(uint8_t datum) { _img_caption_location = datum; }
 
@@ -3243,7 +3243,7 @@ bool ezMenu::sort_dsc_caption_ci (const char* s1, const char* s2) { return 0 < s
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ezProgressBar::ezProgressBar(String header /* = "" */, String msg /* = "" */, String buttons /* = "" */, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */, uint16_t bar_color /* = NO_COLOR */, bool show_val /* = false */, uint16_t val_color /* = NO_COLOR */) {
+ezProgressBar::ezProgressBar(String header /* = "" */, String msg /* = "" */, String buttons /* = "" */, const FONT_TYPE* font /* = NULL */, uint16_t color /* = NO_COLOR */, uint16_t bar_color /* = NO_COLOR */, bool show_val /* = false */, uint16_t val_color /* = NO_COLOR */) {
 	if (!font) font = ez.theme->msg_font;
 	if (color == NO_COLOR) color = ez.theme->msg_color;
 	if (bar_color == NO_COLOR) bar_color = ez.theme->progressbar_color;

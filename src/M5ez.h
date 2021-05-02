@@ -1,7 +1,7 @@
 #ifndef _M5EZ_H_
 #define _M5EZ_H_
 
-#define M5EZ_VERSION		"2.3.0"
+#define M5EZ_VERSION		"2.4.0"
 
 
 // Comment out the line below to disable WPS.
@@ -35,32 +35,59 @@
 #ifdef M5EZ_WIFI
 	#include <WiFi.h>			// WiFiEvent_t, system_event_info_t
 #endif
-#include <M5Stack.h>		// GFXfont*
+
+#define CHIMERA_CORE
+#if defined(CHIMERA_CORE)
+    #define FONT_TYPE lgfx::IFont
+	#define FONT_ADDR &fonts::
+	#include <ESP32-Chimera-Core.h>
+	#define TFT_W		320
+	#define TFT_H		240
+#else
+    #define FONT_TYPE GFXfont
+	#define FONT_ADDR &
+	#if defined (ARDUINO_M5STACK_Core2)
+		#include <M5Core2.h>
+		#define TFT_W		320
+		#define TFT_H		240
+	#elif defined (ARDUINO_M5Stick_C_Plus)
+		#include "M5StickCPlus.h"
+		#define TFT_W		240
+		#define TFT_H		135
+	#elif defined (ARDUINO_M5Stack_Core_ESP32)
+		#include <M5Stack.h>		// FONT_TYPE*
+		#define TFT_W		320
+		#define TFT_H		240
+	#elif defined (ARDUINO_ESP32_DEV)
+		#include <M5Stack.h>		// M35 and K36 mods as D1_MINI32
+		#define TFT_W		320
+		#define TFT_H		480
+	#endif
+#endif
+
 #ifdef M5EZ_CLOCK
 	#include <ezTime.h>			// events, on-screen clock
 #endif
+
 // Special fake font pointers to access the older non FreeFonts in a unified way.
 // Only valid if passed to ez.setFont
 // (Note that these need to be specified without the & in front, unlike the FreeFonts)
-#define mono6x8				(GFXfont*) 1
-#define sans16				(GFXfont*) 2
-#define sans26				(GFXfont*) 4
-#define numonly48			(GFXfont*) 6
-#define numonly7seg48		(GFXfont*) 7
-#define numonly75			(GFXfont*) 8
+#define mono6x8				(FONT_TYPE*) 1
+#define sans16				(FONT_TYPE*) 2
+#define sans26				(FONT_TYPE*) 4
+#define numonly48			(FONT_TYPE*) 6
+#define numonly7seg48		(FONT_TYPE*) 7
+#define numonly75			(FONT_TYPE*) 8
 // The following fonts are just scaled up from previous ones (textSize 2)
 // But they might still be useful.
-#define mono12x16			(GFXfont*) 9
-#define sans32				(GFXfont*) 10
-#define sans52				(GFXfont*) 12
-#define numonly96			(GFXfont*) 14
-#define numonly7seg96		(GFXfont*) 15
-#define numonly150			(GFXfont*) 16
+#define mono12x16			(FONT_TYPE*) 9
+#define sans32				(FONT_TYPE*) 10
+#define sans52				(FONT_TYPE*) 12
+#define numonly96			(FONT_TYPE*) 14
+#define numonly7seg96		(FONT_TYPE*) 15
+#define numonly150			(FONT_TYPE*) 16
 
 #define NO_COLOR			TFT_TRANSPARENT
-
-#define TFT_W		320
-#define TFT_H		240
 
 struct line_t {
 	int16_t position;
@@ -86,21 +113,21 @@ class ezTheme {
 		uint16_t background = 0xEF7D;
 		uint16_t foreground = TFT_BLACK;
 		uint8_t header_height = 23;
-		const GFXfont* header_font = &FreeSansBold9pt7b;
+		const FONT_TYPE* header_font = FONT_ADDR FreeSansBold9pt7b;
 		uint8_t header_hmargin = 5;
 		uint8_t header_tmargin = 3;
 		uint16_t header_bgcolor = TFT_BLUE;
 		uint16_t header_fgcolor = TFT_WHITE;					
 
-		const GFXfont* print_font = mono6x8;					
+		const FONT_TYPE* print_font = mono6x8;					
 		uint16_t print_color = foreground;					
 		
-		const GFXfont* clock_font = mono12x16;
+		const FONT_TYPE* clock_font = mono12x16;
 
 		uint16_t longpress_time = 250;							//milliseconds
 
 		uint8_t button_height = 19;								
-		const GFXfont* button_font = &FreeSans9pt7b;			
+		const FONT_TYPE* button_font = FONT_ADDR FreeSans9pt7b;			
 		uint8_t button_tmargin = 1;								
 		uint8_t button_hmargin = 5;								
 		uint8_t button_gap = 3;									
@@ -113,14 +140,14 @@ class ezTheme {
 		uint8_t input_top = 50;									// pixels below ez.canvas.top()
 		uint8_t input_hmargin = 10;								// The distance between text box and edge of screen
 		uint8_t input_vmargin = 10;								// Vertical margin _inside_ the text box
-		const GFXfont* input_font = &FreeMonoBold12pt7b;		
-		const GFXfont* input_keylock_font = &FreeSansBold9pt7b;
+		const FONT_TYPE* input_font = FONT_ADDR FreeMonoBold12pt7b;		
+		const FONT_TYPE* input_keylock_font = FONT_ADDR FreeSansBold9pt7b;
 		uint16_t input_bgcolor = TFT_BLACK;						
 		uint16_t input_fgcolor = TFT_GREEN;						
 		uint16_t input_cursor_blink = 500;						// milliseconds
 		uint8_t input_faces_btns = 18;							
 
-		const GFXfont* tb_font = &FreeSans9pt7b;				
+		const FONT_TYPE* tb_font = FONT_ADDR FreeSans9pt7b;				
 		uint16_t tb_color = foreground;							
 		uint8_t tb_hmargin = 5;
 
@@ -130,12 +157,12 @@ class ezTheme {
 		uint16_t menu_item_color = foreground;					
 		uint16_t menu_sel_bgcolor = foreground;					
 		uint16_t menu_sel_fgcolor = background;					
-		const GFXfont* menu_big_font = &FreeSans12pt7b;			
-		const GFXfont* menu_small_font = &FreeSans9pt7b;		
+		const FONT_TYPE* menu_big_font = FONT_ADDR FreeSans12pt7b;			
+		const FONT_TYPE* menu_small_font = FONT_ADDR FreeSans9pt7b;		
 		uint8_t menu_item_hmargin = 10;							
 		uint8_t menu_item_radius = 8;
 
-		const GFXfont* msg_font = &FreeSans12pt7b;				
+		const FONT_TYPE* msg_font = FONT_ADDR FreeSans12pt7b;				
 		uint16_t msg_color = foreground;						
 		uint8_t msg_hmargin = 20;								
 
@@ -225,7 +252,7 @@ class ezHeader {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct print_t {
-	const GFXfont* font;
+	const FONT_TYPE* font;
 	uint16_t color;
 	uint16_t x;
 	int16_t y;
@@ -251,8 +278,8 @@ class ezCanvas : public Print {
 		static void wrap(bool w);		
 		static uint16_t lmargin();
 		static void lmargin(uint16_t newmargin);
-		static void font(const GFXfont* font);
-		static const GFXfont* font();
+		static void font(const FONT_TYPE* font);
+		static const FONT_TYPE* font();
 		static void color(uint16_t color);
 		static uint16_t color();
 		static void pos(uint16_t x, uint8_t y);
@@ -272,7 +299,7 @@ class ezCanvas : public Print {
 		static uint8_t _y, _top, _bottom;
 		static uint16_t _x, _left, _right, _lmargin;
 		static bool _wrap, _scroll;
-		static const GFXfont* _font;
+		static const FONT_TYPE* _font;
 		static uint16_t _color;
 		static void _print(String text);
 		static void _putString(String text);
@@ -341,10 +368,10 @@ class ezMenu {
 		int16_t runOnce();
 		void txtBig();
 		void txtSmall();
-		void txtFont(const GFXfont* font);
+		void txtFont(const FONT_TYPE* font);
 		void imgBackground(uint16_t color);
 		void imgFromTop(int16_t offset);
-		void imgCaptionFont(const GFXfont* font);	
+		void imgCaptionFont(const FONT_TYPE* font);	
 		void imgCaptionLocation(uint8_t datum);
 		void imgCaptionColor(uint16_t color);
 		void imgCaptionMargins(int16_t hmargin, int16_t vmargin);
@@ -379,7 +406,7 @@ class ezMenu {
 		uint16_t _old_background;
 		void _drawImage(MenuItem_t &item);
 		void _drawCaption();
-		const GFXfont* _font;
+		const FONT_TYPE* _font;
 		int16_t _runImagesOnce();
 		int16_t _runTextOnce();
 		void _fixOffset();
@@ -390,7 +417,7 @@ class ezMenu {
 		uint8_t _img_caption_location;
 		uint16_t _img_caption_color;
 		uint16_t _img_background;
-		const GFXfont* _img_caption_font;
+		const FONT_TYPE* _img_caption_font;
 		int16_t _img_caption_hmargin, _img_caption_vmargin;
 		bool (*_sortFunction)(const char* s1, const char* s2);
 		void _sortItems();
@@ -408,7 +435,7 @@ class ezMenu {
 
 class ezProgressBar {
 	public:
-		ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = NULL, uint16_t color = NO_COLOR, uint16_t bar_color = NO_COLOR, bool show_val = false, uint16_t val_color = NO_COLOR);
+		ezProgressBar(String header = "", String msg = "", String buttons = "", const FONT_TYPE* font = NULL, uint16_t color = NO_COLOR, uint16_t bar_color = NO_COLOR, bool show_val = false, uint16_t val_color = NO_COLOR);
 		void value(float val);
 	private:
 		int16_t _bar_y;
@@ -702,13 +729,13 @@ class M5ez {
 		static ezMenu* getCurrentMenu();
 
 		// ez.msgBox
-		static String msgBox(String header, String msg, String buttons = "OK", const bool blocking = true, const GFXfont* font = NULL, uint16_t color = NO_COLOR);
+		static String msgBox(String header, String msg, String buttons = "OK", const bool blocking = true, const FONT_TYPE* font = NULL, uint16_t color = NO_COLOR);
 
 		// ez.textInput
 		static String textInput(String header = "", String defaultText = "");
 		
 		//ez.textBox
-		static String textBox(String header = "", String text = "", bool readonly = false, String buttons = "up#Done#down", const GFXfont* font = NULL, uint16_t color = NO_COLOR);
+		static String textBox(String header = "", String text = "", bool readonly = false, String buttons = "up#Done#down", const FONT_TYPE* font = NULL, uint16_t color = NO_COLOR);
 			
 		// Generic String object helper functions
 		static String rightOf(String input, String separator, bool trim = true);
@@ -720,7 +747,7 @@ class M5ez {
 		static bool isBackExitOrDone(String str);
 		
 		// m5.lcd wrappers that make fonts easier
-		static void setFont(const GFXfont* font);
+		static void setFont(const FONT_TYPE* font);
 		static int16_t fontHeight();
 		
 		static String version();

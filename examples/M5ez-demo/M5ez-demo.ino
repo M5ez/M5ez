@@ -101,7 +101,7 @@ void mainmenu_image() {
 void mainmenu_msgs() {
   String cr = (String)char(13);
   ez.msgBox("You can show messages", "ez.msgBox shows text");
-  ez.msgBox("Looking the way you want", "In any font !", "OK", true, &FreeSerifBold24pt7b, TFT_RED);
+  ez.msgBox("Looking the way you want", "In any font !", "OK", true, FONT_ADDR FreeSerifBold24pt7b, TFT_RED);
   ez.msgBox("More ez.msgBox", "Even multi-line messages where everything lines up and is kept in the middle of the screen");
   ez.msgBox("Questions, questions...", "But can it also show any buttons you want?", "No # # Yes"); 
   ez.textBox("And there's ez.textBox", "To present or compose longer word-wrapped texts, you can use the ez.textBox function." + cr + cr + "M5ez (pronounced \"M5 easy\") is a complete interface builder library for the M5Stack ESP32 system. It allows even novice programmers to create good looking interfaces. It comes with menus as text or as images, message boxes, very flexible button setup (including different length presses and multi-button functions), 3-button text input (you have to see it to believe it) and built-in Wifi support. Now you can concentrate on what your program does, and let M5ez worry about everything else.", true);
@@ -109,7 +109,7 @@ void mainmenu_msgs() {
     
 void mainmenu_buttons() {
   ez.header.show("Simple buttons...");
-  ez.canvas.font(&FreeSans12pt7b);
+  ez.canvas.font(FONT_ADDR FreeSans12pt7b);
   ez.canvas.lmargin(20);
   ez.canvas.println("");      
   ez.canvas.println("You can have three buttons");
@@ -144,9 +144,9 @@ void printButton(){
     m5.lcd.fillRect (0, ez.canvas.bottom() - 45, TFT_W, 40, ez.theme->background); 
     ez.canvas.pos(20, ez.canvas.bottom() - 45);
     ez.canvas.color(TFT_RED);
-    ez.canvas.font(&FreeSansBold18pt7b);
+    ez.canvas.font(FONT_ADDR FreeSansBold18pt7b);
     ez.canvas.print(btnpressed);
-    ez.canvas.font(&FreeSans12pt7b);
+    ez.canvas.font(FONT_ADDR FreeSans12pt7b);
     ez.canvas.color(TFT_BLACK);
   }
   }

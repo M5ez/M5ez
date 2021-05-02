@@ -23,7 +23,7 @@ void loop() {
 	ezMenu images;
 	images.imgBackground(TFT_BLACK);
 	images.imgFromTop(40);
-	images.imgCaptionFont(&FreeSansBold12pt7b);
+	images.imgCaptionFont(FONT_ADDR FreeSansBold12pt7b);
 	images.imgCaptionLocation(TC_DATUM);
 	images.imgCaptionColor(TFT_WHITE);
 	images.imgCaptionMargins(10,10);

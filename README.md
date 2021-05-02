@@ -102,7 +102,7 @@ If you clear the screen, the header and buttons are hidden, so the canvas takes 
 
 ## Header
 
-The header is the bar at the top of the screen. In the default theme it is 30 pixels high and blue, and it has text in font `&FreeSansBold9pt7b`, but all of that can be changed, either by modifying the values in the current theme on the fly or by creating your own theme.
+The header is the bar at the top of the screen. In the default theme it is 30 pixels high and blue, and it has text in font `FONT_ADDR FreeSansBold9pt7b`, but all of that can be changed, either by modifying the values in the current theme on the fly or by creating your own theme.
 
 ### Showing, hiding, title
 
@@ -226,9 +226,9 @@ You can turn scrolling off with `ez.canvas.scroll(false)`, and you can ask what 
 
 Ask for and set the left margin for printing.
 
-`void ez.canvas.font(const GFXfont* font)`
+`void ez.canvas.font(const FONT_TYPE* font)`
 
-`const GFXfont* ez.canvas.font()`
+`const FONT_TYPE* ez.canvas.font()`
 
 `void ez.canvas.color(uint16_t color)`
 
@@ -348,7 +348,7 @@ Note: If a menu item uses a `simpleFunction` or an `advancedFunction` to display
 String ez.msgBox(String header,
   String msg, String buttons = "OK",
   const bool blocking = true,
-  const GFXfont* font = MSG_FONT,
+  const FONT_TYPE* font = MSG_FONT,
   uint16_t color = MSG_COLOR)
 ```
 
@@ -364,7 +364,7 @@ The font and color options allow you to use something other than the default (th
 
 ## ezProgressBar
 
-**`class ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR, bool show_val = false, uint16_t val_color = PROGRESSBAR_VAL_COLOR)`**
+**`class ezProgressBar(String header = "", String msg = "", String buttons = "", const FONT_TYPE* font = MSG_FONT, uint16_t color = MSG_COLOR, uint16_t bar_color = PROGRESSBAR_COLOR, bool show_val = false, uint16_t val_color = PROGRESSBAR_VAL_COLOR)`**
 
 ![](images/ezProgressBar.png)
 
@@ -414,7 +414,7 @@ M5ez supports the M5 FACES keyboard: simply set the keyboard to "attached" in th
 String ez.textBox(String header = "",
   String text = "", bool readonly = false,
   String buttons = "up#Done#down",
-  const GFXfont* font = TB_FONT, uint16_t color = TB_COLOR)
+  const FONT_TYPE* font = TB_FONT, uint16_t color = TB_COLOR)
 ```
 
 This will word-wrap and display the string in `text` (up to 32 kB), allowing the user to page through it. Ideal for LoRa or SMS messages, short mails or whatever else. If a FACES keyboard is attached and `readonly` is false, the user can edit the text: a cursor appears, which can be moved with the arrow keys on the FACES keyboard. `TB_FONT` and `TB_COLOR` are the defaults from the theme, but they can be overridden by supplying a font and/or a color directly.
@@ -425,7 +425,7 @@ This will word-wrap and display the string in `text` (up to 32 kB), allowing the
 
 ## Fonts
 
-**`void ez.setFont(const GFXfont* font)`**
+**`void ez.setFont(const FONT_TYPE* font)`**
 
 **`int16_t ez.fontHeight()`**
 
@@ -439,54 +439,54 @@ What that all means is that without adding any fonts of your own, you can specif
 
 ```
   &TomThumb
-  &FreeMono9pt7b
-  &FreeMono12pt7b
-  &FreeMono18pt7b
-  &FreeMono24pt7b
-  &FreeMonoBold9pt7b
-  &FreeMonoBold12pt7b
-  &FreeMonoBold18pt7b
-  &FreeMonoBold24pt7b
-  &FreeMonoOblique9pt7b
-  &FreeMonoOblique12pt7b
-  &FreeMonoOblique18pt7b
-  &FreeMonoOblique24pt7b
-  &FreeMonoBoldOblique9pt7b
-  &FreeMonoBoldOblique12pt7b
-  &FreeMonoBoldOblique18pt7b
-  &FreeMonoBoldOblique24pt7b
-  &FreeSans9pt7b
-  &FreeSans12pt7b
-  &FreeSans18pt7b
-  &FreeSans24pt7b
-  &FreeSansBold9pt7b
-  &FreeSansBold12pt7b
-  &FreeSansBold18pt7b
-  &FreeSansBold24pt7b
-  &FreeSansOblique9pt7b
-  &FreeSansOblique12pt7b
-  &FreeSansOblique18pt7b
-  &FreeSansOblique24pt7b
-  &FreeSansBoldOblique9pt7b
-  &FreeSansBoldOblique12pt7b
-  &FreeSansBoldOblique18pt7b
-  &FreeSansBoldOblique24pt7b
-  &FreeSerif9pt7b
-  &FreeSerif12pt7b
-  &FreeSerif18pt7b
-  &FreeSerif24pt7b
-  &FreeSerifItalic9pt7b
-  &FreeSerifItalic12pt7b
-  &FreeSerifItalic18pt7b
-  &FreeSerifItalic24pt7b
-  &FreeSerifBold9pt7b
-  &FreeSerifBold12pt7b
-  &FreeSerifBold18pt7b
-  &FreeSerifBold24pt7b
-  &FreeSerifBoldItalic9pt7b
-  &FreeSerifBoldItalic12pt7b
-  &FreeSerifBoldItalic18pt7b
-  &FreeSerifBoldItalic24pt7b
+  FONT_ADDR FreeMono9pt7b
+  FONT_ADDR FreeMono12pt7b
+  FONT_ADDR FreeMono18pt7b
+  FONT_ADDR FreeMono24pt7b
+  FONT_ADDR FreeMonoBold9pt7b
+  FONT_ADDR FreeMonoBold12pt7b
+  FONT_ADDR FreeMonoBold18pt7b
+  FONT_ADDR FreeMonoBold24pt7b
+  FONT_ADDR FreeMonoOblique9pt7b
+  FONT_ADDR FreeMonoOblique12pt7b
+  FONT_ADDR FreeMonoOblique18pt7b
+  FONT_ADDR FreeMonoOblique24pt7b
+  FONT_ADDR FreeMonoBoldOblique9pt7b
+  FONT_ADDR FreeMonoBoldOblique12pt7b
+  FONT_ADDR FreeMonoBoldOblique18pt7b
+  FONT_ADDR FreeMonoBoldOblique24pt7b
+  FONT_ADDR FreeSans9pt7b
+  FONT_ADDR FreeSans12pt7b
+  FONT_ADDR FreeSans18pt7b
+  FONT_ADDR FreeSans24pt7b
+  FONT_ADDR FreeSansBold9pt7b
+  FONT_ADDR FreeSansBold12pt7b
+  FONT_ADDR FreeSansBold18pt7b
+  FONT_ADDR FreeSansBold24pt7b
+  FONT_ADDR FreeSansOblique9pt7b
+  FONT_ADDR FreeSansOblique12pt7b
+  FONT_ADDR FreeSansOblique18pt7b
+  FONT_ADDR FreeSansOblique24pt7b
+  FONT_ADDR FreeSansBoldOblique9pt7b
+  FONT_ADDR FreeSansBoldOblique12pt7b
+  FONT_ADDR FreeSansBoldOblique18pt7b
+  FONT_ADDR FreeSansBoldOblique24pt7b
+  FONT_ADDR FreeSerif9pt7b
+  FONT_ADDR FreeSerif12pt7b
+  FONT_ADDR FreeSerif18pt7b
+  FONT_ADDR FreeSerif24pt7b
+  FONT_ADDR FreeSerifItalic9pt7b
+  FONT_ADDR FreeSerifItalic12pt7b
+  FONT_ADDR FreeSerifItalic18pt7b
+  FONT_ADDR FreeSerifItalic24pt7b
+  FONT_ADDR FreeSerifBold9pt7b
+  FONT_ADDR FreeSerifBold12pt7b
+  FONT_ADDR FreeSerifBold18pt7b
+  FONT_ADDR FreeSerifBold24pt7b
+  FONT_ADDR FreeSerifBoldItalic9pt7b
+  FONT_ADDR FreeSerifBoldItalic12pt7b
+  FONT_ADDR FreeSerifBoldItalic18pt7b
+  FONT_ADDR FreeSerifBoldItalic24pt7b
 ```
 
 ### FreeFonts included by the M5Stack driver
@@ -803,7 +803,7 @@ These functions allow you to replace the navigation button that would navigate o
 
 Note that the "first" and "last" are button *names* with special functions, and "up" and "down" are *captions* with special functions (they are replaced by triangle arrows). The first two and last two functions are actually synonyms: they do they same thing, it's just clearer to use the second form when creating an image menu (which is horizontal).
 
-**`void txtFont(const GFXfont* font)`**
+**`void txtFont(const FONT_TYPE* font)`**
 
 **`void txtBig()`**
 
@@ -852,7 +852,7 @@ This sets a temporary background color different from the background from the th
 
 The offset in pixels from `canvasTop()` where the top of the image is rendered.
 
-**`void imgCaptionFont(const GFXfont* font)`**
+**`void imgCaptionFont(const FONT_TYPE* font)`**
 
 **`void imgCaptionLocation(uint8_t datum)`**
 
