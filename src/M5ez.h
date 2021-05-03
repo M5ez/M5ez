@@ -14,9 +14,9 @@
 	#define FONT_ADDR &
 	#if defined (ARDUINO_M5STACK_Core2)
 		#include <M5Core2.h>
-	#elif defined ( ARDUINO_M5Stick_C )
+	#elif defined ( ARDUINO_M5Stick_C )	//Not tested
 		#include <M5StickC.h>
-	#elif defined (ARDUINO_M5Stick_C_Plus)
+	#elif defined (ARDUINO_M5Stick_C_Plus) //setRotation() does not work
 		#include "M5StickCPlus.h"
 	#elif defined (ARDUINO_M5Stack_Core_ESP32)
 		#include <M5Stack.h>
@@ -43,7 +43,7 @@
 #endif
 
 // Comment out the line below to disable WPS.
-#define M5EZ_WPS
+//#define M5EZ_WPS
 
 // Turn this off to compile without WiFi (no) OTA updates, no clock)
 #define M5EZ_WIFI
@@ -67,7 +67,7 @@
 #define M5EZ_CLOCK
 
 // FACES settings menu
-#define M5EZ_FACES
+//#define M5EZ_FACES
 
 #include <vector>			// std::vector
 #ifdef M5EZ_WIFI
@@ -131,7 +131,7 @@ class ezTheme {
 		const FONT_TYPE* print_font = mono6x8;					
 		uint16_t print_color = foreground;					
 		
-		const FONT_TYPE* clock_font = mono12x16;
+		const FONT_TYPE* clock_font = FONT_ADDR FreeMonoBold9pt7b;
 
 		uint16_t longpress_time = 250;							//milliseconds
 
@@ -494,6 +494,9 @@ class ezSettings {
 			static uint8_t _inactivity;
 			static uint32_t _last_activity;
 			static bool _backlight_off;
+			static uint32_t _ButA_LastChg;
+			static uint32_t _ButB_LastChg;
+			static uint32_t _ButC_LastChg;
 		//
 	};
 #endif

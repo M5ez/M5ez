@@ -748,6 +748,9 @@ void ezSettings::defaults() {
 	uint8_t ezBacklight::_inactivity;
 	uint32_t ezBacklight::_last_activity;
 	bool ezBacklight::_backlight_off = false;
+	uint32_t ezBacklight::_ButA_LastChg = 0;
+	uint32_t ezBacklight::_ButB_LastChg = 0;
+	uint32_t ezBacklight::_ButC_LastChg = 0;
 
 	void ezBacklight::begin() {
 		ez.addEvent(ez.backlight.loop);
@@ -852,14 +855,18 @@ void ezSettings::defaults() {
 	uint16_t ezBacklight::loop() {
 		if (!_backlight_off && _inactivity) {
 			if (millis() > _last_activity + 30000 * _inactivity) {
-				_backlight_off = true;
 				m5.lcd.setBrightness(0);
-				while (true) {
-					if (m5.BtnA.wasPressed() || m5.BtnB.wasPressed() || m5.BtnC.wasPressed()) break;
-					ez.yield();
-					delay(10);
-				}
-				ez.buttons.releaseWait();	// Make sure the key pressed to wake display gets ignored
+				_backlight_off = true;
+				ez.yield();
+				_ButA_LastChg = M5.BtnA.lastChange();
+				_ButB_LastChg = M5.BtnB.lastChange();
+				_ButC_LastChg = M5.BtnC.lastChange();
+			}
+		}
+
+		if (_backlight_off) {
+			ez.yield();
+			if (_ButA_LastChg != M5.BtnA.lastChange() || _ButB_LastChg != M5.BtnB.lastChange() || _ButC_LastChg != M5.BtnC.lastChange()) {
 				m5.lcd.setBrightness(_brightness);
 				activity();
 				_backlight_off = false;
@@ -3132,7 +3139,11 @@ int16_t ezMenu::_runImagesOnce() {
 
 void ezMenu::_drawImage(MenuItem_t &item) {
 	if (item.image) {
-		m5.lcd.drawJpg((uint8_t *)item.image, (sizeof(item.image) / sizeof(item.image[0])), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top);
+		#if defined (CHIMERA_CORE)
+			m5.lcd.drawJpg((uint8_t *)item.image, (sizeof(item.image) / sizeof(item.image[0])), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top, 0, 0, 0.0f, 0.0f, datum_t::top_left);
+		#else
+			m5.lcd.drawJpg((uint8_t *)item.image, (sizeof(item.image) / sizeof(item.image[0])), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top);
+		#endif
 	}
 	if (item.fs) {
 		m5.lcd.drawJpgFile(*(item.fs), item.path.c_str(), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top);
