@@ -2013,9 +2013,11 @@ void ezSettings::defaults() {
 	bool ezBattery::_on = false;
 	#define BATTERY_CHARGING_OFF (255)
 	uint8_t ezBattery::_numChargingBars = BATTERY_CHARGING_OFF;
+	bool ezBattery::_canControl = false;
 
 	void ezBattery::begin() {
 		Wire.begin();
+		_canControl = canControl();
 		ez.battery.readFlash();
 		ez.settings.menuObj.addItem("Battery settings", ez.battery.menu);
 		if (_on) {
@@ -2058,10 +2060,122 @@ void ezSettings::defaults() {
 		}
 	}
 
+	void ezBattery::adaptChargeMode() {
+	  // If power management not available, ignore the routine
+	  if(!_canControl) {
+	    return;
+	  }
+	  // Disable the charging if the battery is fully charged
+	  if(isChargeFull()) {
+	    setCharge(false);
+	  } else if (getBatteryLevel() < 76) {
+	    setCharge(true);
+	  }
+	  // Define the shutdown time at 64s
+	  setLowPowerShutdownTime();
+	}
+
 	uint16_t ezBattery::loop() {
+		adaptChargeMode();
 		if (!_on) return 0;
 		ez.header.draw("battery");
 		return (_numChargingBars != BATTERY_CHARGING_OFF ? 1000 : 5000);
+	}
+
+	bool ezBattery::canControl() {
+		#if defined (ARDUINO_M5Stack_Core_ESP32)
+			return m5.Power.canControl();
+		#elif defined (ARDUINO_M5STACK_Core2)
+			return false;	//placeholder for your device method
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			return false;	//placeholder for your device method
+		#elif defined (ARDUINO_M5Stick_C)
+			return false;	//placeholder for your device method
+		#elif defined (ARDUINO_ESP32_DEV)
+			return false;	//placeholder for your device method
+		#else
+			return false;	//placeholder for your device method
+		#endif
+	}
+
+	void ezBattery::setCharge(bool enable) {
+		#if defined (ARDUINO_M5Stack_Core_ESP32)
+			m5.Power.setCharge(enable);
+		#elif defined (ARDUINO_M5STACK_Core2)
+			;	//placeholder for your device method
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			;	//placeholder for your device method
+		#elif defined (ARDUINO_M5Stick_C)
+			;	//placeholder for your device method
+		#elif defined (ARDUINO_ESP32_DEV)
+			;	//placeholder for your device method
+		#else
+			;	//placeholder for your device method
+		#endif
+	}
+
+	void ezBattery::setLowPowerShutdownTime() {
+		#if defined (ARDUINO_M5Stack_Core_ESP32)
+			m5.Power.setLowPowerShutdownTime(M5.Power.ShutdownTime::SHUTDOWN_64S);
+		#elif defined (ARDUINO_M5STACK_Core2)
+			;	//placeholder for your device method
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			;	//placeholder for your device method
+		#elif defined (ARDUINO_M5Stick_C)
+			;	//placeholder for your device method
+		#elif defined (ARDUINO_ESP32_DEV)
+			;	//placeholder for your device method
+		#else
+			;	//placeholder for your device method
+		#endif
+	}
+
+	uint8_t ezBattery::getBatteryLevel() {
+		#if defined (ARDUINO_M5Stack_Core_ESP32)
+			return m5.Power.getBatteryLevel();
+		#elif defined (ARDUINO_M5STACK_Core2)
+			return 50;	//placeholder for your device method
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			return 50;	//placeholder for your device method
+		#elif defined (ARDUINO_M5Stick_C)
+			return 50;	//placeholder for your device method
+		#elif defined (ARDUINO_ESP32_DEV)
+			return 50;	//placeholder for your device method
+		#else
+			return 50;	//placeholder for your device method
+		#endif
+	}
+
+	bool ezBattery::isChargeFull() {
+		#if defined (ARDUINO_M5Stack_Core_ESP32)
+			return m5.Power.isChargeFull();
+		#elif defined (ARDUINO_M5STACK_Core2)
+			return false;	//placeholder for your device method
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			return false;	//placeholder for your device method
+		#elif defined (ARDUINO_M5Stick_C)
+			return false;	//placeholder for your device method
+		#elif defined (ARDUINO_ESP32_DEV)
+			return false;	//placeholder for your device method
+		#else
+			return false;	//placeholder for your device method
+		#endif		
+	}
+	
+	bool ezBattery::isCharging() {
+		#if defined (ARDUINO_M5Stack_Core_ESP32)
+			return m5.Power.isCharging();
+		#elif defined (ARDUINO_M5STACK_Core2)
+			return m5.Axp.isCharging();
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			return m5.Axp.isCharging();
+		#elif defined (ARDUINO_M5Stick_C)
+			return false;	//placeholder for your device method
+		#elif defined (ARDUINO_ESP32_DEV)
+			return false;	//placeholder for your device method
+		#else
+			return false;
+		#endif
 	}
 
 	//Transform the M5Stack built in battery level into an internal format.
@@ -2127,7 +2241,11 @@ void ezSettings::defaults() {
 		uint8_t top = ez.theme->header_height / 10;
 		uint8_t height = ez.theme->header_height * 0.8;
 		m5.lcd.fillRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, ez.theme->header_bgcolor);
-		m5.lcd.drawRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, ez.theme->header_fgcolor);
+		if (isCharging()) {
+			m5.lcd.drawRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, TFT_RED);
+		} else {
+			m5.lcd.drawRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, ez.theme->header_fgcolor);
+		}
 		uint8_t bar_width = (ez.theme->battery_bar_width - ez.theme->battery_bar_gap * 5) / 4.0;
 		uint8_t bar_height = height - ez.theme->battery_bar_gap * 2;
 		left_offset += ez.theme->battery_bar_gap;
@@ -2135,36 +2253,6 @@ void ezSettings::defaults() {
 			m5.lcd.fillRect(left_offset + n * (bar_width + ez.theme->battery_bar_gap), top + ez.theme->battery_bar_gap, 
 				bar_width, bar_height, getBatteryBarColor(currentBatteryLevel));
 		}
-	}
-
-	uint8_t ezBattery::getBatteryLevel() {
-		#if defined (ARDUINO_M5STACK_Core2)
-			return 50;	//DEBUG
-		#elif defined (ARDUINO_M5Stick_C_Plus)
-			return 50;	//DEBUG
-		#elif defined (ARDUINO_M5Stack_Core_ESP32)
-			return m5.Power.getBatteryLevel();
-		#endif
-	}
-
-	bool ezBattery::isChargeFull() {
-		#if defined (ARDUINO_M5STACK_Core2)
-			return false;	//DEBUG
-		#elif defined (ARDUINO_M5Stick_C_Plus)
-			return false;	//DEBUG
-		#elif defined (ARDUINO_M5Stack_Core_ESP32)
-			return m5.Power.isChargeFull();
-		#endif		
-	}
-	
-	bool ezBattery::isCharging() {
-		#if defined (ARDUINO_M5STACK_Core2)
-			return m5.Axp.isCharging();
-		#elif defined (ARDUINO_M5Stick_C_Plus)
-			return m5.Axp.isCharging();
-		#elif defined (ARDUINO_M5Stack_Core_ESP32)
-			return m5.Power.isCharging();
-		#endif
 	}
 
 #endif

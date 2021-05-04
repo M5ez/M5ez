@@ -669,13 +669,15 @@ class ezSettings {
 			static void writeFlash();
 			static void menu();
 			static uint16_t loop();
-			static uint8_t getTransformedBatteryLevel();
+			static void adaptChargeMode();
+			static bool canControl();
 			static uint32_t getBatteryBarColor(uint8_t batteryLevel);
-
 			static uint8_t getBatteryLevel();
+			static uint8_t getTransformedBatteryLevel();
+			static void setCharge(bool enable);
+			static void setLowPowerShutdownTime();
 			static bool isChargeFull();
 			static bool isCharging();
-
 		private:
 			static bool _canControl;
 			static bool _on;
