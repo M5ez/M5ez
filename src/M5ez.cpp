@@ -854,7 +854,7 @@ void ezSettings::defaults() {
 	
 	uint16_t ezBacklight::loop() {
 		if (!_backlight_off && _inactivity) {
-			if (millis() > _last_activity + 30000 * _inactivity) {
+			if (millis() > _last_activity + 1000 * _inactivity) {
 				m5.lcd.setBrightness(0);
 				_backlight_off = true;
 				ez.yield();
