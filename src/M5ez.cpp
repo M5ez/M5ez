@@ -60,16 +60,28 @@ bool ezTheme::select(String name) {
 }
 
 void ezTheme::menu() {
+	uint8_t inactivity = ez.backlight.getInactivity();
 	String orig_name = ez.theme->name;
 	ezMenu thememenu("Theme chooser");
 	thememenu.txtSmall();
 	thememenu.buttons("up#Back#select##down#");
+	thememenu.addItem("timeout | Inactivity timeout\t"  + (String)(inactivity == 0 ? "OFF" : (String)(inactivity) + "s"));
 	for (uint8_t n = 0; n < ez.themes.size(); n++) {
-		thememenu.addItem(ez.themes[n].name);
+		thememenu.addItem((String)(ez.themes[n].name) + "|" + ez.themes[n].displayName);
 	}
 	while(thememenu.runOnce()) {
 		if (thememenu.pick()) {
-			ez.theme->select(thememenu.pickName());
+			if(thememenu.pickName() != "timeout" ){
+				ez.theme->select(thememenu.pickName());
+				ez.backlight.defaults();
+			} else {				
+				if (inactivity >= 90) {
+					inactivity = 0;
+				} else {
+					inactivity += 15;
+				}
+				thememenu.setCaption("timeout", "Inactivity timeout\t" + (String)(inactivity == 0 ? "OFF" : (String)(inactivity) + "s"));
+			}
 		}
 	}
 	if (ez.theme->name != orig_name) {
@@ -77,6 +89,10 @@ void ezTheme::menu() {
 		prefs.begin("M5ez");
 		prefs.putString("theme", ez.theme->name);
 		prefs.end();
+		ez.backlight.defaults();
+	}
+	if (inactivity != ez.backlight.getInactivity()){
+		ez.backlight.inactivity(inactivity);
 	}
 	return;	
 }
@@ -352,7 +368,7 @@ size_t ezCanvas::write(const uint8_t *buffer, size_t size) {
 	return size;
 }
 
-uint16_t ezCanvas::loop() {
+uint32_t ezCanvas::loop() {
 	if (_next_scroll && millis() >= _next_scroll) {
 		ez.setFont(_font);
 		uint8_t h = ez.fontHeight();
@@ -384,7 +400,7 @@ uint16_t ezCanvas::loop() {
 		_printed = clean_copy;
 		Serial.println(ESP.getFreeHeap());
 	}
-	return 10;
+	return 10000;	//10ms
 }
 	
 
@@ -731,6 +747,10 @@ void ezSettings::defaults() {
 		prefs.begin("M5ez");
 		prefs.clear();
 		prefs.end();
+		//Clear application prefs
+		// prefs.begin("APP");
+		// prefs.clear();
+		// prefs.end();
 		ESP.restart();
 	}
 }
@@ -760,7 +780,8 @@ void ezSettings::defaults() {
 		_brightness = prefs.getUChar("brightness", 128);
 		_inactivity = prefs.getUChar("inactivity", NEVER);
 		prefs.end();
-		m5.lcd.setBrightness(_brightness);
+		ez.backlight.inactivity(USER_SET);
+		setBrightness(_brightness);
 	}
 
 	void ezBacklight::menu() {
@@ -770,7 +791,7 @@ void ezSettings::defaults() {
 		blmenu.txtSmall();
 		blmenu.buttons("up#Back#select##down#");
 		blmenu.addItem("Backlight brightness");
-		blmenu.addItem("Inactivity timeout");
+		blmenu.addItem("timeout | Inactivity timeout\t"  + (String)(_inactivity == 0 ? "OFF" : (String)(_inactivity) + "s"));
 		while(true) {
 			switch (blmenu.runOnce()) {
 				case 1:	
@@ -783,45 +804,21 @@ void ezSettings::defaults() {
 							if (b == "left" && _brightness > 16) _brightness -= 16;
 							if (_brightness == 239) _brightness = 240;
 							bl.value((float)(_brightness / 2.55));
-							m5.lcd.setBrightness(_brightness);
+							setBrightness(_brightness);
 							if (b == "ok") break;
 						}
 					}
 					break;
 				case 2:
-					{
-						String disp_val;
-						while (true) {
-							if (!_inactivity) {
-								disp_val = "Backlight will not turn off";
-							} else if (_inactivity == 1) {
-								disp_val = "Backlight will turn off after 30 seconds of inactivity";
-							} else if (_inactivity == 2) {
-								disp_val = "Backlight will turn off after a minute of inactivity";
-							} else {
-								disp_val = "Backlight will turn off after " + String(_inactivity / 2) + ((_inactivity % 2) ? ".5 " : "") + " minutes of inactivity";
-							}
-							ez.msgBox("Inactivity timeout", disp_val, "-#--#ok##+#++", false);
-							String b = ez.buttons.wait();
-							if (b == "-" && _inactivity) _inactivity--;
-							if (b == "+" && _inactivity < 254) _inactivity++;
-							if (b == "--") {
-								if (_inactivity < 20) {
-									_inactivity = 0;
-								} else {
-									_inactivity -= 20;
-								}
-							}
-							if (b == "++") {
-								if (_inactivity > 234) {
-									_inactivity = 254;
-								} else {
-									_inactivity += 20;
-								}
-							}
-							if (b == "ok") break;
-						}
+				{
+					if (_inactivity >= 90) {
+						_inactivity = 0;
+					} else {
+						_inactivity += 15;
 					}
+					blmenu.setCaption("timeout", "Inactivity timeout\t" + (String)(_inactivity == 0 ? "OFF" : (String)(_inactivity) + "s"));
+				}
+				break;
 					break;
 				case 0:
 					if (_brightness != start_brightness || _inactivity != start_inactivity) {
@@ -836,12 +833,12 @@ void ezSettings::defaults() {
 			}
 		}
 	}
-	
+
 	void ezBacklight::inactivity(uint8_t half_minutes) {
 		if (half_minutes == USER_SET) {
 			Preferences prefs;
 			prefs.begin("M5ez", true);
-			_inactivity = prefs.getUShort("inactivity", 0);
+			_inactivity = prefs.getUShort("inactivity", NEVER);
 			prefs.end();
 		} else {
 			_inactivity = half_minutes;
@@ -852,10 +849,12 @@ void ezSettings::defaults() {
 		_last_activity = millis();
 	}
 	
-	uint16_t ezBacklight::loop() {
+	uint32_t ezBacklight::loop() {
 		if (!_backlight_off && _inactivity) {
 			if (millis() > _last_activity + 1000 * _inactivity) {
-				m5.lcd.setBrightness(0);
+				setBrightness(0);
+				m5.lcd.writecommand(TFT_DISPOFF);
+				m5.lcd.writecommand(TFT_SLPIN);
 				_backlight_off = true;
 				ez.yield();
 				_ButA_LastChg = M5.BtnA.lastChange();
@@ -867,13 +866,58 @@ void ezSettings::defaults() {
 		if (_backlight_off) {
 			ez.yield();
 			if (_ButA_LastChg != M5.BtnA.lastChange() || _ButB_LastChg != M5.BtnB.lastChange() || _ButC_LastChg != M5.BtnC.lastChange()) {
-				m5.lcd.setBrightness(_brightness);
+				setBrightness(_brightness);
+				m5.lcd.writecommand(TFT_DISPON);
+				m5.lcd.writecommand(TFT_SLPOUT);
 				activity();
 				_backlight_off = false;
 			}
 		}
-		return 1000;
+		return 1000000;	//1s
 	}
+
+	void ezBacklight::defaults() {
+		_brightness = ez.theme->brightness_default;
+		setBrightness(_brightness);
+
+		Preferences prefs;
+		prefs.begin("M5ez");
+		prefs.putUChar("brightness", _brightness);
+		prefs.end();	
+		_backlight_off = false;	
+		activity();	
+	}
+
+	uint8_t ezBacklight::getInactivity(){
+		return _inactivity;
+	}
+	
+	void ezBacklight::setBrightness(uint8_t lcdBrightness) {
+		#if defined (ARDUINO_M5Stack_Core_ESP32)
+			m5.Lcd.setBrightness(lcdBrightness);
+		#elif defined (ARDUINO_M5STACK_Core2)
+			m5.Lcd.setBrightness(lcdBrightness);
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			m5.Lcd.setBrightness(lcdBrightness);
+		#elif defined (ARDUINO_M5Stick_C)
+			m5.Lcd.setBrightness(lcdBrightness);
+		#elif defined (ARDUINO_ESP32_DEV)
+			;	//placeholder for your device method
+		#else
+			;	//placeholder for your device method
+		#endif
+	}
+
+	void ezBacklight::wakeup() {
+		if(_backlight_off){
+			setBrightness(_brightness);
+			m5.Lcd.writecommand(TFT_DISPON);
+			m5.Lcd.writecommand(TFT_SLPOUT);
+			_backlight_off = false;
+		}
+		activity();
+	}
+
 #endif
 
 
@@ -973,7 +1017,7 @@ void ezSettings::defaults() {
 		}
 	}
 	
-	uint16_t ezClock::loop() {
+	uint32_t ezClock::loop() {
 		ezt::events();
 		if (_starting && timeStatus() != timeNotSet) {
 			_starting = false;
@@ -987,7 +1031,7 @@ void ezSettings::defaults() {
 		} else {
 			if (_on && ezt::minuteChanged()) ez.header.draw("clock");
 		}
-		return 250;
+		return 250000;	//250ms
 	}
 	
 	void ezClock::draw(uint16_t x, uint16_t w) {
@@ -1492,7 +1536,7 @@ void ezSettings::defaults() {
 		}
 	}
 
-	uint16_t ezWifi::loop() {
+	uint32_t ezWifi::loop() {
 		if (millis() > _widget_time + ez.theme->signal_interval) {
 			ez.header.draw("wifi");
 			_widget_time = millis();
@@ -1591,7 +1635,7 @@ void ezSettings::defaults() {
 				#endif
 				break;
 		}
-		return 250;
+		return 250000;	//250ms
 	}
 
 	bool ezWifi::update(String url, const char* root_cert, ezProgressBar* pb /* = NULL */) {
@@ -2075,11 +2119,11 @@ void ezSettings::defaults() {
 	  setLowPowerShutdownTime();
 	}
 
-	uint16_t ezBattery::loop() {
+	uint32_t ezBattery::loop() {
 		adaptChargeMode();
 		if (!_on) return 0;
 		ez.header.draw("battery");
-		return (_numChargingBars != BATTERY_CHARGING_OFF ? 1000 : 5000);
+		return (_numChargingBars != BATTERY_CHARGING_OFF ? 1000000 : 5000000);
 	}
 
 	bool ezBattery::canControl() {
@@ -2179,22 +2223,10 @@ void ezSettings::defaults() {
 	}
 
 	//Transform the M5Stack built in battery level into an internal format.
-	// From [100, 75, 50, 25, 0] to [4, 3, 2, 1, 0]
+	// From [100, 75, 50, 25, 0] to [8, 6, 4, 2, 0]
 	uint8_t ezBattery::getTransformedBatteryLevel()
 	{
-		switch (getBatteryLevel()) 
-		{
-			case 100:
-				return 4;
-			case 75:
-				return 3;
-			case 50:
-				return 2;
-			case 25:
-				return 1;
-			default:
-				return 0;
-		}
+		return (uint8_t)((float)getBatteryLevel() / 12.5);
 	}
 
 	//Return the theme based battery bar color according to its level
@@ -2202,14 +2234,18 @@ void ezSettings::defaults() {
 	{
 		switch (batteryLevel) {
 			case 0:
-				return ez.theme->battery_0_fgcolor;				
 			case 1:
-				return ez.theme->battery_25_fgcolor;				
+				return ez.theme->battery_0_fgcolor;				
 			case 2:
-				return ez.theme->battery_50_fgcolor;				
 			case 3:
-				return ez.theme->battery_75_fgcolor;				
+				return ez.theme->battery_25_fgcolor;				
 			case 4:
+			case 5:
+				return ez.theme->battery_50_fgcolor;				
+			case 6:
+			case 7:
+				return ez.theme->battery_75_fgcolor;				
+			case 8:
 				return ez.theme->battery_100_fgcolor;
 			default:
 				return ez.theme->header_fgcolor;	
@@ -2246,7 +2282,7 @@ void ezSettings::defaults() {
 		} else {
 			m5.lcd.drawRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, ez.theme->header_fgcolor);
 		}
-		uint8_t bar_width = (ez.theme->battery_bar_width - ez.theme->battery_bar_gap * 5) / 4.0;
+		uint8_t bar_width = (ez.theme->battery_bar_width - ez.theme->battery_bar_gap * 9) / 8.0;
 		uint8_t bar_height = height - ez.theme->battery_bar_gap * 2;
 		left_offset += ez.theme->battery_bar_gap;
 		for (uint8_t n = 0; n < (_numChargingBars != BATTERY_CHARGING_OFF ? _numChargingBars : currentBatteryLevel); n++) {
@@ -2316,12 +2352,12 @@ void M5ez::yield() {
 	M5.update();
 	if(M5ez::_in_event) return;			// prevent reentrancy
 	for (uint8_t n = 0; n< _events.size(); n++) {
-		if (millis() > _events[n].when) {
+		if (micros() > _events[n].when) {
 			M5ez::_in_event = true;		// prevent reentrancy
-			uint16_t r = (_events[n].function)();
+			uint32_t r = (_events[n].function)();
 			M5ez::_in_event = false;	// prevent reentrancy
 			if (r) {
-				_events[n].when = millis() + r - 1;
+				_events[n].when = micros() + r - 1;
 			} else {
 				_events.erase(_events.begin() + n);
 				break;		// make sure we don't go beyond _events.size() after deletion
@@ -2333,14 +2369,14 @@ void M5ez::yield() {
 #endif
 }
 
-void M5ez::addEvent(uint16_t (*function)(), uint32_t when /* = 1 */) {
+void M5ez::addEvent(uint32_t (*function)(), uint32_t when /* = 1 */) {
 	event_t n;
 	n.function = function;
-	n.when = millis() + when - 1;
+	n.when = micros() + when - 1;
 	_events.push_back(n);
 }
 
-void M5ez::removeEvent(uint16_t (*function)()) {
+void M5ez::removeEvent(uint32_t (*function)()) {
 	uint8_t n = 0;
 	while (n < _events.size()) {
 		if (_events[n].function == function) {

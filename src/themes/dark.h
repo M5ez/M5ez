@@ -3,7 +3,8 @@
 {
 	ezTheme theme;
 
-	theme.name = "Dark";										// Change this when making theme
+	theme.name = "sansDark";							// Change this when making theme
+	theme.displayName = "sans Dark";					// Translate this screen name
 	theme.background = TFT_BLACK;
 	theme.foreground = TFT_WHITE;
 	// theme.header_height = 23;
@@ -14,7 +15,7 @@
 	theme.header_fgcolor = TFT_WHITE;					
 	// theme.FONT_TYPE* print_font = mono6x8;					
 	theme.print_color = theme.foreground;					
-	// theme.FONT_TYPE* clock_font = mono12x16;
+	// theme.FONT_TYPE* clock_font = FONT_ADDR FreeMonoBold9pt7b;
 	// theme.longpress_time = 250;								//milliseconds
 	// theme.button_height = 19;								
 	// theme.FONT_TYPE* button_font = FONT_ADDR FreeSans9pt7b;			
@@ -57,13 +58,14 @@
 	// theme.signal_interval = 2000;						
 	// theme.signal_bar_width = 4;							
 	// theme.signal_bar_gap = 2;
-	// theme.battery_bar_width = 26;
+	// theme.battery_bar_width = 42;
 	// theme.battery_bar_gap = 2;
 	// theme.battery_0_fgcolor = TFT_RED; 
 	// theme.battery_25_fgcolor = TFT_ORANGE;
 	// theme.battery_50_fgcolor = TFT_YELLOW;
 	// theme.battery_75_fgcolor = TFT_GREENYELLOW;
 	// theme.battery_100_fgcolor = TFT_GREEN;
+	theme.brightness_default = 0x80;
 
 	theme.add();
 }

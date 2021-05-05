@@ -3,7 +3,7 @@
 
 #define M5EZ_VERSION		"2.4.0"
 
-#define CHIMERA_CORE
+//#define CHIMERA_CORE
 
 #if defined(CHIMERA_CORE)
     #define FONT_TYPE lgfx::IFont
@@ -12,6 +12,12 @@
 #else
     #define FONT_TYPE GFXfont
 	#define FONT_ADDR &
+
+	#define TFT_SLPIN           0x10
+	#define TFT_SLPOUT          0x11
+	#define TFT_DISPOFF         0x28
+	#define TFT_DISPON          0x29
+
 	#if defined (ARDUINO_M5STACK_Core2)
 		#include <M5Core2.h>
 	#elif defined ( ARDUINO_M5Stick_C )	//Not tested
@@ -62,6 +68,7 @@
 
 // Determines whether the backlight is settable
 #define M5EZ_BACKLIGHT
+#define BKL_PWM_CHANNEL 7 // LEDC_CHANNEL_7
 
 // Compile in ezTime and create a settings menu for clock display
 #define M5EZ_CLOCK
@@ -118,7 +125,8 @@ class ezTheme {
 		static bool select(String name);
 		static void menu();
 
-		String name = "Default";								// Change this when making theme
+		String name = "sansDefault";							// Change this when making theme
+		String displayName = "sans Default";					// Translate this screen name
 		uint16_t background = 0xEF7D;
 		uint16_t foreground = TFT_BLACK;
 		uint8_t header_height = 23;
@@ -184,13 +192,14 @@ class ezTheme {
 		uint8_t signal_bar_width = 4;							
 		uint8_t signal_bar_gap = 2;
 
-		uint8_t battery_bar_width = 26;
+		uint8_t battery_bar_width = 42;
 		uint8_t battery_bar_gap = 2;
 		uint32_t battery_0_fgcolor = TFT_RED; 
 		uint32_t battery_25_fgcolor = TFT_ORANGE;
 		uint32_t battery_50_fgcolor = TFT_YELLOW;
 		uint32_t battery_75_fgcolor = TFT_GREENYELLOW;
 		uint32_t battery_100_fgcolor = TFT_GREEN;
+		uint8_t brightness_default = 0x80;
 	//						
 };
 
@@ -299,7 +308,7 @@ class ezCanvas : public Print {
 		virtual size_t write(uint8_t c);						// These three are used to inherint print and println from Print class
 		virtual size_t write(const char *str);
 		virtual size_t write(const uint8_t *buffer, size_t size);
-		static uint16_t loop();
+		static uint32_t loop();
 	private:
 		static std::vector<print_t> _printed;
 		static uint32_t _next_scroll;
@@ -488,7 +497,11 @@ class ezSettings {
 			static void menu();
 			static void inactivity(uint8_t half_minutes);
 			static void activity();
-			static uint16_t loop();
+			static uint32_t loop();
+			static void defaults();
+			static uint8_t getInactivity();
+			static void setBrightness(uint8_t brightness);
+			static void wakeup();
 		private:
 			static uint8_t _brightness;
 			static uint8_t _inactivity;
@@ -516,7 +529,7 @@ class ezSettings {
 			static void begin();
 			static void restart();
 			static void menu();
-			static uint16_t loop();
+			static uint32_t loop();
 			static void clear();
 			static void draw(uint16_t x, uint16_t w);
 			static bool waitForSync(const uint16_t timeout = 0);
@@ -589,7 +602,7 @@ class ezSettings {
 			static void readFlash();
 			static void writeFlash();
 			static void menu();
-			static uint16_t loop();
+			static uint32_t loop();
 			static bool update(String url, const char* root_cert, ezProgressBar* pb = NULL);
 			static String updateError();
 		private:
@@ -668,7 +681,7 @@ class ezSettings {
 			static void readFlash();
 			static void writeFlash();
 			static void menu();
-			static uint16_t loop();
+			static uint32_t loop();
 			static void adaptChargeMode();
 			static bool canControl();
 			static uint32_t getBatteryBarColor(uint8_t batteryLevel);
@@ -697,8 +710,8 @@ class ezSettings {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct event_t {
-	uint16_t (*function)();
-	uint32_t when;
+	uint32_t (*function)();
+	uint64_t when;
 };
 class M5ez {
 
@@ -742,8 +755,8 @@ class M5ez {
 
 		static void yield();
 		
-		static void addEvent(uint16_t (*function)(), uint32_t when = 1);
-		static void removeEvent(uint16_t (*function)());
+		static void addEvent(uint32_t (*function)(), uint32_t when = 1);
+		static void removeEvent(uint32_t (*function)());
 		static void redraw();
 
 		static ezMenu* getCurrentMenu();

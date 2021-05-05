@@ -274,13 +274,21 @@ int64_t timeOnEntry, timeOnEntryOld;
 uint32_t period;
 uint32_t secondsCounter = 0;
 
-uint16_t eventLoop() {
-    //get some updated data 
+uint32_t eventLoop() {
+    //get some updated data
+    
     //for example period between loop reentries in us
     timeOnEntry = esp_timer_get_time();
     period = timeOnEntry - timeOnEntryOld;
     timeOnEntryOld = timeOnEntry;
     secondsCounter++;
+    
+    //wake up screen on some event
+    if(secondsCounter >= 100){
+      secondsCounter = 0;
+      ez.backlight.wakeup();
+    }
+    
     //show updated data in an item of the active menue 
     ezMenu* curMenu = M5ez::getCurrentMenu();
     if (curMenu->getTitle() == "Control") {
@@ -288,7 +296,7 @@ uint16_t eventLoop() {
         curMenu->setCaption("counter", "Seconds from start\t" + String(secondsCounter));
     }
     ez.yield();
-    return 1000; //1s
+    return 1000000; //1s
 }
 
 bool loopStarted = false;
