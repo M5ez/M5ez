@@ -2130,11 +2130,11 @@ void ezSettings::defaults() {
 		#if defined (ARDUINO_M5Stack_Core_ESP32)
 			return m5.Power.canControl();
 		#elif defined (ARDUINO_M5STACK_Core2)
-			return false;	//placeholder for your device method
+			return false;	// charging is automatic
 		#elif defined (ARDUINO_M5Stick_C_Plus)
-			return false;	//placeholder for your device method
+			return false;	// charging is automatic
 		#elif defined (ARDUINO_M5Stick_C)
-			return false;	//placeholder for your device method
+			return false;	// charging is automatic
 		#elif defined (ARDUINO_ESP32_DEV)
 			return false;	//placeholder for your device method
 		#else
@@ -2146,11 +2146,11 @@ void ezSettings::defaults() {
 		#if defined (ARDUINO_M5Stack_Core_ESP32)
 			m5.Power.setCharge(enable);
 		#elif defined (ARDUINO_M5STACK_Core2)
-			;	//placeholder for your device method
+			;	// can be done using bit 7 of REG 0x33
 		#elif defined (ARDUINO_M5Stick_C_Plus)
-			;	//placeholder for your device method
+			;	// can be done using bit 7 of REG 0x33
 		#elif defined (ARDUINO_M5Stick_C)
-			;	//placeholder for your device method
+			;	// can be done using bit 7 of REG 0x33
 		#elif defined (ARDUINO_ESP32_DEV)
 			;	//placeholder for your device method
 		#else
@@ -2177,12 +2177,17 @@ void ezSettings::defaults() {
 	uint8_t ezBattery::getBatteryLevel() {
 		#if defined (ARDUINO_M5Stack_Core_ESP32)
 			return m5.Power.getBatteryLevel();
-		#elif defined (ARDUINO_M5STACK_Core2)
-			return 50;	//placeholder for your device method
-		#elif defined (ARDUINO_M5Stick_C_Plus)
-			return 50;	//placeholder for your device method
-		#elif defined (ARDUINO_M5Stick_C)
-			return 50;	//placeholder for your device method
+		#elif defined (ARDUINO_M5STACK_Core2) || defined (ARDUINO_M5Stick_C_Plus) || defined (ARDUINO_M5Stick_C)
+			float vBat = m5.Axp.GetBatVoltage();
+			if(vBat >= 4.17f ) return 100;
+			if(vBat >= 4.1f ) return 90;
+			if(vBat >= 4.0f ) return 80;
+			if(vBat >= 3.9f ) return 60;
+			if(vBat >= 3.8f ) return 40;
+			if(vBat >= 3.75f ) return 30;
+			if(vBat >= 3.7f ) return 20;
+			if(vBat >= 3.65f ) return 13;
+			return 0;
 		#elif defined (ARDUINO_ESP32_DEV)
 			return 50;	//placeholder for your device method
 		#else
@@ -2194,11 +2199,11 @@ void ezSettings::defaults() {
 		#if defined (ARDUINO_M5Stack_Core_ESP32)
 			return m5.Power.isChargeFull();
 		#elif defined (ARDUINO_M5STACK_Core2)
-			return false;	//placeholder for your device method
+			return (m5.Axp.GetBatVoltage() >= 4.17f ? true : false);
 		#elif defined (ARDUINO_M5Stick_C_Plus)
-			return false;	//placeholder for your device method
+			return (m5.Axp.GetBatVoltage() >= 4.17f ? true : false);
 		#elif defined (ARDUINO_M5Stick_C)
-			return false;	//placeholder for your device method
+			return (m5.Axp.GetBatVoltage() >= 4.17f ? true : false);
 		#elif defined (ARDUINO_ESP32_DEV)
 			return false;	//placeholder for your device method
 		#else
@@ -2211,10 +2216,13 @@ void ezSettings::defaults() {
 			return m5.Power.isCharging();
 		#elif defined (ARDUINO_M5STACK_Core2)
 			return m5.Axp.isCharging();
-		#elif defined (ARDUINO_M5Stick_C_Plus)
-			return m5.Axp.isCharging();
-		#elif defined (ARDUINO_M5Stick_C)
-			return false;	//placeholder for your device method
+		#elif defined (ARDUINO_M5Stick_C_Plus) || defined (ARDUINO_M5Stick_C)
+			// No builtin method - can be done this way?
+			// uint32_t coulombNow = m5.Axp.GetCoulombchargeData();
+			// if(coulombNow > _batPrevCoulomb){
+			// 	_batPrevCoulomb = coulombNow;
+			// 	return true;
+			// }			
 		#elif defined (ARDUINO_ESP32_DEV)
 			return false;	//placeholder for your device method
 		#else

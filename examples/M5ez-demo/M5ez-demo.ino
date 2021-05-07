@@ -12,6 +12,10 @@
 void setup() {
   #include <themes/default.h>
   #include <themes/dark.h>
+  #include <themes/monoDark.h>
+  #include <themes/monoDefault.h>
+  #include <themes/monoMist.h>
+  #include <themes/monoNight.h>
   ezt::setDebug(INFO);
   ez.begin();
 //  // Set the size of the pixels that can be displayed on the LCD panel.
