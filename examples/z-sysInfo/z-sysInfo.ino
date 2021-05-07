@@ -46,7 +46,7 @@ void sysInfoPage1() {
   ez.screen.clear();
   ez.header.show("System Info  (1/2)");
   ez.buttons.show("#" + exit_button + "#down");
-  ez.canvas.font(&FreeSans9pt7b);
+  ez.canvas.font(FONT_ADDR FreeSans9pt7b);
   ez.canvas.lmargin(10);
   ez.canvas.println("");
   ez.canvas.print("CPU freq:");  ez.canvas.x(tab); ez.canvas.println(String(ESP.getCpuFreqMHz()) + " MHz");
@@ -64,7 +64,7 @@ void sysInfoPage2() {
   ez.screen.clear();
   ez.header.show("System Info  (2/2)");
   ez.buttons.show("up#" + exit_button + "#");
-  ez.canvas.font(&FreeSans9pt7b);
+  ez.canvas.font(FONT_ADDR FreeSans9pt7b);
   ez.canvas.lmargin(10);
   ez.canvas.println("");
   ez.canvas.print("Free RAM:");  ez.canvas.x(tab);  ez.canvas.println(String((long)ESP.getFreeHeap()) + " bytes");

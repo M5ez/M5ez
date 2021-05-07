@@ -3,19 +3,19 @@
 {
 	ezTheme theme;
 
-	theme.name = "sansDark";							// Change this when making theme
-	theme.displayName = "sans Dark";					// Translate this screen name
-	theme.background = TFT_BLACK;
-	theme.foreground = TFT_WHITE;
+	theme.name = "monoDefault";										// Change this when making theme
+	theme.displayName = "mono Default";								// Change this when making theme
+	theme.background = 0xEF7D;
+	theme.foreground = TFT_BLACK;
 	// theme.header_height = 23;
 	// theme.FONT_TYPE* header_font = FONT_ADDR FreeSansBold9pt7b;
 	// theme.header_hmargin = 5;
 	// theme.header_tmargin = 3;
-	theme.header_bgcolor = TFT_DARKGREY;
-	theme.header_fgcolor = TFT_WHITE;					
+	theme.header_bgcolor = TFT_BLUE;
+	theme.header_fgcolor = TFT_WHITE;
 	// theme.FONT_TYPE* print_font = mono6x8;					
 	theme.print_color = theme.foreground;					
-	// theme.FONT_TYPE* clock_font = FONT_ADDR FreeMonoBold9pt7b;
+	// theme.FONT_TYPE* clock_font = FONT_ADDR FreeMonoBold12pt7b;
 	// theme.longpress_time = 250;								//milliseconds
 	// theme.button_height = 19;								
 	// theme.FONT_TYPE* button_font = FONT_ADDR FreeSans9pt7b;			
@@ -32,7 +32,7 @@
 	// theme.input_vmargin = 10;								// Vertical margin _inside_ the text box
 	// theme.FONT_TYPE* input_font = FONT_ADDR FreeMonoBold12pt7b;		
 	// theme.FONT_TYPE* input_keylock_font = FONT_ADDR FreeSansBold9pt7b;
-	theme.input_bgcolor = TFT_DARKGREY;
+	theme.input_bgcolor = TFT_BLACK;
 	// theme.input_fgcolor = TFT_GREEN;						
 	// theme.input_cursor_blink = 500;							// milliseconds
 	// theme.input_faces_btns = 18;							
@@ -51,7 +51,7 @@
 	// theme.menu_item_radius = 8;							
 	// theme.FONT_TYPE* msg_font = FONT_ADDR FreeSans12pt7b;				
 	theme.msg_color = theme.foreground;						
-	// theme.msg_hmargin = 20;								
+	// theme.msg_hmargin = 20;
 	// theme.progressbar_line_width = 4;						
 	// theme.progressbar_width = 25;							
 	theme.progressbar_color = theme.foreground;				
@@ -65,7 +65,7 @@
 	// theme.battery_50_fgcolor = TFT_YELLOW;
 	// theme.battery_75_fgcolor = TFT_GREENYELLOW;
 	// theme.battery_100_fgcolor = TFT_GREEN;
-	theme.brightness_default = 0x80;
-
+	theme.brightness_default = 0xC0;
+	
 	theme.add();
 }

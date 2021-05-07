@@ -304,15 +304,15 @@ It could be that your code needs to do things that take a little while. If somet
 
 ### Your own events
 
-`void ez.addEvent(uint16_t (*function)(), uint32_t when = 1)`
+`void ez.addEvent(uint32_t (*function)(), uint32_t when = 1)`
 
-`void ez.removeEvent(uint16_t (*function)())`
+`void ez.removeEvent(uint32_t (*function)())`
 
-With `addevent` you can register a function of your own to be executed periodically as part of M5ez's own loop when it is waiting for buttons. This function has to be a function that takes no arguments and returns a 16-bit unsigned integer. Make sure you just specify the name of this function without any brackets. You can optionally specify when to run this function by adding a time in `millis()`. By default, the function you specify will run immediately.
+With `addevent` you can register a function of your own to be executed periodically as part of M5ez's own loop when it is waiting for buttons. This function has to be a function that takes no arguments and returns a 32-bit unsigned integer. Make sure you just specify the name of this function without any brackets. You can optionally specify when to run this function by adding a time in `micros()`. By default, the function you specify will run immediately.
 
-The value returned by your function is the number of milliseconds to wait before calling the function again. So a function that only needs to run once every second would simply return 1000. If your function returns 0, the event is deleted and not executed any further.
+The value returned by your function is the number of microseconds to wait before calling the function again. So a function that only needs to run once every second would simply return 1000000. If your function returns 0, the event is deleted and not executed any further.
 
-> Note: These events are meant for things that need to happen frequently. The next event cannot be more than 65 seconds out as the period between them is a 16-bit unsigned integer. If you use M5ez with ezTime, you can use [ezTime's events](https://github.com/ropg/ezTime#events) for things that need to happen with more time between them.
+> Note: Prevoius 16-bit wait time were for things that need to happen not too frequently and did not last long. Now you can use event loop to react on ISR set flags in less than 1ms and the next event can be up to 71 minutes out as the period between them is a 32-bit unsigned integer of us. If you use M5ez with ezTime, you can use [ezTime's events](https://github.com/ropg/ezTime#events) for things that need to happen with more time between them.
 
 As the name implies, `ez.removeEvent` also removes your function from the loop.
 

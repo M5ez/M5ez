@@ -60,16 +60,28 @@ bool ezTheme::select(String name) {
 }
 
 void ezTheme::menu() {
+	uint8_t inactivity = ez.backlight.getInactivity();
 	String orig_name = ez.theme->name;
 	ezMenu thememenu("Theme chooser");
 	thememenu.txtSmall();
 	thememenu.buttons("up#Back#select##down#");
+	thememenu.addItem("timeout | Inactivity timeout\t"  + (String)(inactivity == 0 ? "OFF" : (String)(inactivity) + "s"));
 	for (uint8_t n = 0; n < ez.themes.size(); n++) {
-		thememenu.addItem(ez.themes[n].name);
+		thememenu.addItem((String)(ez.themes[n].name) + "|" + ez.themes[n].displayName);
 	}
 	while(thememenu.runOnce()) {
 		if (thememenu.pick()) {
-			ez.theme->select(thememenu.pickName());
+			if(thememenu.pickName() != "timeout" ){
+				ez.theme->select(thememenu.pickName());
+				ez.backlight.defaults();
+			} else {				
+				if (inactivity >= 90) {
+					inactivity = 0;
+				} else {
+					inactivity += 15;
+				}
+				thememenu.setCaption("timeout", "Inactivity timeout\t" + (String)(inactivity == 0 ? "OFF" : (String)(inactivity) + "s"));
+			}
 		}
 	}
 	if (ez.theme->name != orig_name) {
@@ -77,6 +89,10 @@ void ezTheme::menu() {
 		prefs.begin("M5ez");
 		prefs.putString("theme", ez.theme->name);
 		prefs.end();
+		ez.backlight.defaults();
+	}
+	if (inactivity != ez.backlight.getInactivity()){
+		ez.backlight.inactivity(inactivity);
 	}
 	return;	
 }
@@ -241,9 +257,9 @@ void ezHeader::_drawTitle(uint16_t x, uint16_t w) {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-uint8_t ezCanvas::_y, ezCanvas::_top, ezCanvas::_bottom;
+uint16_t ezCanvas::_y, ezCanvas::_top, ezCanvas::_bottom;
 uint16_t ezCanvas::_x, ezCanvas::_left, ezCanvas::_right, ezCanvas::_lmargin;
-const GFXfont* ezCanvas::_font;
+const FONT_TYPE* ezCanvas::_font;
 uint16_t ezCanvas::_color;
 bool ezCanvas::_wrap, ezCanvas::_scroll;
 std::vector<print_t> ezCanvas::_printed;
@@ -275,15 +291,15 @@ void ezCanvas::clear() {
 	_printed.clear();
 }
 
-uint8_t ezCanvas::top() { return _top; }
+uint16_t ezCanvas::top() { return _top; }
 
-uint8_t ezCanvas::bottom() { return _bottom; }
+uint16_t ezCanvas::bottom() { return _bottom; }
 
 uint16_t ezCanvas::left() { return _left; }
 
 uint16_t ezCanvas::right() { return _right; }
 
-uint8_t ezCanvas::height() { return _bottom - _top + 1;}
+uint16_t ezCanvas::height() { return _bottom - _top + 1;}
 
 uint16_t ezCanvas::width() { return _right - _left + 1; }
 
@@ -302,15 +318,15 @@ void ezCanvas::lmargin(uint16_t newmargin) {
 	_lmargin = newmargin;
 }
 
-void ezCanvas::font(const GFXfont* font) { _font = font; }
+void ezCanvas::font(const FONT_TYPE* font) { _font = font; }
 
-const GFXfont* ezCanvas::font() { return _font; }
+const FONT_TYPE* ezCanvas::font() { return _font; }
 
 void ezCanvas::color(uint16_t color) { _color = color; }
 
 uint16_t ezCanvas::color() { return _color; }
 
-void ezCanvas::pos(uint16_t x, uint8_t y) {
+void ezCanvas::pos(uint16_t x, uint16_t y) {
 	_x = x;
 	_y = y;
 }
@@ -319,16 +335,16 @@ uint16_t ezCanvas::x() { return _x; }
 
 void ezCanvas::x(uint16_t x) { _x = x; }
 
-uint8_t ezCanvas::y() { return _y; }
+uint16_t ezCanvas::y() { return _y; }
 
-void ezCanvas::y(uint8_t y) { _y = y; }
+void ezCanvas::y(uint16_t y) { _y = y; }
 		
-void ezCanvas::top(uint8_t newtop) {
+void ezCanvas::top(uint16_t newtop) {
 	if (_y < newtop) _y = newtop;
 	_top = newtop;
 }
 
-void ezCanvas::bottom(uint8_t newbottom) {
+void ezCanvas::bottom(uint16_t newbottom) {
 	_bottom = newbottom;
 }
 
@@ -352,13 +368,13 @@ size_t ezCanvas::write(const uint8_t *buffer, size_t size) {
 	return size;
 }
 
-uint16_t ezCanvas::loop() {
+uint32_t ezCanvas::loop() {
 	if (_next_scroll && millis() >= _next_scroll) {
 		ez.setFont(_font);
 		uint8_t h = ez.fontHeight();
-		uint8_t scroll_by = _y - _bottom;
+		uint16_t scroll_by = _y - _bottom;
 		if (_x > _lmargin) scroll_by += h;
-		const GFXfont* hold_font = _font;
+		const FONT_TYPE* hold_font = _font;
 		const uint16_t hold_color = _color;
 		for (uint16_t n = 0; n < _printed.size(); n++) {
 			_printed[n].y -= scroll_by;
@@ -384,7 +400,7 @@ uint16_t ezCanvas::loop() {
 		_printed = clean_copy;
 		Serial.println(ESP.getFreeHeap());
 	}
-	return 10;
+	return 10000;	//10ms
 }
 	
 
@@ -731,6 +747,10 @@ void ezSettings::defaults() {
 		prefs.begin("M5ez");
 		prefs.clear();
 		prefs.end();
+		//Clear application prefs
+		// prefs.begin("APP");
+		// prefs.clear();
+		// prefs.end();
 		ESP.restart();
 	}
 }
@@ -748,6 +768,9 @@ void ezSettings::defaults() {
 	uint8_t ezBacklight::_inactivity;
 	uint32_t ezBacklight::_last_activity;
 	bool ezBacklight::_backlight_off = false;
+	uint32_t ezBacklight::_ButA_LastChg = 0;
+	uint32_t ezBacklight::_ButB_LastChg = 0;
+	uint32_t ezBacklight::_ButC_LastChg = 0;
 
 	void ezBacklight::begin() {
 		ez.addEvent(ez.backlight.loop);
@@ -757,7 +780,8 @@ void ezSettings::defaults() {
 		_brightness = prefs.getUChar("brightness", 128);
 		_inactivity = prefs.getUChar("inactivity", NEVER);
 		prefs.end();
-		m5.lcd.setBrightness(_brightness);
+		ez.backlight.inactivity(USER_SET);
+		setBrightness(_brightness);
 	}
 
 	void ezBacklight::menu() {
@@ -767,7 +791,7 @@ void ezSettings::defaults() {
 		blmenu.txtSmall();
 		blmenu.buttons("up#Back#select##down#");
 		blmenu.addItem("Backlight brightness");
-		blmenu.addItem("Inactivity timeout");
+		blmenu.addItem("timeout | Inactivity timeout\t"  + (String)(_inactivity == 0 ? "OFF" : (String)(_inactivity) + "s"));
 		while(true) {
 			switch (blmenu.runOnce()) {
 				case 1:	
@@ -780,45 +804,21 @@ void ezSettings::defaults() {
 							if (b == "left" && _brightness > 16) _brightness -= 16;
 							if (_brightness == 239) _brightness = 240;
 							bl.value((float)(_brightness / 2.55));
-							m5.lcd.setBrightness(_brightness);
+							setBrightness(_brightness);
 							if (b == "ok") break;
 						}
 					}
 					break;
 				case 2:
-					{
-						String disp_val;
-						while (true) {
-							if (!_inactivity) {
-								disp_val = "Backlight will not turn off";
-							} else if (_inactivity == 1) {
-								disp_val = "Backlight will turn off after 30 seconds of inactivity";
-							} else if (_inactivity == 2) {
-								disp_val = "Backlight will turn off after a minute of inactivity";
-							} else {
-								disp_val = "Backlight will turn off after " + String(_inactivity / 2) + ((_inactivity % 2) ? ".5 " : "") + " minutes of inactivity";
-							}
-							ez.msgBox("Inactivity timeout", disp_val, "-#--#ok##+#++", false);
-							String b = ez.buttons.wait();
-							if (b == "-" && _inactivity) _inactivity--;
-							if (b == "+" && _inactivity < 254) _inactivity++;
-							if (b == "--") {
-								if (_inactivity < 20) {
-									_inactivity = 0;
-								} else {
-									_inactivity -= 20;
-								}
-							}
-							if (b == "++") {
-								if (_inactivity > 234) {
-									_inactivity = 254;
-								} else {
-									_inactivity += 20;
-								}
-							}
-							if (b == "ok") break;
-						}
+				{
+					if (_inactivity >= 90) {
+						_inactivity = 0;
+					} else {
+						_inactivity += 15;
 					}
+					blmenu.setCaption("timeout", "Inactivity timeout\t" + (String)(_inactivity == 0 ? "OFF" : (String)(_inactivity) + "s"));
+				}
+				break;
 					break;
 				case 0:
 					if (_brightness != start_brightness || _inactivity != start_inactivity) {
@@ -833,12 +833,12 @@ void ezSettings::defaults() {
 			}
 		}
 	}
-	
+
 	void ezBacklight::inactivity(uint8_t half_minutes) {
 		if (half_minutes == USER_SET) {
 			Preferences prefs;
 			prefs.begin("M5ez", true);
-			_inactivity = prefs.getUShort("inactivity", 0);
+			_inactivity = prefs.getUShort("inactivity", NEVER);
 			prefs.end();
 		} else {
 			_inactivity = half_minutes;
@@ -849,24 +849,75 @@ void ezSettings::defaults() {
 		_last_activity = millis();
 	}
 	
-	uint16_t ezBacklight::loop() {
+	uint32_t ezBacklight::loop() {
 		if (!_backlight_off && _inactivity) {
-			if (millis() > _last_activity + 30000 * _inactivity) {
+			if (millis() > _last_activity + 1000 * _inactivity) {
+				setBrightness(0);
+				m5.lcd.writecommand(TFT_DISPOFF);
+				m5.lcd.writecommand(TFT_SLPIN);
 				_backlight_off = true;
-				m5.lcd.setBrightness(0);
-				while (true) {
-					if (m5.BtnA.wasPressed() || m5.BtnB.wasPressed() || m5.BtnC.wasPressed()) break;
-					ez.yield();
-					delay(10);
-				}
-				ez.buttons.releaseWait();	// Make sure the key pressed to wake display gets ignored
-				m5.lcd.setBrightness(_brightness);
+				ez.yield();
+				_ButA_LastChg = M5.BtnA.lastChange();
+				_ButB_LastChg = M5.BtnB.lastChange();
+				_ButC_LastChg = M5.BtnC.lastChange();
+			}
+		}
+
+		if (_backlight_off) {
+			ez.yield();
+			if (_ButA_LastChg != M5.BtnA.lastChange() || _ButB_LastChg != M5.BtnB.lastChange() || _ButC_LastChg != M5.BtnC.lastChange()) {
+				setBrightness(_brightness);
+				m5.lcd.writecommand(TFT_DISPON);
+				m5.lcd.writecommand(TFT_SLPOUT);
 				activity();
 				_backlight_off = false;
 			}
 		}
-		return 1000;
+		return 1000000;	//1s
 	}
+
+	void ezBacklight::defaults() {
+		_brightness = ez.theme->brightness_default;
+		setBrightness(_brightness);
+
+		Preferences prefs;
+		prefs.begin("M5ez");
+		prefs.putUChar("brightness", _brightness);
+		prefs.end();	
+		_backlight_off = false;	
+		activity();	
+	}
+
+	uint8_t ezBacklight::getInactivity(){
+		return _inactivity;
+	}
+	
+	void ezBacklight::setBrightness(uint8_t lcdBrightness) {
+		#if defined (ARDUINO_M5Stack_Core_ESP32)
+			m5.Lcd.setBrightness(lcdBrightness);
+		#elif defined (ARDUINO_M5STACK_Core2)
+			m5.Lcd.setBrightness(lcdBrightness);
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			m5.Lcd.setBrightness(lcdBrightness);
+		#elif defined (ARDUINO_M5Stick_C)
+			m5.Lcd.setBrightness(lcdBrightness);
+		#elif defined (ARDUINO_ESP32_DEV)
+			;	//placeholder for your device method
+		#else
+			;	//placeholder for your device method
+		#endif
+	}
+
+	void ezBacklight::wakeup() {
+		if(_backlight_off){
+			setBrightness(_brightness);
+			m5.Lcd.writecommand(TFT_DISPON);
+			m5.Lcd.writecommand(TFT_SLPOUT);
+			_backlight_off = false;
+		}
+		activity();
+	}
+
 #endif
 
 
@@ -966,7 +1017,7 @@ void ezSettings::defaults() {
 		}
 	}
 	
-	uint16_t ezClock::loop() {
+	uint32_t ezClock::loop() {
 		ezt::events();
 		if (_starting && timeStatus() != timeNotSet) {
 			_starting = false;
@@ -980,7 +1031,7 @@ void ezSettings::defaults() {
 		} else {
 			if (_on && ezt::minuteChanged()) ez.header.draw("clock");
 		}
-		return 250;
+		return 250000;	//250ms
 	}
 	
 	void ezClock::draw(uint16_t x, uint16_t w) {
@@ -1301,7 +1352,7 @@ void ezSettings::defaults() {
 			const uint8_t tab = 140;
 			ez.screen.clear();
 			ez.header.show("Current wifi connection");
-			ez.canvas.font(&FreeSans9pt7b);
+			ez.canvas.font(FONT_ADDR FreeSans9pt7b);
 			ez.canvas.lmargin(10);
 			ez.canvas.y(ez.canvas.top() + 5);
 			ez.canvas.print("SSID:"); ez.canvas.x(tab); ez.canvas.println(WiFi.SSID());
@@ -1485,7 +1536,7 @@ void ezSettings::defaults() {
 		}
 	}
 
-	uint16_t ezWifi::loop() {
+	uint32_t ezWifi::loop() {
 		if (millis() > _widget_time + ez.theme->signal_interval) {
 			ez.header.draw("wifi");
 			_widget_time = millis();
@@ -1584,7 +1635,7 @@ void ezSettings::defaults() {
 				#endif
 				break;
 		}
-		return 250;
+		return 250000;	//250ms
 	}
 
 	bool ezWifi::update(String url, const char* root_cert, ezProgressBar* pb /* = NULL */) {
@@ -2006,9 +2057,11 @@ void ezSettings::defaults() {
 	bool ezBattery::_on = false;
 	#define BATTERY_CHARGING_OFF (255)
 	uint8_t ezBattery::_numChargingBars = BATTERY_CHARGING_OFF;
+	bool ezBattery::_canControl = false;
 
 	void ezBattery::begin() {
 		Wire.begin();
+		_canControl = canControl();
 		ez.battery.readFlash();
 		ez.settings.menuObj.addItem("Battery settings", ez.battery.menu);
 		if (_on) {
@@ -2051,29 +2104,137 @@ void ezSettings::defaults() {
 		}
 	}
 
-	uint16_t ezBattery::loop() {
+	void ezBattery::adaptChargeMode() {
+	  // If power management not available, ignore the routine
+	  if(!_canControl) {
+	    return;
+	  }
+	  // Disable the charging if the battery is fully charged
+	  if(isChargeFull()) {
+	    setCharge(false);
+	  } else if (getBatteryLevel() < 76) {
+	    setCharge(true);
+	  }
+	  // Define the shutdown time at 64s
+	  setLowPowerShutdownTime();
+	}
+
+	uint32_t ezBattery::loop() {
+		adaptChargeMode();
 		if (!_on) return 0;
 		ez.header.draw("battery");
-		return (_numChargingBars != BATTERY_CHARGING_OFF ? 1000 : 5000);
+		return (_numChargingBars != BATTERY_CHARGING_OFF ? 1000000 : 5000000);
+	}
+
+	bool ezBattery::canControl() {
+		#if defined (ARDUINO_M5Stack_Core_ESP32)
+			return m5.Power.canControl();
+		#elif defined (ARDUINO_M5STACK_Core2)
+			return false;	// charging is automatic
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			return false;	// charging is automatic
+		#elif defined (ARDUINO_M5Stick_C)
+			return false;	// charging is automatic
+		#elif defined (ARDUINO_ESP32_DEV)
+			return false;	//placeholder for your device method
+		#else
+			return false;	//placeholder for your device method
+		#endif
+	}
+
+	void ezBattery::setCharge(bool enable) {
+		#if defined (ARDUINO_M5Stack_Core_ESP32)
+			m5.Power.setCharge(enable);
+		#elif defined (ARDUINO_M5STACK_Core2)
+			;	// can be done using bit 7 of REG 0x33
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			;	// can be done using bit 7 of REG 0x33
+		#elif defined (ARDUINO_M5Stick_C)
+			;	// can be done using bit 7 of REG 0x33
+		#elif defined (ARDUINO_ESP32_DEV)
+			;	//placeholder for your device method
+		#else
+			;	//placeholder for your device method
+		#endif
+	}
+
+	void ezBattery::setLowPowerShutdownTime() {
+		#if defined (ARDUINO_M5Stack_Core_ESP32)
+			m5.Power.setLowPowerShutdownTime(M5.Power.ShutdownTime::SHUTDOWN_64S);
+		#elif defined (ARDUINO_M5STACK_Core2)
+			;	//placeholder for your device method
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			;	//placeholder for your device method
+		#elif defined (ARDUINO_M5Stick_C)
+			;	//placeholder for your device method
+		#elif defined (ARDUINO_ESP32_DEV)
+			;	//placeholder for your device method
+		#else
+			;	//placeholder for your device method
+		#endif
+	}
+
+	uint8_t ezBattery::getBatteryLevel() {
+		#if defined (ARDUINO_M5Stack_Core_ESP32)
+			return m5.Power.getBatteryLevel();
+		#elif defined (ARDUINO_M5STACK_Core2) || defined (ARDUINO_M5Stick_C_Plus) || defined (ARDUINO_M5Stick_C)
+			float vBat = m5.Axp.GetBatVoltage();
+			if(vBat >= 4.17f ) return 100;
+			if(vBat >= 4.1f ) return 90;
+			if(vBat >= 4.0f ) return 80;
+			if(vBat >= 3.9f ) return 60;
+			if(vBat >= 3.8f ) return 40;
+			if(vBat >= 3.75f ) return 30;
+			if(vBat >= 3.7f ) return 20;
+			if(vBat >= 3.65f ) return 13;
+			return 0;
+		#elif defined (ARDUINO_ESP32_DEV)
+			return 50;	//placeholder for your device method
+		#else
+			return 50;	//placeholder for your device method
+		#endif
+	}
+
+	bool ezBattery::isChargeFull() {
+		#if defined (ARDUINO_M5Stack_Core_ESP32)
+			return m5.Power.isChargeFull();
+		#elif defined (ARDUINO_M5STACK_Core2)
+			return (m5.Axp.GetBatVoltage() >= 4.17f ? true : false);
+		#elif defined (ARDUINO_M5Stick_C_Plus)
+			return (m5.Axp.GetBatVoltage() >= 4.17f ? true : false);
+		#elif defined (ARDUINO_M5Stick_C)
+			return (m5.Axp.GetBatVoltage() >= 4.17f ? true : false);
+		#elif defined (ARDUINO_ESP32_DEV)
+			return false;	//placeholder for your device method
+		#else
+			return false;	//placeholder for your device method
+		#endif		
+	}
+	
+	bool ezBattery::isCharging() {
+		#if defined (ARDUINO_M5Stack_Core_ESP32)
+			return m5.Power.isCharging();
+		#elif defined (ARDUINO_M5STACK_Core2)
+			return m5.Axp.isCharging();
+		#elif defined (ARDUINO_M5Stick_C_Plus) || defined (ARDUINO_M5Stick_C)
+			// No builtin method - can be done this way?
+			// uint32_t coulombNow = m5.Axp.GetCoulombchargeData();
+			// if(coulombNow > _batPrevCoulomb){
+			// 	_batPrevCoulomb = coulombNow;
+			// 	return true;
+			// }			
+		#elif defined (ARDUINO_ESP32_DEV)
+			return false;	//placeholder for your device method
+		#else
+			return false;
+		#endif
 	}
 
 	//Transform the M5Stack built in battery level into an internal format.
-	// From [100, 75, 50, 25, 0] to [4, 3, 2, 1, 0]
+	// From [100, 75, 50, 25, 0] to [8, 6, 4, 2, 0]
 	uint8_t ezBattery::getTransformedBatteryLevel()
 	{
-		switch (m5.Power.getBatteryLevel()) 
-		{
-			case 100:
-				return 4;
-			case 75:
-				return 3;
-			case 50:
-				return 2;
-			case 25:
-				return 1;
-			default:
-				return 0;
-		}
+		return (uint8_t)((float)getBatteryLevel() / 12.5);
 	}
 
 	//Return the theme based battery bar color according to its level
@@ -2081,14 +2242,18 @@ void ezSettings::defaults() {
 	{
 		switch (batteryLevel) {
 			case 0:
-				return ez.theme->battery_0_fgcolor;				
 			case 1:
-				return ez.theme->battery_25_fgcolor;				
+				return ez.theme->battery_0_fgcolor;				
 			case 2:
-				return ez.theme->battery_50_fgcolor;				
 			case 3:
-				return ez.theme->battery_75_fgcolor;				
+				return ez.theme->battery_25_fgcolor;				
 			case 4:
+			case 5:
+				return ez.theme->battery_50_fgcolor;				
+			case 6:
+			case 7:
+				return ez.theme->battery_75_fgcolor;				
+			case 8:
 				return ez.theme->battery_100_fgcolor;
 			default:
 				return ez.theme->header_fgcolor;	
@@ -2107,7 +2272,7 @@ void ezSettings::defaults() {
 
 	void ezBattery::_drawWidget(uint16_t x, uint16_t w) {
 		uint8_t currentBatteryLevel = getTransformedBatteryLevel();
-		if((M5.Power.isChargeFull() == false) && (M5.Power.isCharging() == true)) {
+		if((isChargeFull() == false) && (isCharging() == true)) {
 			if(_numChargingBars < currentBatteryLevel) {
 				_numChargingBars++;
 			} else {
@@ -2120,8 +2285,12 @@ void ezSettings::defaults() {
 		uint8_t top = ez.theme->header_height / 10;
 		uint8_t height = ez.theme->header_height * 0.8;
 		m5.lcd.fillRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, ez.theme->header_bgcolor);
-		m5.lcd.drawRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, ez.theme->header_fgcolor);
-		uint8_t bar_width = (ez.theme->battery_bar_width - ez.theme->battery_bar_gap * 5) / 4.0;
+		if (isCharging()) {
+			m5.lcd.drawRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, TFT_RED);
+		} else {
+			m5.lcd.drawRoundRect(left_offset, top, ez.theme->battery_bar_width, height, ez.theme->battery_bar_gap, ez.theme->header_fgcolor);
+		}
+		uint8_t bar_width = (ez.theme->battery_bar_width - ez.theme->battery_bar_gap * 9) / 8.0;
 		uint8_t bar_height = height - ez.theme->battery_bar_gap * 2;
 		left_offset += ez.theme->battery_bar_gap;
 		for (uint8_t n = 0; n < (_numChargingBars != BATTERY_CHARGING_OFF ? _numChargingBars : currentBatteryLevel); n++) {
@@ -2191,12 +2360,12 @@ void M5ez::yield() {
 	M5.update();
 	if(M5ez::_in_event) return;			// prevent reentrancy
 	for (uint8_t n = 0; n< _events.size(); n++) {
-		if (millis() > _events[n].when) {
+		if (micros() > _events[n].when) {
 			M5ez::_in_event = true;		// prevent reentrancy
-			uint16_t r = (_events[n].function)();
+			uint32_t r = (_events[n].function)();
 			M5ez::_in_event = false;	// prevent reentrancy
 			if (r) {
-				_events[n].when = millis() + r - 1;
+				_events[n].when = micros() + r - 1;
 			} else {
 				_events.erase(_events.begin() + n);
 				break;		// make sure we don't go beyond _events.size() after deletion
@@ -2208,14 +2377,14 @@ void M5ez::yield() {
 #endif
 }
 
-void M5ez::addEvent(uint16_t (*function)(), uint32_t when /* = 1 */) {
+void M5ez::addEvent(uint32_t (*function)(), uint32_t when /* = 1 */) {
 	event_t n;
 	n.function = function;
-	n.when = millis() + when - 1;
+	n.when = micros() + when - 1;
 	_events.push_back(n);
 }
 
-void M5ez::removeEvent(uint16_t (*function)()) {
+void M5ez::removeEvent(uint32_t (*function)()) {
 	uint8_t n = 0;
 	while (n < _events.size()) {
 		if (_events[n].function == function) {
@@ -2257,7 +2426,7 @@ static const char * _keydefs[] PROGMEM = {
 
 // ez.msgBox
 
-String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, const bool blocking /* = true */, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
+String M5ez::msgBox(String header, String msg, String buttons /* = "OK" */, const bool blocking /* = true */, const FONT_TYPE* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
 	if (ez.header.title() != header) {
 		ez.screen.clear();
 		if (header != "") ez.header.show(header);
@@ -2409,7 +2578,7 @@ void M5ez::_textCursor(bool state) {
 	_text_cursor_millis = millis();
 }
 
-String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonly /*= false*/, String buttons /*= "up#Done#down"*/, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
+String M5ez::textBox(String header /*= ""*/, String text /*= "" */, bool readonly /*= false*/, String buttons /*= "up#Done#down"*/, const FONT_TYPE* font /* = NULL */, uint16_t color /* = NO_COLOR */) {
 	if (!font) font = ez.theme->tb_font;
 	if (color == NO_COLOR) color = ez.theme->tb_color;
 	#ifdef M5EZ_FACES
@@ -2731,7 +2900,7 @@ bool M5ez::isBackExitOrDone(String str) {
 
 // Font related m5.lcd wrappers
 
-void M5ez::setFont(const GFXfont* font) {
+void M5ez::setFont(const FONT_TYPE* font) {
 	long ptrAsInt = (long) font;
 	int16_t size = 1;
 	if (ptrAsInt <= 16) {
@@ -2741,12 +2910,16 @@ void M5ez::setFont(const GFXfont* font) {
  		}
 		m5.lcd.setTextFont(ptrAsInt);
 	} else {
-		m5.lcd.setFreeFont(font);
+		m5.lcd.setFont(font);
 	}
 	m5.lcd.setTextSize(size);
 }
 
-int16_t M5ez::fontHeight() { return m5.lcd.fontHeight(m5.lcd.textfont); }
+#if defined(CHIMERA_CORE)
+	int16_t M5ez::fontHeight() { return m5.lcd.fontHeight(); }
+#else
+	int16_t M5ez::fontHeight() { return m5.lcd.fontHeight(m5.lcd.textfont); }
+#endif
 
 String M5ez::version() { return M5EZ_VERSION; } 
 
@@ -2767,7 +2940,7 @@ ezMenu::ezMenu(String hdr /* = "" */) {
 	_font = NULL;
 	_img_from_top = 0;
 	_img_caption_location = TC_DATUM;
-	_img_caption_font = &FreeSansBold12pt7b;
+	_img_caption_font = FONT_ADDR FreeSansBold12pt7b;
 	_img_caption_color = TFT_RED;
 	_img_caption_hmargin = 10;
 	_img_caption_vmargin = 10;
@@ -2782,7 +2955,7 @@ void ezMenu::txtBig() { _font = ez.theme->menu_big_font; }
 
 void ezMenu::txtSmall() { _font = ez.theme->menu_small_font; }
 
-void ezMenu::txtFont(const GFXfont* font) { _font = font; }
+void ezMenu::txtFont(const FONT_TYPE* font) { _font = font; }
 
 bool ezMenu::addItem(String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
 	return addItem(NULL, nameAndCaption, simpleFunction, advancedFunction, drawFunction);
@@ -3021,7 +3194,7 @@ void ezMenu::imgBackground(uint16_t color) {
 
 void ezMenu::imgFromTop(int16_t offset) { _img_from_top = offset; }
 
-void ezMenu::imgCaptionFont(const GFXfont* font) { _img_caption_font = font; }
+void ezMenu::imgCaptionFont(const FONT_TYPE* font) { _img_caption_font = font; }
 
 void ezMenu::imgCaptionLocation(uint8_t datum) { _img_caption_location = datum; }
 
@@ -3098,7 +3271,11 @@ int16_t ezMenu::_runImagesOnce() {
 
 void ezMenu::_drawImage(MenuItem_t &item) {
 	if (item.image) {
-		m5.lcd.drawJpg((uint8_t *)item.image, (sizeof(item.image) / sizeof(item.image[0])), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top);
+		#if defined (CHIMERA_CORE)
+			m5.lcd.drawJpg((uint8_t *)item.image, (sizeof(item.image) / sizeof(item.image[0])), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top, 0, 0, 0.0f, 0.0f, datum_t::top_left);
+		#else
+			m5.lcd.drawJpg((uint8_t *)item.image, (sizeof(item.image) / sizeof(item.image[0])), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top);
+		#endif
 	}
 	if (item.fs) {
 		m5.lcd.drawJpgFile(*(item.fs), item.path.c_str(), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top);
@@ -3243,7 +3420,7 @@ bool ezMenu::sort_dsc_caption_ci (const char* s1, const char* s2) { return 0 < s
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ezProgressBar::ezProgressBar(String header /* = "" */, String msg /* = "" */, String buttons /* = "" */, const GFXfont* font /* = NULL */, uint16_t color /* = NO_COLOR */, uint16_t bar_color /* = NO_COLOR */, bool show_val /* = false */, uint16_t val_color /* = NO_COLOR */) {
+ezProgressBar::ezProgressBar(String header /* = "" */, String msg /* = "" */, String buttons /* = "" */, const FONT_TYPE* font /* = NULL */, uint16_t color /* = NO_COLOR */, uint16_t bar_color /* = NO_COLOR */, bool show_val /* = false */, uint16_t val_color /* = NO_COLOR */) {
 	if (!font) font = ez.theme->msg_font;
 	if (color == NO_COLOR) color = ez.theme->msg_color;
 	if (bar_color == NO_COLOR) bar_color = ez.theme->progressbar_color;
