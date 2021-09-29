@@ -1,0 +1,31 @@
+# This is a basic workflow to help you get started with Actions
+
+name: M5EzBuild
+
+# Triggers the workflow on push or pull request
+on:
+  push: # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#pull-request-event-pull_request
+    paths:
+    - '**.ino'
+    - '**.cpp'
+    - '**.h'
+    - '**main.yml'
+  pull_request:    
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    name: Test compiling examples
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      
+    - name: Compile all examples
+      uses: ArminJo/arduino-test-compile@v2
+      with:
+        arduino-board-fqbn: esp32:esp32:m5stack-core-esp32  
+        platform-url: https://dl.espressif.com/dl/package_esp32_index.json
+        required-libraries: ezTime,M5Stack
+        sketch-names-find-start: examples
+        sketches-exclude: z-sysInfo

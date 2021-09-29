@@ -1,7 +1,7 @@
 #ifndef _M5EZ_H_
 #define _M5EZ_H_
 
-#define M5EZ_VERSION		"2.1.2"
+#define M5EZ_VERSION		"2.3.0"
 
 
 // Comment out the line below to disable WPS.
@@ -151,6 +151,7 @@ class ezTheme {
 		uint8_t progressbar_line_width = 4;						
 		uint8_t progressbar_width = 25;							
 		uint16_t progressbar_color = foreground;				
+		uint16_t progressbar_val_color = TFT_DARKGREY;
 
 		uint16_t signal_interval = 2000;						
 		uint8_t signal_bar_width = 4;							
@@ -331,6 +332,7 @@ class ezButtons {
 class ezMenu {
 	public:
 		ezMenu(String hdr = "", bool circularImageMenu = false);		
+		~ezMenu();
 		bool addItem(String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
 		bool addItem(const char *image, String nameAndCaption, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
 		bool addBmpImageItem(const unsigned short *image, String nameAndCaption, int16_t width, int16_t height, void (*simpleFunction)() = NULL, bool (*advancedFunction)(ezMenu* callingMenu) = NULL, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) = NULL);
@@ -342,11 +344,13 @@ class ezMenu {
 		bool deleteItem(String name);
 		bool setCaption(int16_t index, String caption);
 		bool setCaption(String name, String caption);
+		void setSortFunction(bool (*sortFunction)(const char* s1, const char* s2));
 		void buttons(String bttns);
 		void upOnFirst(String nameAndCaption);
 		void leftOnFirst(String nameAndCaption);
 		void downOnLast(String nameAndCaption);
 		void rightOnLast(String nameAndCaption);
+		String getTitle();
 		int16_t getItemNum(String name);
 		int16_t getItemSize();
 		int16_t pick();
@@ -372,6 +376,16 @@ class ezMenu {
 		int16_t getCheckedItemIndex();
 		String getCheckedItemName();
 		bool isChecked(int16_t index);	
+
+		static bool sort_asc_name_cs (const char* s1, const char* s2);
+		static bool sort_asc_name_ci (const char* s1, const char* s2);
+		static bool sort_dsc_name_cs (const char* s1, const char* s2);
+		static bool sort_dsc_name_ci (const char* s1, const char* s2);
+		static bool sort_asc_caption_cs (const char* s1, const char* s2);
+		static bool sort_asc_caption_ci (const char* s1, const char* s2);
+		static bool sort_dsc_caption_cs (const char* s1, const char* s2);
+		static bool sort_dsc_caption_ci (const char* s1, const char* s2);
+
 	private:
 		void _init(String hdr, bool circular);
 		struct MenuItem_t {
@@ -417,6 +431,9 @@ class ezMenu {
 		uint16_t _img_background;
 		const GFXfont* _img_caption_font;
 		int16_t _img_caption_hmargin, _img_caption_vmargin;
+		bool (*_sortFunction)(const char* s1, const char* s2);
+		void _sortItems();
+		bool _sortWrapper(MenuItem_t& item1, MenuItem_t& item2);
 	//
 };
 
@@ -430,11 +447,14 @@ class ezMenu {
 
 class ezProgressBar {
 	public:
-		ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = NULL, uint16_t color = NO_COLOR, uint16_t bar_color = NO_COLOR);
+		ezProgressBar(String header = "", String msg = "", String buttons = "", const GFXfont* font = NULL, uint16_t color = NO_COLOR, uint16_t bar_color = NO_COLOR, bool show_val = false, uint16_t val_color = NO_COLOR);
 		void value(float val);
 	private:
 		int16_t _bar_y;
 		uint16_t _bar_color;
+		bool _show_val;
+		uint16_t _val_color;
+		float _old_val;
 };
 
 
@@ -590,7 +610,7 @@ class ezSettings {
 			static bool _autoconnectSelected(ezMenu* callingMenu);
 			static void _askAdd();
 			static bool _connection(ezMenu* callingMenu);
-			static void _update_progress(int done, int total); 
+			static void _update_progress(int done, int total);
 			static String _update_err2str(uint8_t _error);
 			static ezProgressBar* _update_progressbar;
 			static String _update_error;
@@ -671,6 +691,7 @@ class ezSettings {
 			static String _menuButtons;
 			static void _refresh();
 			static void _drawWidget(uint16_t x, uint16_t w);
+			static uint8_t _numChargingBars;
 	};
 
 #endif
@@ -733,6 +754,8 @@ class M5ez {
 		static void removeEvent(uint16_t (*function)());
 		static void redraw();
 
+		static ezMenu* getCurrentMenu();
+
 		// ez.msgBox
 		static String msgBox(String header, String msg, String buttons = "OK", const bool blocking = true, const GFXfont* font = NULL, uint16_t color = NO_COLOR);
 
@@ -760,7 +783,8 @@ class M5ez {
 	private:
 		static std::vector<event_t> _events;
 		static bool _redraw;
-
+		static ezMenu* _currentMenu;
+		static bool _in_event;
 
 		// ez.textInput
 		static int16_t _text_cursor_x, _text_cursor_y, _text_cursor_h, _text_cursor_w;

@@ -20,7 +20,7 @@ In case you want to use it from your own code, follow the follwing steps:
 
 * Put it on the web at some server that supports https. Someplace on Github works well.
 
-* Let's assume we want our code to get the `M5ez-demo.bin` image from the `/compiled_binaries` directory of this repository. We then [browse](https://github.com/ropg/M5ez/blob/master/compiled_binaries/M5ez-demo.bin) to that, and get a download link called "[view raw](https://github.com/ropg/M5ez/blob/master/compiled_binaries/M5ez-demo.bin?raw=true)" which, if we right-click and hit "save link as" points to `https://github.com/ropg/M5ez/blob/master/compiled_binaries/M5ez-demo.bin?raw=true`.
+* Let's assume we want our code to get the `M5ez-demo.bin` image from the `/compiled_binaries` directory of this repository. We then [browse](https://github.com/M5ez/M5ez/blob/master/compiled_binaries/M5ez-demo.bin) to that, and get a download link called "[view raw](https://github.com/M5ez/M5ez/blob/master/compiled_binaries/M5ez-demo.bin?raw=true)" which, if we right-click and hit "save link as" points to `https://github.com/M5ez/M5ez/blob/master/compiled_binaries/M5ez-demo.bin?raw=true`.
 
 * Download the `get_cert` script from the `/tools` directory on this repository to a MacOS or Linux computer, or a linux-like shell on your windows machine.
 
@@ -28,12 +28,12 @@ In case you want to use it from your own code, follow the follwing steps:
 
 * Make sure you have the `opensll` command-line utility, or download and install it if you don't. 
 
-* Run `./get_cert https://github.com/ropg/M5ez/blob/master/compiled_binaries/M5ez-demo.bin?raw=true`, or in other words, supply the URL that you want to download from.
+* Run `./get_cert https://github.com/M5ez/M5ez/blob/master/compiled_binaries/M5ez-demo.bin?raw=true`, or in other words, supply the URL that you want to download from.
 
 ```
-your_prompt$ ./get_cert https://github.com/ropg/M5ez/blob/master/compiled_binaries/M5ez-demo.bin?raw=true
+your_prompt$ ./get_cert https://github.com/M5ez/M5ez/blob/master/compiled_binaries/M5ez-demo.bin?raw=true
 The effective download URL (after resolving forwards) is:
-    https://raw.githubusercontent.com/ropg/M5ez/master/compiled_binaries/M5ez-demo.bin
+    https://raw.githubusercontent.com/M5ez/M5ez/master/compiled_binaries/M5ez-demo.bin
 
 The root certificate include file is saved as:
     raw_githubusercontent_com.h
@@ -89,7 +89,7 @@ const char* root_cert = \
 
 ```
 ezProgressBar pb("OTA update in progress", "Downloading ...", "Abort");
-String url = "https://raw.githubusercontent.com/ropg/M5ez/master/compiled_binaries/M5ez-demo.bin";
+String url = "https://raw.githubusercontent.com/M5ez/M5ez/master/compiled_binaries/M5ez-demo.bin";
 #include "raw_githubusercontent_com.h"
 if (ez.wifi.update(url, root_cert, &pb)) {
     ez.msgBox("Over The Air updater", "OTA download successful. Reboot to new firmware", "Reboot");

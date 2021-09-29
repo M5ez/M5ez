@@ -179,7 +179,7 @@ void mainmenu_ota() {
   if (ez.msgBox("Get OTA_https demo", "This will replace the demo with a program that can then load the demo program again.", "Cancel#OK#") == "OK") {
     ezProgressBar progress_bar("OTA update in progress", "Downloading ...", "Abort");
     #include "raw_githubusercontent_com.h" // the root certificate is now in const char * root_cert
-    if (ez.wifi.update("https://raw.githubusercontent.com/ropg/M5ez/master/compiled_binaries/OTA_https.bin", root_cert, &progress_bar)) {
+    if (ez.wifi.update("https://raw.githubusercontent.com/M5ez/M5ez/master/compiled_binaries/OTA_https.bin", root_cert, &progress_bar)) {
       ez.msgBox("Over The Air updater", "OTA download successful. Reboot to new firmware", "Reboot");
       ESP.restart();
     } else {
@@ -191,5 +191,5 @@ void mainmenu_ota() {
 void powerOff() { m5.powerOFF(); }
 
 void aboutM5ez() {
-  ez.msgBox("About M5ez", "M5ez was written by | Rop Gonggrijp | | https://github.com/ropg/M5ez");
+  ez.msgBox("About M5ez", "M5ez was written by | Rop Gonggrijp | | https://github.com/M5ez/M5ez");
 }
