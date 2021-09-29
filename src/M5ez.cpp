@@ -3061,6 +3061,8 @@ String ezMenu::getCheckedItemName()
 bool ezMenu::isChecked(int16_t index)
 {
 	return _items[index].checked;
+}
+
 void ezMenu::setSortFunction(bool (*sortFunction)(const char* s1, const char* s2)) {
 	_sortFunction = sortFunction;
 	_sortItems();	// In case the menu is already populated
@@ -3097,7 +3099,7 @@ int16_t ezMenu::runOnce() {
 	if (_selected == -1) _selected = 0;
 	if (!_font)	_font = ez.theme->menu_big_font;	// Cannot be in constructor: ez.theme not there yet
 	for (int16_t n = 0; n < _items.size(); n++) {
-		if (_items[n].image != NULL || _items[n].jpgImageData != NULL || _items[n].bmpImageData != NULL || _items[n].xbmpImageData != NULL || _items[n].fs != NULL) {
+		if (_items[n].jpgImageData != NULL || _items[n].bmpImageData != NULL || _items[n].xbmpImageData != NULL || _items[n].fs != NULL) {
 			result = _runImagesOnce();
 			if(0 == result) M5ez::_currentMenu = nullptr;
 			return result;
