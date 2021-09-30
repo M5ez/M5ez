@@ -636,44 +636,45 @@ String ezButtons::poll() {
 	if (!_key_release_wait) {
 		if (_btn_ab != "" && m5.BtnA.isPressed() && m5.BtnB.isPressed() ) {
 			keystr = ez.leftOf(_btn_ab, "|", true);
-			_key_release_wait = true;
+			_key_release_wait = true;			
 		}
 		if (_btn_bc != "" && m5.BtnB.isPressed() && m5.BtnC.isPressed() ) {
 			keystr = ez.leftOf(_btn_bc, "|", true);
-			_key_release_wait = true;
+			_key_release_wait = true;			
 		}
 		if (_btn_ac != "" && m5.BtnA.isPressed() && m5.BtnC.isPressed() ) {
 			keystr = ez.leftOf(_btn_ac, "|", true);
-			_key_release_wait = true;
+			_key_release_wait = true;			
 		}
 
 		if (_btn_a_l != "" && m5.BtnA.pressedFor(ez.theme->longpress_time) ) {
 			keystr = ez.leftOf(_btn_a_l, "|", true);
-			_key_release_wait = true;
+			_key_release_wait = true;			
 		}
-		if (_btn_a_s != "" && m5.BtnA.wasReleased() ) {
-			keystr = ez.leftOf(_btn_a_s, "|", true);
+		//Small amount of delay is a must to avoid random A button press coming from the device
+		if (_btn_a_s != "" && m5.BtnA.wasReleasefor(100) ) {  
+			keystr = ez.leftOf(_btn_a_s, "|", true);			
 		}
 
 		if (_btn_b_l != "" && m5.BtnB.pressedFor(ez.theme->longpress_time) ) {
 			keystr = ez.leftOf(_btn_b_l, "|", true);
-			_key_release_wait = true;
+			_key_release_wait = true;			
 		}
-		if (_btn_b_s != "" && m5.BtnB.wasReleased() ) {
-			keystr = ez.leftOf(_btn_b_s, "|", true);
+		if (_btn_b_s != "" && m5.BtnB.wasReleasefor(100) ) {
+			keystr = ez.leftOf(_btn_b_s, "|", true);			
 		}
 
 		if (_btn_c_l != "" && m5.BtnC.pressedFor(ez.theme->longpress_time) ) {
 			keystr = ez.leftOf(_btn_c_l, "|", true);
-			_key_release_wait = true;
+			_key_release_wait = true;			
 		}
-		if (_btn_c_s != "" && m5.BtnC.wasReleased() ) {
-			keystr = ez.leftOf(_btn_c_s, "|", true);
+		if (_btn_c_s != "" && m5.BtnC.wasReleasefor(100) ) {
+			keystr = ez.leftOf(_btn_c_s, "|", true);			
 		}
 	}
 
 	if (m5.BtnA.isReleased() && m5.BtnB.isReleased() && m5.BtnC.isReleased() ) {
-		_key_release_wait = false;
+		_key_release_wait = false;		
 	}		
 
 	if (keystr == "~") keystr = "";
