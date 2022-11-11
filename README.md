@@ -290,6 +290,25 @@ If you call `ez.buttons.poll`, it will return the name of the key pressed since 
 
 You can specify the keys to be drawn straight into `ez.buttons.wait` for simple usages. For instance `ez.buttons.wait("OK")` will display a single "OK" on the center button and return "OK" when it is pressed. (But given that you are not interested in the return value in this case, you can just specify that as a statement.)
 
+The buttons in M5ez are *static* by default, which means they won't give any visual feedback once pressed. It might not be a problem, because something else can provide such indication to the User - e.g. navigation to another screen, new items were added to a text input field. If there is no such major visual change on the screen, a button press simulation can indicate that the requested action just happened.
+
+The following code demonstrates a button press simulation implementation on the *Done* button in the *M5ez-demo.ino* example:
+
+```
+if (btnpressed == "Done") {
+  //Prefix the button with a special char - start button press simulation 
+  buttons.replace("Done", String(ez.theme->button_press_char) + "Done");
+  ez.buttons.show(buttons);
+  //Execute your button action logic here instead of delaying the sketch execution
+  delay(400);
+  //Once finished, revert the name of the button
+  buttons.replace(String(ez.theme->button_press_char) + "Done", "Done");
+  ez.buttons.show(buttons);
+`}`
+```
+
+In the current M5ez theme the `button_press_bgcolor` property provides the pressed background color of the button. The `button_press_char` property contains the press simulation indication prefix character.
+
 &nbsp;
 
 ## Scheduling tasks within M5ez

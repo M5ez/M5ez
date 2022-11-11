@@ -581,7 +581,16 @@ void ezButtons::_drawButton(int16_t row, String text_s, String text_l, int16_t x
 	} else {
 		y = TFT_H - 2 * ez.theme->button_height - ez.theme->button_gap;
 		bg_color = ez.theme->button_bgcolor_t;
+	}	
+	//Button press is indicated with the button_press_char in the theme
+	if (text_s[0] == ez.theme->button_press_char) {        
+		bg_color = ez.theme->button_press_bgcolor;
+		text_s.remove(0, 1);
 	}
+	else if (text_l[0] == ez.theme->button_press_char) {
+		bg_color = ez.theme->button_press_bgcolor;
+		text_l.remove(0, 1);
+	}	
 	if (text_s != "" || text_l != "") {
 		ez.setFont(ez.theme->button_font);
 		m5.lcd.fillRoundRect(x, y, w, ez.theme->button_height, ez.theme->button_radius, bg_color);
@@ -627,44 +636,45 @@ String ezButtons::poll() {
 	if (!_key_release_wait) {
 		if (_btn_ab != "" && m5.BtnA.isPressed() && m5.BtnB.isPressed() ) {
 			keystr = ez.leftOf(_btn_ab, "|", true);
-			_key_release_wait = true;
+			_key_release_wait = true;			
 		}
 		if (_btn_bc != "" && m5.BtnB.isPressed() && m5.BtnC.isPressed() ) {
 			keystr = ez.leftOf(_btn_bc, "|", true);
-			_key_release_wait = true;
+			_key_release_wait = true;			
 		}
 		if (_btn_ac != "" && m5.BtnA.isPressed() && m5.BtnC.isPressed() ) {
 			keystr = ez.leftOf(_btn_ac, "|", true);
-			_key_release_wait = true;
+			_key_release_wait = true;			
 		}
 
 		if (_btn_a_l != "" && m5.BtnA.pressedFor(ez.theme->longpress_time) ) {
 			keystr = ez.leftOf(_btn_a_l, "|", true);
-			_key_release_wait = true;
+			_key_release_wait = true;			
 		}
-		if (_btn_a_s != "" && m5.BtnA.wasReleased() ) {
-			keystr = ez.leftOf(_btn_a_s, "|", true);
+		//Small amount of delay is a must to avoid random A button press coming from the device
+		if (_btn_a_s != "" && m5.BtnA.wasReleasefor(100) ) {  
+			keystr = ez.leftOf(_btn_a_s, "|", true);			
 		}
 
 		if (_btn_b_l != "" && m5.BtnB.pressedFor(ez.theme->longpress_time) ) {
 			keystr = ez.leftOf(_btn_b_l, "|", true);
-			_key_release_wait = true;
+			_key_release_wait = true;			
 		}
-		if (_btn_b_s != "" && m5.BtnB.wasReleased() ) {
-			keystr = ez.leftOf(_btn_b_s, "|", true);
+		if (_btn_b_s != "" && m5.BtnB.wasReleasefor(100) ) {
+			keystr = ez.leftOf(_btn_b_s, "|", true);			
 		}
 
 		if (_btn_c_l != "" && m5.BtnC.pressedFor(ez.theme->longpress_time) ) {
 			keystr = ez.leftOf(_btn_c_l, "|", true);
-			_key_release_wait = true;
+			_key_release_wait = true;			
 		}
-		if (_btn_c_s != "" && m5.BtnC.wasReleased() ) {
-			keystr = ez.leftOf(_btn_c_s, "|", true);
+		if (_btn_c_s != "" && m5.BtnC.wasReleasefor(100) ) {
+			keystr = ez.leftOf(_btn_c_s, "|", true);			
 		}
 	}
 
 	if (m5.BtnA.isReleased() && m5.BtnB.isReleased() && m5.BtnC.isReleased() ) {
-		_key_release_wait = false;
+		_key_release_wait = false;		
 	}		
 
 	if (keystr == "~") keystr = "";
@@ -885,6 +895,8 @@ void ezSettings::defaults() {
 	bool ezClock::_am_pm;
 	String ezClock::_datetime;
 	bool ezClock::_starting = true;
+	String ezClock::_menuHeader = "Clock settings";
+	String ezClock::_menuButtons = "up#Back#select##down#";
 
 	void ezClock::begin() {
 		Preferences prefs;
@@ -927,9 +939,9 @@ void ezSettings::defaults() {
 		bool am_pm_orig = _am_pm;
 		String tz_orig = _timezone;
 		while(true) {
-			ezMenu clockmenu("Clock settings");
+			ezMenu clockmenu(_menuHeader);
 			clockmenu.txtSmall();
-			clockmenu.buttons("up#Back#select##down#");
+			clockmenu.buttons(_menuButtons);
 			clockmenu.addItem("on|Display clock\t" + (String)(_on ? "on" : "off"));
 			if (_on) {
 				clockmenu.addItem("tz|Timezone\t" + _timezone);
@@ -965,6 +977,14 @@ void ezSettings::defaults() {
 			}
 		}
 	}
+
+	void ezClock::setMenuHeader(String header) {
+		_menuHeader = header;
+	}
+	
+	void ezClock::setMenuButtons(String buttons) {
+		_menuButtons = buttons;
+	}	
 	
 	uint16_t ezClock::loop() {
 		ezt::events();
@@ -1012,6 +1032,14 @@ void ezSettings::defaults() {
 			ez.yield();
 		}
 		return true;
+	}
+
+	bool ezClock::isClockFormat12() {
+		return _clock12;
+	}
+	
+	bool ezClock::isAmPmIndicatorDisplayed() {
+		return _am_pm;
 	}
 			
 #endif
@@ -1109,6 +1137,8 @@ void ezSettings::defaults() {
 	ezProgressBar* ezWifi::_update_progressbar;
 	String ezWifi::_update_error;
 	bool ezWifi::autoConnect;
+	String ezWifi::_menuHeader = "Wifi settings";
+	String ezWifi::_menuButtons = "up#Back#select##down#";
 	#ifdef M5EZ_WPS
 		WiFiEvent_t ezWifi::_WPS_event;
 		String ezWifi::_WPS_pin;
@@ -1130,13 +1160,13 @@ void ezSettings::defaults() {
 		ez.header.insert(RIGHTMOST, "wifi", sizeof(cutoffs) * (ez.theme->signal_bar_width + ez.theme->signal_bar_gap) + 2 * ez.theme->header_hmargin, ez.wifi._drawWidget);
 		// For handling issue #50, when initial connection attempt fails in this specific mode but will succeed if tried again.
 		WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info){
-			if(WIFI_REASON_ASSOC_FAIL == info.disconnected.reason) {
+			if(WIFI_REASON_ASSOC_FAIL == info.wifi_sta_disconnected.reason) {
 			#ifdef M5EZ_WIFI_DEBUG
 				Serial.println("EZWIFI: Special case: Disconnect w/ ASSOC_FAIL. Setting _state to EZWIFI_SCANNING;");
 			#endif
 			_state = EZWIFI_SCANNING;
 		}
-		}, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED);
+		}, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
 		ez.addEvent(ez.wifi.loop);
 	}
 
@@ -1251,17 +1281,25 @@ void ezSettings::defaults() {
 		#ifdef M5EZ_WIFI_DEBUG
 			Serial.println("EZWIFI: Disabling autoconnect while in Wifi menu.");
 		#endif
-		ezMenu wifimain ("Wifi settings");
+		ezMenu wifimain (_menuHeader);
 		wifimain.txtSmall();
 		wifimain.addItem("onoff | Autoconnect\t" + (String)(autoConnect ? "ON" : "OFF"), NULL, _onOff);
 		wifimain.addItem("connection | " + (String)(WiFi.isConnected() ? "Connected: " + WiFi.SSID() : "Join a network"), NULL, _connection);
 		wifimain.addItem("Manage autoconnects", _manageAutoconnects);
-		wifimain.buttons("up#Back#select##down#");
+		wifimain.buttons(_menuButtons);
 		wifimain.run();
 		_state = EZWIFI_IDLE;
 		#ifdef M5EZ_WIFI_DEBUG
 			Serial.println("EZWIFI: Enabling autoconnect exiting Wifi menu.");
 		#endif
+	}
+
+	void ezWifi::setMenuHeader(String header) {
+		_menuHeader = header;
+	}
+	
+	void ezWifi::setMenuButtons(String buttons) {
+		_menuButtons = buttons;
 	}
 
 	bool ezWifi::_onOff(ezMenu* callingMenu) {
@@ -2004,6 +2042,8 @@ void ezSettings::defaults() {
 
 #ifdef M5EZ_BATTERY
 	bool ezBattery::_on = false;
+	String ezBattery::_menuHeader = "Battery settings";
+	String ezBattery::_menuButtons = "up#Back#select##down#";
 	#define BATTERY_CHARGING_OFF (255)
 	uint8_t ezBattery::_numChargingBars = BATTERY_CHARGING_OFF;
 
@@ -2033,9 +2073,9 @@ void ezSettings::defaults() {
 	void ezBattery::menu() {
 		bool on_orig = _on;
 		while(true) {
-			ezMenu clockmenu("Battery settings");
+			ezMenu clockmenu(_menuHeader);
 			clockmenu.txtSmall();
-			clockmenu.buttons("up#Back#select##down#");
+			clockmenu.buttons(_menuButtons);
 			clockmenu.addItem("on|Display battery\t" + (String)(_on ? "on" : "off"));
 			switch (clockmenu.runOnce()) {
 				case 1:
@@ -2049,6 +2089,14 @@ void ezSettings::defaults() {
 					return;
 			}
 		}
+	}
+
+	void ezBattery::setMenuHeader(String header) {
+		_menuHeader = header;
+	}
+	
+	void ezBattery::setMenuButtons(String buttons) {
+		_menuButtons = buttons;
 	}
 
 	uint16_t ezBattery::loop() {
@@ -2095,13 +2143,21 @@ void ezSettings::defaults() {
 		}
 	}
 
+	void ezBattery::enableBatteryLevelIndicator() {
+		ez.header.insert(RIGHTMOST, "battery", ez.theme->battery_bar_width + 2 * ez.theme->header_hmargin, ez.battery._drawWidget);
+		ez.addEvent(ez.battery.loop);
+	}
+	
+	void ezBattery::disableBatteryLevelIndicator() {
+		ez.header.remove("battery");
+		ez.removeEvent(ez.battery.loop);
+	}
+
 	void ezBattery::_refresh() {
 		if (_on) {
-			ez.header.insert(RIGHTMOST, "battery", ez.theme->battery_bar_width + 2 * ez.theme->header_hmargin, ez.battery._drawWidget);
-			ez.addEvent(ez.battery.loop);
+			enableBatteryLevelIndicator();
 		} else {
-			ez.header.remove("battery");
-			ez.removeEvent(ez.battery.loop);
+			disableBatteryLevelIndicator();
 		}
 	}
 
@@ -2758,7 +2814,8 @@ String M5ez::version() { return M5EZ_VERSION; }
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ezMenu::ezMenu(String hdr /* = "" */) {
+ezMenu::ezMenu(String hdr /* = "" */, bool circularImageMenu /* = false */) {
+	_circularImageMenu = circularImageMenu;
 	_img_background = NO_COLOR;
 	_offset = 0;
 	_selected = -1;
@@ -2766,6 +2823,7 @@ ezMenu::ezMenu(String hdr /* = "" */) {
 	_buttons = "";
 	_font = NULL;
 	_img_from_top = 0;
+	_img_from_left = 0;
 	_img_caption_location = TC_DATUM;
 	_img_caption_font = &FreeSansBold12pt7b;
 	_img_caption_color = TFT_RED;
@@ -2790,7 +2848,50 @@ bool ezMenu::addItem(String nameAndCaption, void (*simpleFunction)() /* = NULL *
 
 bool ezMenu::addItem(const char *image, String nameAndCaption , void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
 	MenuItem_t new_item;
-	new_item.image = image;
+	new_item.jpgImageData = image;
+	new_item.bmpImageData = NULL;
+	new_item.xbmpImageData = NULL;
+	new_item.imageType = IMAGE_JPG;
+	new_item.fs = NULL;
+	new_item.nameAndCaption = nameAndCaption;
+	new_item.simpleFunction = simpleFunction;
+	new_item.advancedFunction = advancedFunction;
+	new_item.drawFunction = drawFunction;
+	if (_selected == -1) _selected = _items.size();
+	_items.push_back(new_item);
+	M5ez::_redraw = true;
+	return true;
+}
+
+bool ezMenu::addBmpImageItem(const unsigned short *image, String nameAndCaption, int16_t width, int16_t height, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
+	MenuItem_t new_item;
+	new_item.jpgImageData = NULL;
+	new_item.bmpImageData = image;
+	new_item.xbmpImageData = NULL;
+	new_item.imageType = IMAGE_BMP;
+	new_item.imageWidth = width;
+	new_item.imageHeight = height;
+	new_item.fs = NULL;
+	new_item.nameAndCaption = nameAndCaption;
+	new_item.simpleFunction = simpleFunction;
+	new_item.advancedFunction = advancedFunction;
+	new_item.drawFunction = drawFunction;
+	if (_selected == -1) _selected = _items.size();
+	_items.push_back(new_item);
+	M5ez::_redraw = true;
+	return true;
+}
+
+bool ezMenu::addXBmpImageItem(const char *image, String nameAndCaption, int16_t width, int16_t height, uint16_t xbmpColor /* = TFT_WHITE */, uint16_t xbmpBgColor /* = TFT_BLACK */, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
+	MenuItem_t new_item;
+	new_item.jpgImageData = NULL;
+	new_item.bmpImageData = NULL;
+	new_item.xbmpImageData = image;
+	new_item.imageType = IMAGE_XBMP;
+	new_item.imageWidth = width;
+	new_item.imageHeight = height;
+	new_item.xbmpColor = xbmpColor;
+	new_item.xbmpBgColor = xbmpBgColor;
 	new_item.fs = NULL;
 	new_item.nameAndCaption = nameAndCaption;
 	new_item.simpleFunction = simpleFunction;
@@ -2805,7 +2906,45 @@ bool ezMenu::addItem(const char *image, String nameAndCaption , void (*simpleFun
 
 bool ezMenu::addItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
 	MenuItem_t new_item;
-	new_item.image = NULL;
+	new_item.jpgImageData = NULL;
+	new_item.bmpImageData = NULL;
+	new_item.xbmpImageData = NULL;
+	new_item.imageType = IMAGE_JPG;
+	new_item.fs = &fs;
+	new_item.path = path;
+	new_item.nameAndCaption = nameAndCaption;
+	new_item.simpleFunction = simpleFunction;
+	new_item.advancedFunction = advancedFunction;
+	new_item.drawFunction = drawFunction;
+	if (_selected == -1) _selected = _items.size();
+	_items.push_back(new_item);
+	M5ez::_redraw = true;
+	return true;
+}
+
+bool ezMenu::addBmpImageItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
+	MenuItem_t new_item;
+	new_item.jpgImageData = NULL;
+	new_item.bmpImageData = NULL;
+	new_item.xbmpImageData = NULL;
+	new_item.imageType = IMAGE_BMP;
+	new_item.fs = &fs;
+	new_item.path = path;
+	new_item.nameAndCaption = nameAndCaption;
+	new_item.simpleFunction = simpleFunction;
+	new_item.advancedFunction = advancedFunction;
+	new_item.drawFunction = drawFunction;
+	if (_selected == -1) _selected = _items.size();
+	_items.push_back(new_item);
+	M5ez::_redraw = true;
+	return true;
+}
+
+bool ezMenu::addPngImageItem(fs::FS &fs, String path, String nameAndCaption, void (*simpleFunction)() /* = NULL */, bool (*advancedFunction)(ezMenu* callingMenu) /* = NULL */, void (*drawFunction)(ezMenu* callingMenu, int16_t x, int16_t y, int16_t w, int16_t h) /* = NULL */) {
+	MenuItem_t new_item;
+	new_item.jpgImageData = NULL;
+	new_item.bmpImageData = NULL;
+	new_item.imageType = IMAGE_PNG;
 	new_item.fs = &fs;
 	new_item.path = path;
 	new_item.nameAndCaption = nameAndCaption;
@@ -2854,6 +2993,77 @@ int16_t ezMenu::getItemNum(String name) {
 	return 0;
 }
 
+int16_t ezMenu::getItemSize() { return _items.size(); }
+
+void ezMenu::setCheckButtonName(String name)
+{
+	_checkName = name;
+}
+
+void ezMenu::setCheckType(int8_t checkType)
+{
+	if (checkType == CHECK_TPYE_NONE || checkType == CHECK_TYPE_RADIO || checkType == CHECK_TYPE_MULTI) {
+		_checkType = checkType;
+	}		
+}
+
+bool ezMenu::check(String name) 
+{
+	for (int16_t i = 0; i < _items.size(); i++) {
+		if (_items[i].nameAndCaption == name) {
+			check(i);
+			return true;
+		}
+	}
+	return false;
+}
+
+void ezMenu::check(int16_t index)
+{
+	if (_checkType != CHECK_TPYE_NONE && 0 <= index && index < _items.size()) {
+		if (isChecked(index)) {
+			_items[index].checked = false;
+		} else {
+			if (_checkType == CHECK_TYPE_RADIO)	{
+				int16_t currentCheckedIndex = getCheckedItemIndex();
+				if (currentCheckedIndex != -1) {					
+					_items[currentCheckedIndex].checked = false;										
+					//Removes the previously checked item, if it is on the same screen
+					if (abs(index - currentCheckedIndex) < _items_per_screen) {
+						_drawItem(currentCheckedIndex - _offset, ez.rightOf(_items[currentCheckedIndex].nameAndCaption, "|"), false, false);
+					}
+				}				
+			}		
+			_items[index].checked = true;
+		}
+	}
+}
+
+int16_t ezMenu::getCheckedItemIndex()
+{
+	for (int16_t i = 0; i < _items.size(); i++) {
+		if (_items[i].checked) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+String ezMenu::getCheckedItemName()
+{
+	for (int16_t i = 0; i < _items.size(); i++) {
+		if (_items[i].checked) {
+			return _items[i].nameAndCaption;
+		}
+	}
+	return "";
+}
+
+bool ezMenu::isChecked(int16_t index)
+{
+	return _items[index].checked;
+}
+
 void ezMenu::setSortFunction(bool (*sortFunction)(const char* s1, const char* s2)) {
 	_sortFunction = sortFunction;
 	_sortItems();	// In case the menu is already populated
@@ -2890,7 +3100,7 @@ int16_t ezMenu::runOnce() {
 	if (_selected == -1) _selected = 0;
 	if (!_font)	_font = ez.theme->menu_big_font;	// Cannot be in constructor: ez.theme not there yet
 	for (int16_t n = 0; n < _items.size(); n++) {
-		if (_items[n].image != NULL || _items[n].fs != NULL) {
+		if (_items[n].jpgImageData != NULL || _items[n].bmpImageData != NULL || _items[n].xbmpImageData != NULL || _items[n].fs != NULL) {
 			result = _runImagesOnce();
 			if(0 == result) M5ez::_currentMenu = nullptr;
 			return result;
@@ -2904,77 +3114,88 @@ int16_t ezMenu::runOnce() {
 int16_t ezMenu::_runTextOnce() {
 	if (_buttons == "") _buttons = "up # select # down";
 	ez.screen.clear();
-	if (_header != "") ez.header.show(_header);
+	if (_header != "") {
+		ez.header.show(_header);
+	}
 	ez.setFont(_font);
 	_per_item_h = ez.fontHeight();
 	ez.buttons.show(_buttons); 	//we need to draw the buttons here to make sure ez.canvas.height() is correct
 	_items_per_screen = (ez.canvas.height() - 5) / _per_item_h;
-	_drawItems();
-	while (true) {
-		int16_t old_selected = _selected;
-		int16_t old_offset = _offset;
-		String tmp_buttons = _buttons;
-		if (_selected <= 0) tmp_buttons.replace("up", _up_on_first); 
-		if (_selected >= _items.size() - 1) tmp_buttons.replace("down", _down_on_last); 
-		ez.buttons.show(tmp_buttons);
-		String name = ez.leftOf(_items[_selected].nameAndCaption, "|");
-		String pressed;
+	
+	if (_items.size() != 0) {	
+		_drawItems();
 		while (true) {
-			pressed = ez.buttons.poll();
-			if (M5ez::_redraw) _drawItems();
-			if (pressed != "") break;
-		}
-		if (pressed == "up") {
-			_selected--;
-			_fixOffset();
-		} else if (pressed == "down") {
-			_selected++;
-			_fixOffset();
-		} else if (pressed == "first") {
-			_selected = 0;
-			_offset = 0;
-		} else if (pressed == "last") {
-			_selected = _items.size() - 1;
-			_offset = 0;
-			_fixOffset();
-		} else if ( (ez.isBackExitOrDone(name) && !_items[_selected].advancedFunction) || ez.isBackExitOrDone(pressed) ) {
-			_pick_button = pressed;
-			_selected = -1;
-			ez.screen.clear();
-			return 0;
-		} else {
-			// Some other key must have been pressed. We're done here!
-			ez.screen.clear();
-			_pick_button = pressed;
-			if (_items[_selected].simpleFunction) {
-				(_items[_selected].simpleFunction)();
+			int16_t old_selected = _selected;
+			int16_t old_offset = _offset;
+			String tmp_buttons = _buttons;
+			if (_selected <= 0) tmp_buttons.replace("up", _up_on_first); 
+			if (_selected >= _items.size() - 1) tmp_buttons.replace("down", _down_on_last); 
+			ez.buttons.show(tmp_buttons);
+			String name = ez.leftOf(_items[_selected].nameAndCaption, "|");
+			String pressed;
+			while (true) {
+				pressed = ez.buttons.poll();
+				if (M5ez::_redraw) _drawItems();
+				if (pressed != "") break;
 			}
-			if (_items[_selected].advancedFunction) {
-				if (!(_items[_selected].advancedFunction)(this)) return 0;
+			if (pressed == "up") {
+				_selected--;
+				_fixOffset();
+			} else if (pressed == "down") {
+				_selected++;
+				_fixOffset();
+			} else if (pressed == "first") {
+				_selected = 0;
+				_offset = 0;
+			} else if (pressed == "last") {
+				_selected = _items.size() - 1;
+				_offset = 0;
+				_fixOffset();
+			} else if ( (ez.isBackExitOrDone(name) && !_items[_selected].advancedFunction) || ez.isBackExitOrDone(pressed) ) {
+				_pick_button = pressed;
+				_selected = -1;
+				ez.screen.clear();
+				return 0;
+			} else if (pressed == _checkName) {
+				check(_selected);
+				_fixOffset();
+			} else {
+				// Some other key must have been pressed. We're done here!
+				ez.screen.clear();
+				_pick_button = pressed;
+				if (_items[_selected].simpleFunction) {
+					(_items[_selected].simpleFunction)();
+				}
+				if (_items[_selected].advancedFunction) {
+					if (!(_items[_selected].advancedFunction)(this)) return 0;
+				}
+				return _selected + 1; 	// We return items starting at one, but work starting at zero internally
 			}
-			return _selected + 1; 	// We return items starting at one, but work starting at zero internally
-		}
 
-		// Flicker prevention, only redraw whole menu if scrolled
-		if (_offset == old_offset) {
-			int16_t top_item_h = ez.canvas.top() + (ez.canvas.height() % _per_item_h) / 2;   // remainder of screen left over by last item not fitting split to center menu
-			if (_items[old_selected].drawFunction) {
-				ez.setFont(_font);
-				(_items[old_selected].drawFunction)(this, ez.theme->menu_lmargin, top_item_h + (old_selected - _offset) * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h);
+			// Flicker prevention, only redraw whole menu if scrolled
+			if (_offset == old_offset) {
+				int16_t top_item_h = ez.canvas.top() + (ez.canvas.height() % _per_item_h) / 2;   // remainder of screen left over by last item not fitting split to center menu
+				if (_items[old_selected].drawFunction) {
+					ez.setFont(_font);
+					(_items[old_selected].drawFunction)(this, ez.theme->menu_lmargin, top_item_h + (old_selected - _offset) * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h);
+				} else {
+					_drawItem(old_selected - _offset, ez.rightOf(_items[old_selected].nameAndCaption, "|"), false, isChecked(old_selected));
+				};
+				if (_items[_selected].drawFunction) {
+					ez.setFont(_font);
+					(_items[_selected].drawFunction)(this, ez.theme->menu_lmargin, top_item_h + (_selected - _offset) * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h);
+				} else {
+					_drawItem(_selected - _offset, ez.rightOf(_items[_selected].nameAndCaption, "|"), true, isChecked(_selected));
+				};
 			} else {
-				_drawItem(old_selected - _offset, ez.rightOf(_items[old_selected].nameAndCaption, "|"), false);
-			};
-			if (_items[_selected].drawFunction) {
-				ez.setFont(_font);
-				(_items[_selected].drawFunction)(this, ez.theme->menu_lmargin, top_item_h + (_selected - _offset) * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h);
-			} else {
-				_drawItem(_selected - _offset, ez.rightOf(_items[_selected].nameAndCaption, "|"), true);
-			};
-		} else {
-			ez.canvas.clear();
-			_drawItems();
-		}
-	}			
+				ez.canvas.clear();
+				_drawItems();
+			}
+		}			
+	} else {
+		_pick_button = ez.buttons.wait();
+		return -2; //The list is empty - there is no selection
+	}
 }
 
 void ezMenu::_drawItems() {
@@ -2986,7 +3207,7 @@ void ezMenu::_drawItems() {
 				ez.setFont(_font);
 				(_items[item_ref].drawFunction)(this, ez.theme->menu_lmargin, top_item_h + n * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h);
 			} else {
-				_drawItem(n, ez.rightOf(_items[item_ref].nameAndCaption, "|"), (item_ref == _selected));
+				_drawItem(n, ez.rightOf(_items[item_ref].nameAndCaption, "|"), (item_ref == _selected), isChecked(item_ref));
 			}
 		}
 	}
@@ -2994,18 +3215,28 @@ void ezMenu::_drawItems() {
 	M5ez::_redraw = false;
 }
 
-void ezMenu::_drawItem(int16_t n, String text, bool selected) {
+void ezMenu::_drawItem(int16_t n, String text, bool selected, bool checked) {
 	uint16_t fill_color;
 	ez.setFont(_font);
 	int16_t top_item_h = ez.canvas.top() + (ez.canvas.height() % _per_item_h) / 2;   // remainder of screen left over by last item not fitting split to center menu
 	m5.lcd.setTextDatum(CL_DATUM);
 	if (selected) {
 		fill_color = ez.theme->menu_sel_bgcolor;
-		m5.lcd.setTextColor(ez.theme->menu_sel_fgcolor);
+		if (_checkType != CHECK_TPYE_NONE && checked) {
+			m5.lcd.setTextColor(ez.theme->menu_checked_fgcolor);
+		} else {
+			m5.lcd.setTextColor(ez.theme->menu_sel_fgcolor);
+		}		
 	} else {
-		fill_color = ez.screen.background();
-		m5.lcd.setTextColor(ez.theme->menu_item_color);
+		if (_checkType != CHECK_TPYE_NONE && checked) {
+			fill_color = ez.theme->menu_checked_bgcolor;
+			m5.lcd.setTextColor(ez.theme->menu_sel_fgcolor);			
+		} else {
+			fill_color = ez.screen.background();
+			m5.lcd.setTextColor(ez.theme->menu_item_color);
+		}		
 	}
+
 	text = ez.clipString(text, TFT_W - ez.theme->menu_lmargin - 2 * ez.theme->menu_item_hmargin - ez.theme->menu_rmargin);
 	m5.lcd.fillRoundRect(ez.theme->menu_lmargin, top_item_h + n * _per_item_h, TFT_W - ez.theme->menu_lmargin - ez.theme->menu_rmargin, _per_item_h, ez.theme->menu_item_radius, fill_color);
 	m5.lcd.drawString(ez.leftOf(text, "\t"), ez.theme->menu_lmargin + ez.theme->menu_item_hmargin, top_item_h + _per_item_h / 2 + n * _per_item_h - 2);
@@ -3020,6 +3251,8 @@ void ezMenu::imgBackground(uint16_t color) {
 }
 
 void ezMenu::imgFromTop(int16_t offset) { _img_from_top = offset; }
+
+void ezMenu::imgFromLeft(int16_t offset) { _img_from_left = offset; }
 
 void ezMenu::imgCaptionFont(const GFXfont* font) { _img_caption_font = font; }
 
@@ -3041,19 +3274,26 @@ int16_t ezMenu::_runImagesOnce() {
 	if (_buttons == "") _buttons = "left # select # right";
 	if (_img_background == NO_COLOR) _img_background = ez.theme->background;
 	ez.screen.clear(_img_background);
-	String tmp_buttons = _buttons;
-	tmp_buttons.replace("left", ""); 
-	tmp_buttons.replace("right", "");
-	ez.buttons.show(tmp_buttons);
-	ez.screen.clear(_img_background);
+	if (!_circularImageMenu) {
+		String tmp_buttons = _buttons;
+		tmp_buttons.replace("left", ""); 
+		tmp_buttons.replace("right", "");
+		ez.buttons.show(tmp_buttons);
+	} else {
+		ez.buttons.show(_buttons);
+	}	
 	if (_header != "") ez.header.show(_header);
 	_drawImage(_items[_selected]);
 	_drawCaption();	
 	while (true) {
-		tmp_buttons = _buttons;
-		if (_selected <= 0) tmp_buttons.replace("left", ""); 
-		if (_selected >= _items.size() - 1) tmp_buttons.replace("right", ""); 
-		ez.buttons.show(tmp_buttons);
+		if (!_circularImageMenu) {
+			String tmp_buttons = _buttons;
+			if (_selected <= 0) tmp_buttons.replace("left", ""); 
+			if (_selected >= _items.size() - 1) tmp_buttons.replace("right", ""); 
+			ez.buttons.show(tmp_buttons);
+		} else {
+			ez.buttons.show(_buttons);
+		}
 		String name = ez.leftOf(_items[_selected].nameAndCaption, "|");
 		String pressed;
 		while (true) {
@@ -3061,12 +3301,20 @@ int16_t ezMenu::_runImagesOnce() {
 			if (pressed != "") break;
 		}
 		if (pressed == "left") {
-			_selected--;
+			if (_circularImageMenu && _selected == 0) {
+				_selected = _items.size() -1;
+			} else {
+				_selected--;
+			}			
 			ez.canvas.clear();
 			_drawImage(_items[_selected]);
 			_drawCaption();
 		} else if (pressed == "right") {
-			_selected++;
+			if (_circularImageMenu && _selected == _items.size() - 1) {
+				_selected = 0;
+			} else {
+				_selected++;
+			}						
 			ez.canvas.clear();
 			_drawImage(_items[_selected]);
 			_drawCaption();
@@ -3097,11 +3345,58 @@ int16_t ezMenu::_runImagesOnce() {
 }
 
 void ezMenu::_drawImage(MenuItem_t &item) {
-	if (item.image) {
-		m5.lcd.drawJpg((uint8_t *)item.image, (sizeof(item.image) / sizeof(item.image[0])), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top);
-	}
-	if (item.fs) {
-		m5.lcd.drawJpgFile(*(item.fs), item.path.c_str(), 0, ez.canvas.top() + _img_from_top, TFT_W, ez.canvas.height() - _img_from_top);
+	if (item.jpgImageData && item.imageType == IMAGE_JPG) {		
+		m5.lcd.drawJpg(
+			(uint8_t *)item.jpgImageData,                   
+			(sizeof(item.jpgImageData) / sizeof(item.jpgImageData[0])),   //data length
+			_img_from_left,                                     //Coordinate X (left corner)
+			ez.canvas.top() + _img_from_top,                    //Coordinate Y (left corner)
+			TFT_W - _img_from_left,                             //Maximum width (px)
+			ez.canvas.height() - _img_from_top);                //Maximum height (px)
+	} else if (item.bmpImageData && item.imageType == IMAGE_BMP) {		
+		m5.lcd.drawBitmap(
+			_img_from_left,                                     //Coordinate X (left corner)
+			ez.canvas.top() + _img_from_top,				    //Coordinate Y (left corner)
+			item.imageWidth,								    //Image width (px)
+			item.imageHeight,								    //Image height (px)
+			item.bmpImageData,                                  
+			TFT_BLACK                                           //Color displayed as transparent
+		);
+	} else if (item.xbmpImageData && item.imageType == IMAGE_XBMP) {
+		m5.lcd.drawXBitmap(
+			_img_from_left,                                     //Coordinate X (left corner)
+			ez.canvas.top() + _img_from_top,                    //Coordinate Y (left corner)
+			(uint8_t *)item.xbmpImageData,                                  
+			item.imageWidth,                                    //Image width (px)
+			item.imageHeight,                                   //Image height (px) 
+			item.xbmpColor,                                     //Image foreground color
+			item.xbmpBgColor);                                  //Image backgorund color
+	} else if (item.fs) {
+		if (item.imageType == IMAGE_JPG) {
+			m5.lcd.drawJpgFile(
+				*(item.fs), 
+				item.path.c_str(), 								//File path
+				_img_from_left, 								//Coordinate X (left corner)
+				ez.canvas.top() + _img_from_top, 				//Coordinate Y (left corner)
+				TFT_W - _img_from_left,                         //Maximum width (px) 
+				ez.canvas.height() - _img_from_top);			//Maximum height (px)
+		} else if (item.imageType == IMAGE_BMP) {
+			m5.lcd.drawBmpFile(
+				*(item.fs), 
+				item.path.c_str(),								//File path
+				_img_from_left, 								//Coordinate X (left corner)
+				ez.canvas.top() + _img_from_top 				//Coordinate Y (left corner)
+			);
+		} else if (item.imageType == IMAGE_PNG) {
+			m5.lcd.drawPngFile(
+				*(item.fs), 
+				item.path.c_str(),								//File path
+				_img_from_left, 								//Coordinate X (left corner)
+				ez.canvas.top() + _img_from_top, 				//Coordinate Y (left corner)
+				TFT_W - _img_from_left,                         //Maximum width (px) 
+				ez.canvas.height() - _img_from_top  			//Maximum height (px)				
+			);
+		}
 	}
 }
 
@@ -3178,6 +3473,13 @@ String ezMenu::pickName() { return ez.leftOf(_items[_selected].nameAndCaption, "
 String ezMenu::pickCaption() { return ez.rightOf(_items[_selected].nameAndCaption, "|"); }
 
 String ezMenu::pickButton() { return _pick_button; }
+
+void ezMenu::pickItem(int16_t index)
+{
+	if (0 <= index && index < _items.size()) {
+		_selected = index;
+	}
+}
 
 void ezMenu::_Arrows() {
 	uint16_t fill_color;

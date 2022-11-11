@@ -30,7 +30,9 @@
 	// theme.button_bgcolor_b = TFT_BLUE;					
 	// theme.button_bgcolor_t = TFT_PURPLE;					
 	// theme.button_fgcolor = TFT_WHITE;					
-	// theme.button_longcolor = TFT_CYAN;					
+	// theme.button_longcolor = TFT_CYAN;	
+	// char button_press_char = '$';                   		    // First char of the button text, which indicates button press			
+	// uint16_t button_press_bgcolor = TFT_DARKGREY;            // Backgroung color after button press				
 	// theme.input_top = 50;									// pixels below ez.canvas.top()
 	// theme.input_hmargin = 10;								// The distance between text box and edge of screen
 	// theme.input_vmargin = 10;								// Vertical margin _inside_ the text box
@@ -52,7 +54,9 @@
 	// theme.GFXfont* menu_big_font = &FreeSans12pt7b;			
 	// theme.GFXfont* menu_small_font = &FreeSans9pt7b;		
 	// theme.menu_item_hmargin = 10;							
-	// theme.menu_item_radius = 8;							
+	// theme.menu_item_radius = 8;
+	// theme.menu_checked_fgcolor = TFT_GREEN;
+	// theme.menu_checked_bgcolor = TFT_DARKGREEN;						
 	// theme.GFXfont* msg_font = &FreeSans12pt7b;				
 	// theme.msg_color = theme.foreground;						
 	// theme.msg_hmargin = 20;								
