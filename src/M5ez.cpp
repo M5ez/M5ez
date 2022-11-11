@@ -1160,13 +1160,13 @@ void ezSettings::defaults() {
 		ez.header.insert(RIGHTMOST, "wifi", sizeof(cutoffs) * (ez.theme->signal_bar_width + ez.theme->signal_bar_gap) + 2 * ez.theme->header_hmargin, ez.wifi._drawWidget);
 		// For handling issue #50, when initial connection attempt fails in this specific mode but will succeed if tried again.
 		WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info){
-			if(WIFI_REASON_ASSOC_FAIL == info.disconnected.reason) {
+			if(WIFI_REASON_ASSOC_FAIL == info.wifi_sta_disconnected.reason) {
 			#ifdef M5EZ_WIFI_DEBUG
 				Serial.println("EZWIFI: Special case: Disconnect w/ ASSOC_FAIL. Setting _state to EZWIFI_SCANNING;");
 			#endif
 			_state = EZWIFI_SCANNING;
 		}
-		}, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED);
+		}, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
 		ez.addEvent(ez.wifi.loop);
 	}
 

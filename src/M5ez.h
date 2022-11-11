@@ -5,7 +5,7 @@
 
 
 // Comment out the line below to disable WPS.
-#define M5EZ_WPS
+//#define M5EZ_WPS
 
 // Turn this off to compile without WiFi (no) OTA updates, no clock)
 #define M5EZ_WIFI
